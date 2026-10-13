@@ -1,0 +1,190 @@
+{
+ "_note": "Zones des incendies et démolitions, dessinées D'APRÈS LES SOURCES ÉCRITES (pas de carte des zones brûlées) : contours approximatifs, à corriger dès qu'une carte est disponible. Coordonnées [lon, lat].",
+ "zones": [
+  {
+   "nom": "Château Tre Kronor",
+   "type": "monument",
+   "an": 1250,
+   "fin": 1697,
+   "source": "Tour de défense du XIIIe s. devenue château royal, détruit par l'incendie du 7 mai 1697. Emprise : celle du palais royal actuel (construit sur les ruines), réduite — le plan exact du château n'est pas dans nos données ; à redessiner sur une carte ancienne (éditeur ✎).",
+   "zone": [
+    [
+     18.0703,
+     59.3276
+    ],
+    [
+     18.0731,
+     59.3276
+    ],
+    [
+     18.0731,
+     59.3261
+    ],
+    [
+     18.0703,
+     59.3261
+    ]
+   ],
+   "emprise_osm": [
+    18.0717,
+    59.3267
+   ],
+   "echelle": 0.86
+  },
+  {
+   "nom": "Grand incendie de 1625",
+   "type": "incendie",
+   "an": 1625,
+   "re_de": 1626,
+   "re_a": 1650,
+   "source": "Parti de Kåkbrinken le 1er septembre 1625, il ravage le sud-ouest de Stadsholmen ; reconstruction en rues régulières (Stora et Lilla Nygatan).",
+   "zone": [
+    [
+     18.0668,
+     59.3251
+    ],
+    [
+     18.0702,
+     59.3251
+    ],
+    [
+     18.0706,
+     59.324
+    ],
+    [
+     18.0698,
+     59.3228
+    ],
+    [
+     18.0672,
+     59.3226
+    ],
+    [
+     18.0664,
+     59.3238
+    ]
+   ]
+  },
+  {
+   "nom": "Incendie de Klara (1751)",
+   "type": "incendie",
+   "an": 1751,
+   "re_de": 1752,
+   "re_a": 1775,
+   "source": "Incendie du quartier de Klara (Norrmalm), 221 maisons, qui gagne Södermalm ; zone approchée autour de l'église de Klara.",
+   "zone": [
+    [
+     18.0548,
+     59.3349
+    ],
+    [
+     18.064,
+     59.3349
+    ],
+    [
+     18.0655,
+     59.3318
+    ],
+    [
+     18.059,
+     59.3302
+    ],
+    [
+     18.0548,
+     59.3315
+    ]
+   ]
+  },
+  {
+   "nom": "Incendie de Katarina (1723)",
+   "type": "incendie",
+   "an": 1723,
+   "re_de": 1724,
+   "re_a": 1750,
+   "source": "1er mai 1723, environ 500 maisons détruites à Södermalm autour de l'église Sainte-Catherine (Katarina kyrka).",
+   "zone": [
+    [
+     18.069,
+     59.319
+    ],
+    [
+     18.083,
+     59.319
+    ],
+    [
+     18.084,
+     59.3135
+    ],
+    [
+     18.076,
+     59.3118
+    ],
+    [
+     18.069,
+     59.3135
+    ]
+   ]
+  },
+  {
+   "nom": "Mariabranden (1759)",
+   "type": "incendie",
+   "an": 1759,
+   "re_de": 1760,
+   "re_a": 1790,
+   "source": "19 juillet 1759, environ 300 maisons et 20 îlots autour de l'église Maria Magdalena (Södermalm) ; ensuite obligation de bâtir en brique et en pierre.",
+   "zone": [
+    [
+     18.057,
+     59.3212
+    ],
+    [
+     18.069,
+     59.3212
+    ],
+    [
+     18.0695,
+     59.3165
+    ],
+    [
+     18.061,
+     59.3155
+    ],
+    [
+     18.0565,
+     59.3175
+    ]
+   ]
+  },
+  {
+   "nom": "Rénovation de Norrmalm (Klara)",
+   "type": "demolition",
+   "de": 1952,
+   "a": 1970,
+   "re_de": 1955,
+   "re_a": 1978,
+   "source": "Norrmalmsregleringen : décision de 1945, démolition des îlots de Klara entre les années 1950 et 1970 (Sergels torg, Hötorgscity, galerie commerciale) ; zone approchée.",
+   "zone": [
+    [
+     18.0565,
+     59.3368
+    ],
+    [
+     18.07,
+     59.3368
+    ],
+    [
+     18.0712,
+     59.3318
+    ],
+    [
+     18.064,
+     59.3305
+    ],
+    [
+     18.0575,
+     59.3318
+    ]
+   ]
+  }
+ ]
+}

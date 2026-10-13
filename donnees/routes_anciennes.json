@@ -1,0 +1,627 @@
+{
+ "lisezmoi": "Routes anciennes autour de Stockholm : tracés SCHÉMATIQUES (lon, lat) dessinés d'après les descriptions des sources, pas relevés sur des cartes anciennes. « de » : première année d'usage connue (approx.) ; « a » : fin d'usage (vide = toujours). type : mer | terre.",
+ "routes": [
+  {
+   "nom": "Route de Birka vers la mer (par Tälje)",
+   "type": "mer",
+   "de": 750,
+   "a": 975,
+   "note": "Birka, comptoir de l'âge viking, vers 750-975",
+   "p": [
+    [
+     17.545,
+     59.335
+    ],
+    [
+     17.58,
+     59.28
+    ],
+    [
+     17.62,
+     59.23
+    ],
+    [
+     17.63,
+     59.195
+    ],
+    [
+     17.67,
+     59.15
+    ],
+    [
+     17.72,
+     59.05
+    ],
+    [
+     17.8,
+     58.92
+    ]
+   ]
+  },
+  {
+   "nom": "Mälaren : Birka – Västerås",
+   "type": "mer",
+   "de": 800,
+   "note": "le lac, voie du fer et du cuivre de Bergslagen",
+   "p": [
+    [
+     17.545,
+     59.335
+    ],
+    [
+     17.35,
+     59.4
+    ],
+    [
+     17.15,
+     59.45
+    ],
+    [
+     16.9,
+     59.52
+    ],
+    [
+     16.55,
+     59.6
+    ]
+   ]
+  },
+  {
+   "nom": "Mälaren : vers Strängnäs",
+   "type": "mer",
+   "de": 1000,
+   "p": [
+    [
+     17.15,
+     59.45
+    ],
+    [
+     17.03,
+     59.39
+    ]
+   ]
+  },
+  {
+   "nom": "Mälaren : Sigtuna – Uppsala",
+   "type": "mer",
+   "de": 975,
+   "note": "Sigtuna fondée vers 975, au moment où Birka disparaît",
+   "p": [
+    [
+     17.72,
+     59.617
+    ],
+    [
+     17.68,
+     59.68
+    ],
+    [
+     17.65,
+     59.76
+    ],
+    [
+     17.64,
+     59.84
+    ]
+   ]
+  },
+  {
+   "nom": "Mälaren : de Sigtuna au détroit de Stockholm",
+   "type": "mer",
+   "de": 975,
+   "p": [
+    [
+     18.03,
+     59.325
+    ],
+    [
+     17.95,
+     59.34
+    ],
+    [
+     17.88,
+     59.36
+    ],
+    [
+     17.8,
+     59.39
+    ],
+    [
+     17.74,
+     59.42
+    ],
+    [
+     17.7,
+     59.5
+    ],
+    [
+     17.72,
+     59.58
+    ],
+    [
+     17.72,
+     59.617
+    ]
+   ]
+  },
+  {
+   "nom": "Mälaren : du détroit de Stockholm à Birka",
+   "type": "mer",
+   "de": 800,
+   "p": [
+    [
+     18.03,
+     59.325
+    ],
+    [
+     17.97,
+     59.315
+    ],
+    [
+     17.88,
+     59.3
+    ],
+    [
+     17.75,
+     59.3
+    ],
+    [
+     17.62,
+     59.32
+    ],
+    [
+     17.545,
+     59.335
+    ]
+   ]
+  },
+  {
+   "nom": "Vers la Baltique par Vaxholm",
+   "type": "mer",
+   "de": 1000,
+   "note": "la route principale ; forteresse de Vaxholm en 1548",
+   "p": [
+    [
+     18.08,
+     59.322
+    ],
+    [
+     18.16,
+     59.318
+    ],
+    [
+     18.24,
+     59.34
+    ],
+    [
+     18.31,
+     59.38
+    ],
+    [
+     18.35,
+     59.4
+    ],
+    [
+     18.4,
+     59.395
+    ],
+    [
+     18.55,
+     59.37
+    ],
+    [
+     18.7,
+     59.33
+    ],
+    [
+     18.9,
+     59.285
+    ],
+    [
+     19.05,
+     59.25
+    ]
+   ]
+  },
+  {
+   "nom": "Vers le sud par Dalarö",
+   "type": "mer",
+   "de": 1636,
+   "note": "douane de Dalarö en 1636",
+   "p": [
+    [
+     18.16,
+     59.318
+    ],
+    [
+     18.25,
+     59.305
+    ],
+    [
+     18.33,
+     59.295
+    ],
+    [
+     18.37,
+     59.24
+    ],
+    [
+     18.4,
+     59.13
+    ],
+    [
+     18.5,
+     59.05
+    ],
+    [
+     18.62,
+     58.95
+    ]
+   ]
+  },
+  {
+   "nom": "Vers Visby et Lübeck (la Hanse)",
+   "type": "mer",
+   "de": 1250,
+   "note": "la Baltique hanséatique, XIIIe – XVIe siècles",
+   "p": [
+    [
+     18.62,
+     58.95
+    ],
+    [
+     18.7,
+     58.7
+    ],
+    [
+     18.8,
+     58.4
+    ]
+   ]
+  },
+  {
+   "nom": "Canal de Södertälje",
+   "type": "mer",
+   "de": 1819,
+   "note": "première écluse inaugurée en 1819",
+   "p": [
+    [
+     17.62,
+     59.23
+    ],
+    [
+     17.63,
+     59.195
+    ],
+    [
+     17.67,
+     59.15
+    ]
+   ]
+  },
+  {
+   "nom": "Route d'Uppsala",
+   "type": "terre",
+   "de": 1000,
+   "note": "la route du nord, vers le siège des rois et de l'archevêque",
+   "p": [
+    [
+     18.06,
+     59.335
+    ],
+    [
+     18.05,
+     59.355
+    ],
+    [
+     18,
+     59.4
+    ],
+    [
+     17.95,
+     59.45
+    ],
+    [
+     17.92,
+     59.52
+    ],
+    [
+     17.86,
+     59.6
+    ],
+    [
+     17.75,
+     59.72
+    ],
+    [
+     17.64,
+     59.86
+    ]
+   ]
+  },
+  {
+   "nom": "Göta landsväg (vers Södertälje et le sud)",
+   "type": "terre",
+   "de": 1250,
+   "note": "médiévale ; Götgatan en est le départ",
+   "p": [
+    [
+     18.072,
+     59.315
+    ],
+    [
+     18.06,
+     59.29
+    ],
+    [
+     17.98,
+     59.26
+    ],
+    [
+     17.88,
+     59.23
+    ],
+    [
+     17.75,
+     59.21
+    ],
+    [
+     17.63,
+     59.195
+    ],
+    [
+     17.45,
+     59.12
+    ],
+    [
+     17.2,
+     58.95
+    ],
+    [
+     17,
+     58.75
+    ]
+   ]
+  },
+  {
+   "nom": "Route d'Enköping et de Västerås",
+   "type": "terre",
+   "de": 1300,
+   "p": [
+    [
+     18.03,
+     59.335
+    ],
+    [
+     17.95,
+     59.36
+    ],
+    [
+     17.87,
+     59.41
+    ],
+    [
+     17.68,
+     59.5
+    ],
+    [
+     17.4,
+     59.58
+    ],
+    [
+     17.08,
+     59.635
+    ],
+    [
+     16.8,
+     59.63
+    ],
+    [
+     16.55,
+     59.61
+    ]
+   ]
+  },
+  {
+   "nom": "Route du Roslagen (Norrtälje)",
+   "type": "terre",
+   "de": 1400,
+   "p": [
+    [
+     18.07,
+     59.35
+    ],
+    [
+     18.06,
+     59.4
+    ],
+    [
+     18.08,
+     59.46
+    ],
+    [
+     18.2,
+     59.55
+    ],
+    [
+     18.4,
+     59.65
+    ],
+    [
+     18.7,
+     59.76
+    ]
+   ]
+  }
+ ],
+ "lieux": [
+  {
+   "nom": "Stockholm",
+   "p": [
+    18.07,
+    59.325
+   ],
+   "de": 1252,
+   "fort": true,
+   "port": true
+  },
+  {
+   "nom": "Birka",
+   "p": [
+    17.545,
+    59.335
+   ],
+   "de": 750,
+   "a": 975,
+   "port": true
+  },
+  {
+   "nom": "Sigtuna",
+   "p": [
+    17.72,
+    59.617
+   ],
+   "de": 975,
+   "port": true
+  },
+  {
+   "nom": "Uppsala",
+   "p": [
+    17.64,
+    59.86
+   ],
+   "de": 800
+  },
+  {
+   "nom": "Västerås",
+   "p": [
+    16.55,
+    59.61
+   ],
+   "de": 1000,
+   "port": true
+  },
+  {
+   "nom": "Strängnäs",
+   "p": [
+    17.03,
+    59.377
+   ],
+   "de": 1000,
+   "port": true
+  },
+  {
+   "nom": "Enköping",
+   "p": [
+    17.08,
+    59.635
+   ],
+   "de": 1200
+  },
+  {
+   "nom": "Södertälje",
+   "p": [
+    17.625,
+    59.195
+   ],
+   "de": 1000,
+   "port": true
+  },
+  {
+   "nom": "Vaxholm",
+   "p": [
+    18.35,
+    59.402
+   ],
+   "de": 1548,
+   "port": true
+  },
+  {
+   "nom": "Sandhamn",
+   "p": [
+    18.91,
+    59.287
+   ],
+   "de": 1600,
+   "port": true
+  },
+  {
+   "nom": "Dalarö",
+   "p": [
+    18.405,
+    59.133
+   ],
+   "de": 1636,
+   "port": true
+  },
+  {
+   "nom": "Norrtälje",
+   "p": [
+    18.7,
+    59.76
+   ],
+   "de": 1400,
+   "port": true
+  },
+  {
+   "nom": "Skeppsbron",
+   "p": [
+    18.0775,
+    59.3238
+   ],
+   "de": 1252,
+   "port": true,
+   "petit": true
+  },
+  {
+   "nom": "Klara (port du lac)",
+   "p": [
+    18.0605,
+    59.3292
+   ],
+   "de": 1500,
+   "port": true,
+   "petit": true
+  },
+  {
+   "nom": "Stadsgården",
+   "p": [
+    18.0925,
+    59.3205
+   ],
+   "de": 1690,
+   "port": true,
+   "petit": true
+  },
+  {
+   "nom": "Värtahamnen",
+   "p": [
+    18.103,
+    59.347
+   ],
+   "de": 1900,
+   "port": true,
+   "petit": true
+  },
+  {
+   "nom": "Frihamnen",
+   "p": [
+    18.124,
+    59.337
+   ],
+   "de": 1920,
+   "port": true,
+   "petit": true
+  },
+  {
+   "nom": "Södra Hammarbyhamnen",
+   "p": [
+    18.1,
+    59.307
+   ],
+   "de": 1900,
+   "port": true,
+   "petit": true
+  }
+ ]
+}

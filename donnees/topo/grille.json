@@ -1,0 +1,1 @@
+{"largeur": 419, "hauteur": 420, "limites": [17.9900701, 59.2883825, 18.1746343, 59.3826768], "zmin": -1.3118265867233276, "zmax": 89.69679260253906, "z": "04_carte/grille_z.f32", "maille_m": 30.0, "flux": "04_carte/grille_flux.i8", "acc": "04_carte/grille_acc.u8", "acc_log_km2": [-3.046, 1.4], "seuil_km2": 0.5}

@@ -1,0 +1,11 @@
+{
+  "lisezmoi": "Couleurs du fond de carte régional (hors de la zone détaillée). Modifiables : clair / sombre. Les classes viennent d'ESA WorldCover ; l'eau, de JRC Global Surface Water. Recharger la page après modification.",
+  "clair": {
+    "eauSalee": "#6ea8cf", "eauDouce": "#86bddb",
+    "foret": "#cfd9b8", "prairie": "#e4e2c9", "culture": "#ebe3c4", "bati": "#d3c4ae", "humide": "#c9d7c0", "solnu": "#e2d9c8", "terre": "#e6dfcd"
+  },
+  "sombre": {
+    "eauSalee": "#2b6a92", "eauDouce": "#3a7ea6",
+    "foret": "#23302a", "prairie": "#2b2f27", "culture": "#2f2e26", "bati": "#3a3631", "humide": "#25322d", "solnu": "#2e2c28", "terre": "#25272a"
+  }
+}

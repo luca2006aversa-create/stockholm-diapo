@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stockholm — comment la ville s'est construite</title>
+<style>
+  :root {
+    --papier: #f4f1ea; --encre: #1d1c1a; --discret: #6f6a60; --trait: #d9d3c5;
+    --accent: #c8572a; --eau: #2f6f8f; --fond-media: #e9e4d8; --fond-carte: #efe9db;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --papier: #16181a; --encre: #ece8df; --discret: #9a9588; --trait: #34373a; --fond-media: #202326; --fond-carte: #1b1e20; }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--papier); color: var(--encre);
+    font: 17px/1.6 Georgia, "Iowan Old Style", "Times New Roman", serif; }
+  h1, h2, .kicker, .barre, button, .legende, .annee { font-family: "Segoe UI", system-ui, sans-serif; }
+
+  /* ---- barre du haut : le mode, le sommaire */
+  .barre { position: fixed; z-index: 20; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 12px;
+    padding: 8px 16px; background: color-mix(in srgb, var(--papier) 88%, transparent); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--trait); font-size: 13px; }
+  .barre b { letter-spacing: .04em; }
+  .barre .espace { flex: 1; }
+  .barre button { border: 1px solid var(--trait); background: transparent; color: var(--encre); border-radius: 999px;
+    padding: 5px 13px; font-size: 13px; cursor: pointer; }
+  .barre button:hover { border-color: var(--accent); color: var(--accent); }
+  /* la barre de défilement grise est remplacée par une ligne de points : un point = une diapo (la même que celle du diaporama) */
+  html { scrollbar-width: none; } html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
+  .points { position: fixed; z-index: 22; right: 12px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 0;
+    padding: 8px 0; max-height: calc(100vh - 120px); }
+  .points::before { content: ""; position: absolute; top: 8px; bottom: 8px; width: 0; border-left: 2px dotted color-mix(in srgb, var(--discret) 55%, transparent); }
+  .point { position: relative; flex: 1 1 0; min-height: 11px; width: 22px; border: 0; background: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .point i { display: block; width: 6px; height: 6px; border-radius: 50%; background: var(--discret); opacity: .6; transition: transform .25s, background .25s, opacity .25s; }
+  .point:hover i { opacity: 1; transform: scale(1.5); }
+  .point.actif i { background: var(--accent); opacity: 1; transform: scale(1.9); }
+  .point b { position: absolute; right: 24px; top: 50%; transform: translateY(-50%); white-space: nowrap; background: rgba(18,20,22,.88); color: #f4f1ea; font: 12.5px "Segoe UI", system-ui, sans-serif;
+    padding: 4px 10px; border-radius: 6px; opacity: 0; pointer-events: none; transition: opacity .15s; font-weight: 400; }
+  .point:hover b { opacity: 1; }
+  body.diaporama .points { opacity: .55; } body.diaporama .points:hover { opacity: 1; }
+  @media (max-width: 820px) { .points { display: none; } }
+  .progres { position: fixed; z-index: 21; top: 0; left: 0; height: 3px; width: 0; background: var(--accent); }
+
+  /* ---- une diapo = une section (mode défilement : empilées ; mode diaporama : une seule visible) */
+  main { padding-top: 48px; }
+  .diapo { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(20px, 4vw, 64px);
+    align-items: center; padding: clamp(24px, 6vh, 72px) clamp(16px, 5vw, 80px); border-bottom: 1px solid var(--trait); }
+  .diapo.sans-media { grid-template-columns: minmax(0, 46rem); justify-content: center; }
+  .diapo.titre { grid-template-columns: 1fr; text-align: center; background: var(--encre); color: var(--papier); }
+  .diapo.titre h1 { font-size: clamp(2.4rem, 7vw, 5.5rem); margin: 0 0 .3em; line-height: 1.05; }
+  .diapo.titre p { color: color-mix(in srgb, var(--papier) 70%, transparent); max-width: none; }
+  .kicker { color: var(--accent); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; margin: 0 0 8px; }
+  .annee { font-size: 13px; color: var(--discret); margin: 0 0 6px; }
+  h2 { font-size: clamp(1.6rem, 3.2vw, 2.6rem); line-height: 1.12; margin: 0 0 .5em; font-weight: 650; }
+  .texte p { margin: 0 0 .8em; max-width: 36rem; }
+  .texte ul { padding-left: 1.1em; margin: 0 0 .8em; max-width: 36rem; }
+  .texte li { margin-bottom: .35em; }
+  .chiffre { font-family: "Segoe UI", system-ui, sans-serif; font-size: 2.2rem; font-weight: 700; color: var(--accent); line-height: 1; }
+  .chiffres { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: .4em 0 1em; }
+  .chiffres small { display: block; color: var(--discret); font-size: 12px; margin-top: 3px; }
+
+  .media { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .media figure { margin: 0; }
+  .media img, .media video { width: 100%; max-height: 74vh; object-fit: contain; display: block; background: var(--fond-media);
+    border-radius: 4px; }
+  .media img { cursor: zoom-in; }
+  .legende { font-size: 12px; color: var(--discret); margin-top: 5px; }
+  .a-venir { aspect-ratio: 16/10; border: 2px dashed var(--trait); border-radius: 4px; display: grid; place-items: center; padding: 20px;
+    text-align: center; color: var(--discret); font: 14px/1.5 "Segoe UI", system-ui, sans-serif; background: var(--fond-media); }
+  .a-venir b { display: block; color: var(--accent); margin-bottom: 4px; }
+
+  /* ---- la frise des dates */
+  .frise { list-style: none; margin: 0; padding: 0 0 0 18px; border-left: 2px solid var(--trait); max-width: 36rem; }
+  .frise li { position: relative; margin: 0 0 .7em; padding-left: 4px; }
+  .frise li::before { content: ""; position: absolute; left: -24px; top: .6em; width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); }
+  .frise b { font-family: "Segoe UI", system-ui, sans-serif; color: var(--accent); margin-right: .5em; }
+
+  /* ---- mode diaporama */
+  body.diaporama { overflow: hidden; }
+  body.diaporama main { padding-top: 0; }
+  body.diaporama .diapo { display: none; min-height: 100vh; height: 100vh; border: 0; padding-top: 56px; padding-bottom: 56px; }
+  body.diaporama .diapo.courante { display: grid; }
+  body.diaporama .diapo.sans-media { display: grid; }
+  body.diaporama .diapo:not(.courante) { display: none; }
+  body.diaporama .media img, body.diaporama .media video { max-height: 78vh; }
+  body.diaporama .texte { font-size: clamp(16px, 1.55vw, 24px); }
+  .pied-diapo { display: none; position: fixed; z-index: 20; bottom: 0; left: 0; right: 0; padding: 10px 18px; align-items: center; gap: 12px;
+    font: 13px "Segoe UI", system-ui, sans-serif; color: var(--discret); }
+  body.diaporama .pied-diapo { display: flex; }
+  .pied-diapo .espace { flex: 1; }
+  .pied-diapo .rail { flex: 3; height: 3px; background: var(--trait); border-radius: 2px; position: relative; }
+  .pied-diapo .rail i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); border-radius: 2px; }
+  body.diaporama .barre { opacity: 0; transition: opacity .2s; }
+  body.diaporama .barre:hover { opacity: 1; }
+
+  /* ---- agrandir une image */
+  .loupe { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.88); display: none; place-items: center; cursor: zoom-out; }
+  .loupe.on { display: grid; }
+  .loupe img { max-width: 96vw; max-height: 96vh; }
+
+  /* ---- révélation en douceur au défilement */
+  body:not(.diaporama) .diapo .texte, body:not(.diaporama) .diapo .media { opacity: 0; transform: translateY(18px); transition: opacity .6s, transform .6s; }
+  body:not(.diaporama) .diapo.vue .texte, body:not(.diaporama) .diapo.vue .media { opacity: 1; transform: none; }
+
+  /* ---- mode défilement : la carte de la ville reste à gauche et se développe, les textes défilent à droite */
+  #carte-bloc { display: none; }
+  body:not(.diaporama) #carte-bloc { display: block; position: fixed; z-index: 1; top: 48px; left: 0; width: 58vw; height: calc(100vh - 48px);
+    background: var(--fond-carte); }
+  #carte { width: 100%; height: 100%; display: block; }
+  .an-affiche { position: absolute; left: 22px; bottom: 70px; pointer-events: none; font: 700 clamp(3rem, 8vw, 6.5rem)/1 "Segoe UI", system-ui, sans-serif;
+    color: var(--encre); opacity: .82; text-shadow: 0 0 14px var(--fond-carte), 0 0 4px var(--fond-carte); }
+  .an-lieu { position: absolute; left: 24px; top: 16px; pointer-events: none; font: 600 13px "Segoe UI", system-ui, sans-serif; letter-spacing: .06em;
+    color: var(--discret); text-transform: uppercase; }
+  .an-barre { position: absolute; left: 16px; right: 16px; bottom: 14px; display: flex; gap: 12px; align-items: center; font: 12px "Segoe UI", system-ui, sans-serif; color: var(--discret); }
+  .an-barre button { width: 34px; height: 34px; padding: 0; border-radius: 50%; border: 1px solid var(--trait); background: var(--papier); color: var(--encre); cursor: pointer; }
+  .an-barre input[type=range] { flex: 1; accent-color: var(--accent); }
+  body:not(.diaporama) .diapo { grid-template-columns: minmax(0, 1fr); margin-left: 58vw; position: relative; z-index: 2; background: var(--papier);
+    padding: clamp(28px, 9vh, 90px) clamp(18px, 3vw, 52px); border-bottom: 0; align-content: center; align-items: start; gap: 22px; }
+  body:not(.diaporama) .diapo.titre { margin-left: 0; background: var(--encre); align-items: center; }
+  body:not(.diaporama) .diapo.sans-media { grid-template-columns: minmax(0, 1fr); }
+  body:not(.diaporama) .media img, body:not(.diaporama) .media video { max-height: 62vh; }
+  /* la page de titre laisse voir la carte (l'Europe) à gauche */
+  body:not(.diaporama) .diapo.titre { margin-left: 58vw; background: var(--papier); color: var(--encre); text-align: left; align-items: center; }
+  body:not(.diaporama) .diapo.titre h1 { font-size: clamp(2.2rem, 4.4vw, 4rem); }
+  body:not(.diaporama) .diapo.titre p { color: var(--discret); }
+
+  /* ---- grandes images : la piste est longue, l'image reste à l'écran et glisse vers la gauche quand on descend */
+  .diapo.grand { display: block; padding: 0; background: var(--papier); }
+  body:not(.diaporama) .diapo.grand { background: transparent; }
+  body:not(.diaporama) .grand-cadre { position: sticky; top: 48px; align-items: center; padding-bottom: 0; }
+  body:not(.diaporama) .grand-cadre::before { content: ""; position: absolute; inset: 0; background: var(--papier); opacity: var(--voile, 0); pointer-events: none; }
+  body:not(.diaporama) .grand-cadre img { position: relative; z-index: 1; margin-left: 0; }
+  body:not(.diaporama) .grand-legende { z-index: 2; opacity: 0; transition: none; }
+  body:not(.diaporama) .diapo.grand { margin-left: 0; z-index: 4; min-height: 0; display: block; padding: 0; align-content: start; }
+  .grand-cadre { position: sticky; top: 48px; height: calc(100vh - 48px); overflow: hidden; display: flex; align-items: flex-end; padding-bottom: 14px; box-sizing: border-box; }
+  .grand-cadre img { flex: none; max-width: none; margin-left: 40px; will-change: transform; user-select: none; filter: drop-shadow(0 6px 18px rgba(0,0,0,.18)); }
+  .grand-legende { position: absolute; left: clamp(18px, 3vw, 52px); right: clamp(18px, 3vw, 52px); top: 12px; max-width: 46rem; pointer-events: none;
+    background: color-mix(in srgb, var(--papier) 82%, transparent); backdrop-filter: blur(6px); padding: 10px 16px 12px; border-radius: 6px; }
+  .grand-legende h2 { font-size: clamp(1.1rem, 2vw, 1.6rem); margin: 0 0 .25em; }
+  .grand-legende p:last-child { margin: 0; font-size: .92rem; color: var(--discret); }
+  body.diaporama .diapo.grand { display: none; }
+  body.diaporama .diapo.grand.courante { display: block; height: 100vh !important; padding: 0; }
+  body.diaporama .grand-cadre { top: 0; height: 100vh; justify-content: center; align-items: center; padding: 0; }
+  body.diaporama .grand-cadre img { margin: 0; width: auto !important; height: auto !important; max-width: 94vw; max-height: 78vh; transform: none !important; }
+  body.diaporama .grand-legende { top: auto; bottom: 46px; left: 50%; transform: translateX(-50%); width: min(60rem, 92vw); text-align: center; }
+
+  /* ---- frise chronologique sous la carte */
+  .an-barre { bottom: 8px; align-items: flex-end; }
+  .an-affiche { bottom: 96px; }
+  .frise { flex: 1; position: relative; min-width: 0; color: var(--encre); }
+  .frise svg { display: block; width: 100%; height: 64px; overflow: visible; cursor: pointer; touch-action: none; }
+  .f-phase { opacity: .9; }
+  .f-nom-phase { font: 600 9px "Segoe UI", system-ui, sans-serif; fill: var(--discret); }
+  .f-courbe { fill: none; stroke: var(--accent); stroke-width: 1.6; vector-effect: non-scaling-stroke; }
+  .f-courbe-aire { fill: var(--accent); opacity: .14; }
+  .f-ev line { stroke-width: 1.4; vector-effect: non-scaling-stroke; }
+  .f-ev:hover line { stroke-width: 3; }
+  #f-tete { vector-effect: non-scaling-stroke; }
+  .frise-bulle { position: absolute; bottom: 70px; width: 220px; padding: 6px 9px; border-radius: 6px; background: var(--papier); color: var(--encre);
+    border: 1px solid var(--trait); font: 12px/1.35 "Segoe UI", system-ui, sans-serif; box-shadow: 0 6px 18px rgba(0,0,0,.18); pointer-events: none; }
+  .an-evenement { position: absolute; left: 20px; top: 42px; max-width: min(420px, calc(100% - 320px)); padding: 8px 12px 8px 14px; border-left: 4px solid var(--c, var(--accent));
+    background: color-mix(in srgb, var(--papier) 88%, transparent); backdrop-filter: blur(4px); border-radius: 4px; font: 13px/1.4 "Segoe UI", system-ui, sans-serif; color: var(--encre); pointer-events: none; }
+  .an-evenement b { color: var(--c, var(--accent)); margin-right: 6px; }
+  .an-evenement small { display: block; color: var(--discret); font-size: 11px; }
+  .an-bouton { width: 34px; height: 34px; padding: 0; border-radius: 50%; border: 1px solid var(--trait); background: var(--papier); color: var(--encre); cursor: pointer; font-size: 15px; flex: none; }
+  .an-bouton.actif { background: var(--encre); color: var(--papier); }
+  .legende-carte { position: absolute; right: 14px; top: 42px; max-width: 260px; padding: 8px 10px; border-radius: 6px; background: color-mix(in srgb, var(--papier) 90%, transparent);
+    font: 11px/1.4 "Segoe UI", system-ui, sans-serif; color: var(--encre); pointer-events: none; }
+  .legende-carte span { display: block; color: var(--discret); }
+  .legende-carte .rampe { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; margin-top: 5px; }
+  .legende-carte .rampe i { height: 8px; display: block; }
+  .legende-carte .rampe em { grid-row: 2; font-style: normal; font-size: 9px; color: var(--discret); }
+
+  /* ---- axonométrie éclatée */
+  .diapo.axo { display: block; padding: 0; background: transparent; }
+  body:not(.diaporama) .diapo.axo { margin-left: 0; z-index: 4; min-height: 0; display: block; padding: 0; align-content: start; pointer-events: none; }
+  .axo-cadre { position: sticky; top: 48px; height: calc(100vh - 48px); display: grid; grid-template-columns: minmax(260px, 30%) 1fr; align-items: center; overflow: hidden;
+    transition: grid-template-columns .6s cubic-bezier(.3,.7,.2,1); }
+  /* en défilement : l'axonométrie est un calque fixe qui se pose en fondu sur la carte (fond qui fonce, puis les plaques), et repart en fondu */
+  body:not(.diaporama) .axo-cadre { position: fixed; left: 0; right: 0; top: 48px; z-index: 6; pointer-events: auto; }
+  .axo-cadre::before { content: ""; position: absolute; inset: 0; background: var(--papier); opacity: var(--fond, 1); z-index: -1; }
+  .axo-cadre > .axo-texte, .axo-cadre > .axo-scene { opacity: var(--contenu, 1); }
+  .axo-cadre.cache { visibility: hidden; pointer-events: none !important; }
+  .diapo.axo.axo-focus .axo-cadre { grid-template-columns: 0px 1fr; }
+  .diapo.axo.axo-focus .axo-texte { opacity: 0 !important; pointer-events: none; }
+  .axo-note { position: absolute; left: 22px; bottom: 22px; max-width: min(420px, 60%); background: rgba(18,20,22,.8); color: #f4f1ea; border-radius: 10px;
+    padding: 12px 16px; font-size: 14.5px; line-height: 1.5; opacity: 0; transform: translateY(8px); transition: opacity .4s, transform .4s; pointer-events: none; }
+  .axo-note b { display: block; font: 700 16px "Segoe UI", system-ui, sans-serif; margin-bottom: 4px; color: #fff; }
+  .axo-note small { display: block; margin-top: 6px; color: #b9b3a5; }
+  .diapo.axo.axo-focus .axo-note { opacity: 1; transform: none; }
+  .axo-texte { padding: 0 clamp(16px, 3vw, 44px); max-height: 100%; overflow: auto; }
+  .axo-intro { color: var(--discret); font-size: .95rem; }
+  .axo-liste { list-style: none; padding: 0; margin: 10px 0; counter-reset: c; }
+  .axo-liste li { padding: 6px 10px; border-left: 3px solid var(--trait); margin: 2px 0; cursor: default; font-size: .9rem; transition: background .2s; }
+  .axo-liste li b { font-family: "Segoe UI", system-ui, sans-serif; }
+  .axo-liste li p { margin: 4px 0 2px; display: none; color: var(--discret); line-height: 1.45; }
+  .axo-liste li.actif { border-left-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  .axo-liste li.actif p { display: block; color: var(--encre); }
+  .axo-scene { height: 100%; position: relative; overflow: hidden; }
+  .axo-scene canvas { display: block; }
+  .axo-etiquettes { position: absolute; inset: 0; pointer-events: none; }
+  .axo-etiquette3d { position: absolute; left: 0; top: 0; white-space: nowrap; padding: 2px 10px 2px 0; border-bottom: 1px dashed var(--discret);
+    font: 600 13px "Segoe UI", system-ui, sans-serif; color: var(--encre); transition: color .3s; }
+  .axo-etiquette3d.actif { color: var(--accent); border-bottom-color: var(--accent); font-size: 15px; }
+  .diapo.axo.axo-focus .axo-liste li:not(.actif) { opacity: .35; }
+  .axo-pile { position: relative; width: min(50vh, 36vw); aspect-ratio: 1; transform: translate(-6%, 14%) rotateX(56deg) rotateZ(-40deg); transform-style: preserve-3d; --ecart: 0px; }
+  .axo-couche { position: absolute; inset: 0; transform-style: preserve-3d; transform: translateZ(calc(var(--i) * var(--ecart) + var(--leve, 0px)));
+    transition: transform .55s cubic-bezier(.2,.75,.25,1), opacity .35s; }
+  .axo-couche canvas { width: 100%; height: 100%; display: block; outline: 1px solid rgba(0,0,0,.18); }
+  .axo-couche.socle canvas { box-shadow: 0 30px 60px rgba(0,0,0,.25); }
+  .axo-couche.actif canvas { outline: 2px solid var(--accent); }
+  .axo-couche.estompe { opacity: .35; }
+  .axo-etiquette { position: absolute; left: -4px; top: 0; transform-origin: 0 0; transform: rotateZ(40deg) rotateX(-56deg) translate(-100%, -50%);
+    white-space: nowrap; padding-right: 10px; font: 600 12px "Segoe UI", system-ui, sans-serif; color: var(--encre); border-bottom: 1px dashed var(--discret); pointer-events: none; }
+  .axo-couche.actif .axo-etiquette { color: var(--accent); border-bottom-color: var(--accent); }
+  body.diaporama .diapo.axo { display: none; }
+  body.diaporama .diapo.axo.courante { display: block; height: 100vh !important; }
+  body.diaporama .axo-cadre { top: 0; height: 100vh; }
+  @media (max-width: 820px) { .axo-cadre { grid-template-columns: 1fr; grid-template-rows: auto 1fr; } .axo-pile { width: 70vw; } }
+
+  /* ---- cartes d'analyse en plein écran : la carte prend toute la largeur, le texte est dans un encart sombre */
+  body:not(.diaporama) #carte-bloc { transition: width .6s cubic-bezier(.3,.7,.2,1); }
+  body.plein-carte:not(.diaporama) #carte-bloc { width: 100vw; }
+  body.plein-carte .legende-carte { display: none; }
+  .diapo.carte-chapitre { display: block; padding: 0; background: transparent; }
+  body:not(.diaporama) .diapo.carte-chapitre { margin-left: 0; z-index: 3; min-height: 0; height: 230vh; padding: 0; background: transparent; pointer-events: none; align-content: start; }
+  .encart { position: sticky; top: 64px; margin: 0 22px 0 auto; width: min(430px, 92vw); max-height: calc(100vh - 190px); overflow: auto; pointer-events: auto;
+    background: rgba(18, 20, 22, .76); color: #f4f1ea; backdrop-filter: blur(6px); border-radius: 10px; padding: 16px 20px 14px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+  .encart h2 { color: #fff; font-size: clamp(1.3rem, 2vw, 1.8rem); margin: 0 0 .4em; }
+  .encart .kicker { color: #ff9a6e; }
+  .encart .annee { color: #c9c3b5; }
+  .encart-texte p { margin: 0 0 .7em; font-size: 15px; line-height: 1.55; }
+  .encart-legende { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.18); font: 14px/1.35 "Segoe UI", system-ui, sans-serif; }
+  .encart-legende div { display: flex; align-items: center; gap: 10px; margin: 5px 0; }
+  .encart-legende i { flex: none; width: 22px; height: 16px; border-radius: 3px; background: var(--c); }
+  .encart-legende i.ligne { height: 5px; border-radius: 3px; }
+  .encart-legende i.point { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #1d1c1a; margin: 0 4px; }
+  .encart-source { margin: 8px 0 0; font-size: 11.5px; color: #b9b3a5; }
+  body.diaporama .diapo.carte-chapitre { display: none; }
+  body.diaporama .diapo.carte-chapitre.courante { display: block; height: 100vh; position: relative; }
+  body.diaporama .encart { position: absolute; top: 60px; right: 24px; margin: 0; background: rgba(18,20,22,.92); }
+
+  /* ---- éditeur des quartiers */
+  #an-editer { width: 34px; height: 34px; padding: 0; border-radius: 50%; border: 1px solid var(--trait); background: var(--papier); color: var(--encre); cursor: pointer; font-size: 15px; }
+  #an-editer.actif { background: var(--accent); color: #fff; border-color: var(--accent); }
+  #editeur { position: absolute; right: 12px; top: 12px; bottom: 76px; width: min(360px, 92%); overflow: auto; z-index: 3; background: var(--papier); border: 1px solid var(--trait);
+    border-radius: 8px; padding: 12px 14px; font: 13px/1.45 "Segoe UI", system-ui, sans-serif; box-shadow: 0 8px 28px rgba(0,0,0,.2); }
+  #editeur[hidden] { display: none; }
+  .ed-tete { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .ed-tete button { border: 0; background: none; color: var(--discret); font-size: 20px; cursor: pointer; }
+  .ed-aide { color: var(--discret); margin: 4px 0 8px; }
+  .ed-boutons { display: flex; gap: 6px; margin-bottom: 8px; }
+  .ed-boutons button, .ed-ligne button { border: 1px solid var(--trait); background: transparent; color: var(--encre); border-radius: 6px; padding: 5px 9px; cursor: pointer; font: inherit; }
+  .ed-boutons button:hover { border-color: var(--accent); color: var(--accent); }
+  .ed-ligne { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; padding: 7px 4px; border-top: 1px solid var(--trait); }
+  .ed-ligne.sel { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  .ed-ligne .n { flex: 1 1 120px; min-width: 0; }
+  .ed-ligne input, .ed-ligne select { font: inherit; padding: 3px 5px; background: var(--fond-media); color: var(--encre); border: 1px solid var(--trait); border-radius: 4px; }
+  .ed-ligne input[type=number] { width: 64px; }
+  .ed-ligne select { max-width: 150px; }
+  .ed-etat { color: var(--discret); font-size: 12px; margin: 8px 0 0; }
+
+  @media (max-width: 820px) {
+    .diapo { grid-template-columns: 1fr; min-height: 0; padding-top: 40px; padding-bottom: 40px; }
+    .barre .pas-mobile { display: none; }
+    body:not(.diaporama) #carte-bloc { z-index: 5; width: 100vw; height: 38vh; }
+    body:not(.diaporama) main { padding-top: calc(38vh + 48px); }
+    body:not(.diaporama) .diapo { margin-left: 0; min-height: 70vh; }
+    body:not(.diaporama) .diapo.titre { margin-top: calc(-38vh - 48px); padding-top: calc(38vh + 48px); min-height: 100vh; }
+    .an-affiche { font-size: 2.6rem; bottom: 52px; }
+  }
+  @media print { .barre, .progres, .pied-diapo { display: none; } .diapo { min-height: 0; break-inside: avoid; } .texte, .media { opacity: 1 !important; transform: none !important; } }
+</style>
+</head>
+<body>
+<div class="progres" id="progres"></div>
+<div class="barre">
+  <b>STOCKHOLM</b><span class="pas-mobile" style="color:var(--discret)">comment la ville s'est construite</span>
+  <span class="espace"></span>
+  <button id="b-sommaire" type="button">Sommaire</button>
+  <button id="b-mode" type="button" title="Touche P">▶ Diaporama</button>
+</div>
+<div id="carte-bloc">
+  <canvas id="carte"></canvas>
+  <div class="an-lieu" id="an-lieu"></div>
+  <div class="an-affiche" id="an-affiche"></div>
+  <div class="an-barre"><button id="an-lecture" type="button" title="Lire la ville année par année">▶</button>
+    <input id="an-curseur" type="range" min="800" max="2026" step="1" value="800"><span id="an-note">défiler ou jouer</span></div>
+</div>
+<main id="main"></main>
+<div class="pied-diapo"><span id="p-num"></span><span class="rail"><i id="p-rail"></i></span><span class="espace"></span><span>← → pour avancer · Échap pour quitter · F plein écran</span></div>
+<div class="loupe" id="loupe"><img alt=""></div>
+
+<script>
+/* Les diapos. Une seule liste sert aux deux modes (défilement et diaporama).
+   media : {t:"img"|"video"|"vide", src, alt, note}  — "vide" = emplacement réservé, à remplir. */
+const C = "../cartes/", V = "../videos/";
+const DIAPOS = [
+  { id: "titre", classe: "titre", titre: "Comment la ville s'est construite",
+    texte: ["<p>Stockholm — évolution des formes urbaines</p><p>Présenté par [nom du présentateur]</p>"] },
+
+  { id: "situation", rubrique: "I · Introduction et contexte", titre: "Entre le lac Mälaren et la mer Baltique",
+    chiffres: [["14", "îles"], ["30 %", "eau, parcs et espaces verts"]],
+    texte: ["<p>Capitale de la Suède, sur la côte est, dans le comté de Stockholm (région historique du Svealand). Elle s'est installée à l'endroit où le lac Mälaren rejoint la mer, et c'est cette position qui a fait d'elle le principal centre politique, économique et culturel du pays.</p>"],
+    sansCarte: true },
+
+  { id: "nature", rubrique: "I · Introduction et contexte", titre: "Le contexte naturel : l'eau, la roche, le froid",
+    texte: ["<ul><li><b>Ville d'eau.</b> Quatorze îles, de nombreuses rives, des ponts et des espaces naturels.</li>",
+            "<li><b>Relief rocheux.</b> Plateaux, vallées, affleurements : la ville s'est développée en s'adaptant au relief.</li>",
+            "<li><b>Climat froid.</b> Hivers longs, étés doux et courts : cela pèse sur les bâtiments, les espaces publics et les modes de vie.</li></ul>"],
+    media: { t: "video", src: V + "20261008-153950-animation_stockholm_eau_800-2026.mp4",
+             legende: "L'eau et les rivages, de l'an 800 à 2026 : la terre remonte, la ville la gagne." } },
+
+  { id: "axo-site", axo: true, rubrique: "I · Introduction et contexte", titre: "Le site en couches",
+    intro: "Ce qui fait la forme de Stockholm, couche par couche. Descendez pour décoller les couches et les parcourir ; cliquez sur une couche pour la voir en grand, cliquez de nouveau pour revenir." },
+
+  { id: "site-eau", carte: { theme: "site-eau", vue: "tout", an: [800, 1400] }, rubrique: "I · Introduction et contexte", titre: "L'eau douce et l'eau salée",
+    texte: ["<p>Stockholm est posée sur le seuil entre le <b>lac Mälaren</b> (eau douce, à l'ouest) et la <b>Baltique</b> (eau salée, à l'est).</p>",
+            "<p>Descendez : l'année avance et la mer se retire. Depuis la fonte des glaces, la terre remonte de quelques millimètres par an ; vers l'an 800 le Mälaren est encore une baie de la mer, vers 1250 le seuil émerge et la ville s'y installe. À droite de l'écran, les rivages se fixent ensuite : seuls les quais et les remblais les déplacent.</p>"] },
+
+  { id: "site-relief", carte: { theme: "site-relief", vue: "topo", an: [2026, 2026] }, rubrique: "I · Introduction et contexte", titre: "Le relief",
+    texte: ["<p>Un relief bas mais heurté : de −1 à 90 m, la moitié du site sous 16 m. Des plateaux de roche (Södermalm, le nord de Norrmalm, Kungsholmen) séparés par des vallées remplies d'argile, où passent l'eau et les grandes rues : un paysage de failles, usé par les glaciers.</p>",
+            "<p>Une longue crête de sable et de graviers laissée par la glace, l'esker de Stockholm (Stockholmsåsen), traverse la ville du nord au sud : Stadsholmen est posée dessus. Le point le plus haut, Hammarbytoppen, est une colline artificielle.</p>"] },
+
+  { id: "site-formes", carte: { theme: "site-formes", vue: "topo", an: [2026, 2026] }, rubrique: "I · Introduction et contexte", titre: "Crêtes et vallées",
+    texte: ["<p>Chaque lieu selon sa place dans la pente : crêtes et hauts de versant en brun, fonds de vallée en bleu. La ville ancienne occupe les îles et les bas de versant, au bord de l'eau ; les hauteurs les plus raides sont restées des parcs (Skinnarviksberget, Vitabergsparken, Observatorielunden).</p>",
+            "<p>Au XIXe et au XXe siècle, les grandes rues ont coupé à travers les crêtes : Kungsgatan est creusée dans la colline de Brunkeberg en 1911.</p>"] },
+
+  { id: "site-pentes", carte: { theme: "site-pentes", vue: "topo", an: [2026, 2026] }, rubrique: "I · Introduction et contexte", titre: "Les pentes",
+    texte: ["<p>Plus de la moitié du site est presque plate (moins de 5 %) : ce sont les rives, les fonds de vallée et les plateaux. Les pentes fortes sont rares (1 %) mais visibles : les falaises du nord de Södermalm et les bords des plateaux.</p>",
+            "<p>La ville s'est adaptée à ces ruptures : escaliers, rues en lacets, maisons accrochées à la roche (Mariaberget, Fjällgatan), ou parcs là où l'on ne pouvait pas bâtir.</p>"] },
+
+  { id: "site-bassins", carte: { theme: "site-bassins", vue: "topo", an: [2026, 2026] }, rubrique: "I · Introduction et contexte", titre: "La pluie : bassins versants et écoulement",
+    texte: ["<p>Un bassin versant, c'est toute la surface dont la pluie rejoint le même exutoire. Neuf bassins dans ce carré de 10 km, séparés par les lignes de partage des eaux (pointillés bruns).</p>",
+            "<p>Les traits bleus qui bougent sont des gouttes qui suivent la pente : elles se rassemblent dans les vallées. Sur des îles et des presqu'îles, les bassins sont courts et l'eau rejoint vite le lac ou la mer : peu de vraies rivières (Råstaån, Sicklabäcken), beaucoup de canaux.</p>"] },
+
+  { id: "routes-anciennes", carte: { theme: "routes-anciennes", vue: "region", an: [750, 1250] }, rubrique: "I · Introduction et contexte", titre: "Un carrefour de routes d'eau et de terre",
+    texte: ["<p>Avant Stockholm, le Mälaren était un golfe de la mer et ses ports se succédaient : <b>Birka</b> à l'âge viking (vers 750-975), puis <b>Sigtuna</b>. Quand la terre remonte, le passage vers la mer se resserre à l'endroit de Stockholm : qui tient ce détroit tient le commerce du lac (le fer et le cuivre de Bergslagen) avec la Baltique et la Hanse.</p>",
+            "<p>Sur terre, les routes d'Uppsala, du sud (Göta landsväg, dont Götgatan est le départ), d'Enköping et du Roslagen convergent vers la ville. Les tracés sont schématiques.</p>"] },
+
+  { id: "paysages", grand: true, rubrique: "I · Introduction et contexte", titre: "L'eau, les îles et les saisons",
+    image: "../images/paysages.png", alt: "Stockholm vue d'en haut, l'hiver, les îles",
+    legende: "Quatorze îles, la glace, les rochers : la ville s'est installée dans l'eau." },
+
+  { id: "ambiance", grand: true, rubrique: "I · Introduction et contexte", titre: "Une ambiance entre nature, histoire et art de vivre",
+    image: "../images/ambiance.jpg", alt: "Ambiance — Stockholm : le cœur historique, l'eau et les quais, l'architecture moderne, les espaces verts, les pratiques quotidiennes",
+    legende: "L'identité de Stockholm repose sur la relation entre la ville, l'eau et la nature. Elle se vit aussi dans le fika, Midsommar et le lagom — « ni trop, ni trop peu »." },
+
+  { id: "frise", rubrique: "II · Formation et histoire urbaine", titre: "Huit siècles en quelques dates", classe: "sans-media",
+    frise: [["1252", "Naissance de Stockholm (première mention du nom)"], ["1625", "Grand incendie ; reconstruction, rues régulières"],
+            ["1635", "Norrmalm réuni à la ville : la ville en damier"], ["1866", "Plan de Lindhagen : boulevards et espaces verts"],
+            ["1930-40", "Fonctionnalisme"], ["1945", "« Maisons dans le parc »"], ["1950", "Ouverture du métro"],
+            ["1950-70", "Banlieues ABC ; démolition massive de Norrmalm"], ["1980 → ", "Préservation et développement durable"]] },
+
+  { id: "fondateur", rubrique: "II · Formation et histoire urbaine", annee: "vers 1250", titre: "Birger Jarl, le fondateur",
+    texte: ["<p><b>Birger Jarl</b> (vers 1210 – 1266) gouverne la Suède comme <i>jarl</i>, le premier personnage du royaume après le roi. Une lettre de 1252 est la première mention écrite de Stockholm ; la tradition lui attribue la fondation de la ville.</p>",
+            "<p>Il fait fortifier l'îlot de Stadsholmen, là où le lac Mälaren se jette dans la Baltique : qui tient ce passage contrôle le commerce de l'intérieur du pays — le fer et le cuivre des mines — et ferme la route aux pillards venus de la mer.</p>",
+            "<p>Aucun portrait de son vivant ne nous est parvenu : ses traits ont été imaginés au XIXe siècle. Sa statue (1853) se dresse sur Riddarholmen, près du lieu de la fondation.</p>"],
+    media: { t: "img", src: "../images/birger-jarl-statue.jpg", alt: "Statue de Birger Jarl sur Riddarholmen", legende: "Statue de Birger Jarl (1853), Riddarholmen. Photo Ad Meskens, CC BY-SA 4.0, Wikimedia Commons." } },
+
+  { id: "origines", rubrique: "II · Formation et histoire urbaine", annee: "XIIIe siècle", titre: "Stadsholmen : le noyau médiéval",
+    texte: ["<p>La ville naît sur l'île de Stadsholmen, aujourd'hui Gamla Stan, autour des fortifications, du château (Tre Kronor), de la place centrale et du port. Les rues sont étroites et irrégulières, adaptées à la forme et au relief de l'île.</p>",
+            "<p>En 1250-1251, un accord commercial avec Lübeck fait venir les marchands allemands : fer, cuivre, fourrures, poisson et orge contre épices, tissus, vin, verre et armes. Plus de 80 % des marchandises arrivent par mer (ports de Kogghamn et Kornhamn).</p>"],
+    media: { t: "img", src: "../images/ambiance-medievale.jpg", alt: "Croquis d'ambiance de la ville médiévale", legende: "Ambiance médiévale : le château et ses remparts, le cœur médiéval, l'eau et les quais, le château royal (Tre Kronor), les fêtes et la vie quotidienne." } },
+
+  { id: "hanse", rubrique: "II · Formation et histoire urbaine", annee: "XIVe – XVe siècles", titre: "Stockholm dans la Hanse",
+    texte: ["<p>La Ligue hanséatique domine le commerce de la Baltique : Lübeck, Visby, Riga, Novgorod. Stockholm exporte le fer et le cuivre, importe sel, tissus et vin.</p>"],
+    media: { t: "img", src: "../images/hanse-xive.webp", alt: "La Ligue hanséatique au XIVe siècle", legende: "La Ligue hanséatique, XIVe – début XVe siècle (domaine public). Les villes hanséatiques sont soulignées en rouge." } },
+
+  { id: "vasa", rubrique: "II · Formation et histoire urbaine", annee: "XVe–XVIe siècles", titre: "La ville médiévale et l'époque Vasa",
+    texte: ["<p>À la fin du XVe siècle, Stadsholmen compte entre 5 000 et 7 000 habitants, une élite surtout germanophone et finnoise. Le plan est irrégulier, dicté par la topographie et la défense.</p>",
+            "<p>Union de Kalmar, luttes entre Danemark et Suède, « bain de sang » de 1520 ; puis Gustave Vasa consolide le pouvoir royal et la Réforme s'installe. Les fortifications sont renforcées (forteresse de Vaxholm).</p>"] },
+
+  { id: "chateau", rubrique: "II · Formation et histoire urbaine", annee: "XIIIe siècle – 1697", titre: "De la tour au château Tre Kronor",
+    texte: ["<p>Au cœur des fortifications, une <b>tour de défense</b> surveille le passage de l'eau. Agrandie au fil des siècles, elle devient le <b>château Tre Kronor</b> (« trois couronnes »), résidence des rois et siège du pouvoir à l'époque des Vasa.</p>",
+            "<p>Le château brûle le <b>7 mai 1697</b> ; seule une aile survit. Nicodemus Tessin le Jeune dessine à sa place le palais royal baroque d'aujourd'hui, achevé en 1754.</p>",
+            "<p>Sur la carte, en violet : l'emprise approchée du château, qui disparaît en 1697.</p>"],
+    media: { t: "img", src: "../images/tre-kronor-maquette.webp", alt: "Maquette du château Tre Kronor", legende: "Maquette de l'ancien château Tre Kronor." } },
+
+  { id: "xvii", rubrique: "II · Formation et histoire urbaine", annee: "XVIIe siècle", titre: "Une capitale en plein essor",
+    chiffres: [["< 10 000", "habitants en 1600"], ["> 50 000", "habitants en 1675"]],
+    texte: ["<p><b>1625</b> : le grand incendie part de Kåkbrinken et ravage le sud-ouest de Stadsholmen (en rouge sur la carte). On reconstruit en rues régulières : Stora et Lilla Nygatan.</p>",
+            "<p><b>1635</b> : Norrmalm est réuni à la ville et reçoit un plan ordonné (Anders Torstensson) : rues larges et droites, Drottninggatan, Hötorget. À partir de 1641, des démolitions dégagent de nouveaux espaces. C'est la fin du désordre médiéval.</p>"],
+    media: { t: "vide", note: "Plan du XVIIe siècle (carte de 1642 / Harvard 1720) — rien de géoréférencé avant 1720", cle: "carte-1700" } },
+
+  { id: "xviii", rubrique: "II · Formation et histoire urbaine", annee: "XVIIIe siècle", titre: "Reconstruction et règles : puis la stagnation",
+    texte: ["<ul><li><b>1697</b> : l'incendie détruit le palais Tre Kronor, reconstruction massive.</li>",
+            "<li><b>1725</b> : premier code de construction, le bois est interdit dans la vieille ville.</li>",
+            "<li><b>1744-1753</b> : Christopher Polhem redessine l'écluse de Slussen.</li>",
+            "<li><b>1750-1850</b> : stagnation démographique et économique, malgré quelques progrès d'infrastructure.</li></ul>"],
+    media: { t: "vide", note: "Carte de Biurman, 1750 (Harvard) — à poser quand les GeoTIFF seront récupérés", cle: "carte-1750" } },
+
+  { id: "xix", rubrique: "II · Formation et histoire urbaine", annee: "XIXe siècle", titre: "La vapeur, le rail et la ville de pierre",
+    chiffres: [["245 000", "habitants"], ["1866", "plan de Lindhagen"]],
+    texte: ["<p>Les machines à vapeur (années 1800) et les usines (années 1840) font croître la ville vite ; la gare centrale et les tramways à cheval l'intègrent à un réseau plus large.</p>",
+            "<p>Le <b>plan Lindhagen</b> (1866) veut de grands boulevards — Sveavägen, 2 km. Une version plus modeste est adoptée en 1879 et guide Vasastan : rues plantées, limites de hauteur, équilibre entre densité et lumière. Vasastan et Östermalm : grands blocs fermés autour de cours, néoclassique et Art nouveau.</p>"],
+    media: { t: "img", src: "../images/plan-lindhagen-axes.jpg", alt: "Le plan Lindhagen et ses grands axes", legende: "Plan Lindhagen (1866) : les grands axes qui traversent les îles (flèches rouges)." } },
+
+  { id: "hygiene", rubrique: "II · Formation et histoire urbaine", annee: "1860 – 1900", titre: "L'eau propre, les égouts et les bains",
+    texte: ["<p>Au milieu du XIXe siècle, les eaux usées vont dans l'eau près des maisons et le choléra frappe. La ville répond par des <b>réseaux</b> :</p>",
+            "<ul><li><b>1861</b> : Skanstullsverket, premier service d'eau potable de Suède (filtres à sable, prise dans l'Årstaviken).</li><li><b>1866</b> : premier projet d'égouts pour toute la ville, adopté plus tard faute d'argent.</li><li><b>1884</b> : Strömbadet, bains municipaux flottants sur le Norrström (jusqu'en 1936).</li><li><b>1891</b> : des bains dans les écoles, car la plupart des logements n'ont pas de salle de bains.</li></ul>",
+            "<p>La rue devient aussi un réseau souterrain (eau, égouts), et le plan du logement change : cuisine, toilettes, puis salle de bains. En <b>1933</b> encore, 86 % des appartements enquêtés n'avaient ni douche ni baignoire.</p>"],
+    media: { t: "img", src: "../images/strandvagen.jpg", alt: "Strandvägen", legende: "Strandvägen, boulevard du XIXe siècle : lumière, air et arbres, l'autre réponse à l'insalubrité." } },
+
+  { id: "xx-debut", rubrique: "II · Formation et histoire urbaine", annee: "1900 – 1930", titre: "Romantisme national et fonctionnalisme",
+    chiffres: [["70 %", "du foncier urbain à la ville depuis 1904"]],
+    texte: ["<p>L'Exposition générale de 1897 à Djurgården révèle l'intérêt pour l'architecture locale (romantisme national). Le fonctionnalisme s'impose ensuite, avec une fusion unique entre tradition et innovation.</p>",
+            "<p>Depuis 1904, la municipalité possède environ 70 % de son foncier : c'est la clé de la planification — contrôle de l'urbanisme, valorisation des terrains, maîtrise des nouveaux quartiers.</p>",
+            "<p>L'<b>Exposition de Stockholm (1930)</b> lance le fonctionnalisme : un bâtiment se conçoit d'après son usage, la lumière, l'air et l'hygiène ; les immeubles s'implantent en rangées dans la verdure plutôt qu'en îlots fermés.</p>"],
+    media: { t: "img", src: "../images/fonctionnalisme-immeubles.jpg", alt: "Immeubles fonctionnalistes", legende: "Le fonctionnalisme après l'Exposition de 1930 : façades lisses, grandes fenêtres, rangées parallèles dans la verdure." } },
+
+  { id: "folkhemmet", rubrique: "II · Formation et histoire urbaine", annee: "Après 1945", titre: "Le Folkhemmet et le métro",
+    texte: ["<p>Le modèle du <i>Folkhemmet</i> — la « maison du peuple » — répond à la crise du logement par une construction massive de logements sociaux. Le <b>métro</b>, inauguré en 1950, désengorge le centre et fait naître les quartiers périphériques.</p>",
+            "<p>Vällingby et Farsta sont conçus comme des quartiers autonomes (logements, commerces, services) selon le principe <b>ABC</b> : <i>Arbete – Bostad – Centrum</i>, le métro comme lien. Stockholm passe d'une ville historique dense à une métropole planifiée.</p>"],
+    media: { t: "img", src: "../images/metro-slussen-1950.jpg", alt: "Inauguration du métro à Slussen, 1950", legende: "1er octobre 1950 : la foule à Slussen pour l'ouverture de la première ligne de métro (Slussen – Hökarängen)." } },
+
+  { id: "norrmalm", rubrique: "II · Formation et histoire urbaine", annee: "1945 – 1970", titre: "La rénovation de Norrmalm",
+    chiffres: [["750+", "bâtiments démolis"]],
+    texte: ["<p>Pour créer un nouveau centre moderne — bureaux, commerces, grandes infrastructures — plus de 750 bâtiments sont démolis. Le passage du métro est intégré. <b>Sergels Torg</b> en est le cœur moderniste.</p>"],
+    media: { t: "img", src: "../images/norrmalm-demolition.png", alt: "Norrmalm : chantiers et démolitions, plan de 1950 et d'aujourd'hui", legende: "Les démolitions de Norrmalm et le plan avant / après (1950 – aujourd'hui) : la rue Norra Smedjegatan disparaît sous le centre commercial Gallerian." } },
+
+  { id: "million", rubrique: "II · Formation et histoire urbaine", annee: "1965 – 1975", titre: "Le Programme Million",
+    texte: ["<p>Un million de logements en dix ans pour résoudre la pénurie. Le programme transforme la ville et son accès aux infrastructures, mais il suscite des critiques : homogénéité architecturale, isolement social.</p>",
+            "<p>Aujourd'hui, la majorité des zones vulnérables se trouve dans ces quartiers : les fractures urbaines ont une origine spatiale.</p>"],
+  },
+
+  { id: "aujourdhui", rubrique: "II · Formation et histoire urbaine", annee: "Depuis 1990", titre: "Reconvertir les friches : Hammarby Sjöstad, Royal Seaport",
+    texte: ["<p>Hammarby Sjöstad et Royal Seaport sont des modèles de transformation durable : anciens quartiers industriels, principes écologiques, mixité, meilleure qualité de vie.</p>"],
+    media: { t: "img", src: "../images/hammarby-sjostad.jpg", alt: "Hammarby Sjöstad", legende: "Hammarby Sjöstad : un ancien port industriel devenu quartier au bord de l'eau." } },
+
+  { id: "fin-histoire", carte: { theme: null, vue: "tout", an: [2026, 2026] }, rubrique: "II · Formation et histoire urbaine", annee: "2026", titre: "Stockholm aujourd'hui",
+    texte: ["<p>Huit siècles de croissance : le noyau serré de Stadsholmen, la grille du XVIIe siècle sur Norrmalm et Södermalm, les boulevards et les îlots fermés du XIXe, les villes nouvelles du métro au XXe, puis la reconversion des ports et des friches. Chaque étape répond à un problème de son temps : défendre et commercer, résister au feu, assainir, loger, se déplacer, préserver.</p>"] },
+
+  { id: "carte-pop", carte: { theme: "pop", vue: "tout", an: [1850, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "Où vivent les habitants ?",
+    texte: ["<p>Environ un million d'habitants dans ce carré de 22 km. La population (GHS-POP 2025) est répartie dans chaque bâtiment selon sa surface de plancher, puis comptée par carré.</p><p>Les plus fortes densités sont dans les îlots fermés du XIXe siècle (Vasastan, Södermalm, Östermalm) et autour des stations des villes du métro. L'animation remplit les bâtiments à mesure qu'ils apparaissent : elle montre où la ville s'est remplie, pas la population de chaque époque.</p>"] },
+
+  { id: "carte-bati", carte: { theme: "bati", vue: "tout", an: [1600, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "La densité bâtie",
+    texte: ["<p>La part du sol couverte par des bâtiments, carré par carré. Le centre historique dépasse 40 % ; les villes ABC du métro, bâties en barres et tours dans la verdure, restent sous 15 %.</p>"] },
+
+  { id: "carte-routes", carte: { theme: "routes", vue: "tout", an: [1252, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "Les routes",
+    texte: ["<p>Les rues selon leur importance : grandes radiales qui rejoignent les ponts, rues secondaires, puis le réseau de desserte. Les routes arrivent avant les bâtiments : elles portent les flux de personnes et de marchandises, la ville se construit le long d'elles.</p>"] },
+
+  { id: "carte-transports", carte: { theme: "transports", vue: "tout", an: [1860, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "Les transports",
+    texte: ["<p>Trains (1871), tramways, puis le métro (1950) qui rayonne vers les villes nouvelles. En vert : ce qu'on atteint à pied en 5 et 10 minutes depuis une station — l'essentiel de la ville bâtie après 1950 en est à moins de 10 minutes.</p>"] },
+
+  { id: "carte-centres", carte: { theme: "centres", vue: "tout", an: [2026, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "Les centres",
+    texte: ["<p>Là où se concentrent commerces, services et stations. Le centre principal est autour de Hötorget et Sergels torg (la City reconstruite) ; viennent ensuite Medborgarplatsen (Södermalm), Sankt Eriksgatan, et les centres des villes du métro.</p>"] },
+
+  { id: "carte-types", carte: { theme: "types", vue: "centre", an: [1850, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "Les types de bâtiments",
+    texte: ["<p>Logements, commerces et bureaux, équipements (écoles, santé, culte), industrie. Le type vient d'OpenStreetMap, et de l'occupation du sol autour quand le bâtiment n'est pas renseigné : une carte indicative.</p>"] },
+
+  { id: "carte-trame", carte: { theme: "trame", vue: "tout", an: [2026, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "La trame verte et bleue",
+    texte: ["<p>L'eau (douce du Mälaren, salée de la Baltique) et la végétation forment un réseau continu : des coins verts et des rives qui pénètrent jusqu'au cœur de la ville.</p>"] },
+
+  { id: "cas", rubrique: "III · Analyse morphologique", titre: "Deux études de cas : Gamla Stan et Hammarby Sjöstad",
+    texte: ["<ul><li><b>Gamla Stan</b> — 39 % d'emprise bâtie, 471 carrefours par km², îlot médian 1 870 m².</li>",
+            "<li><b>Hammarby Sjöstad</b> — 23 % d'emprise bâtie, 135 carrefours par km², îlot médian 7 110 m².</li></ul>",
+            "<p>Même échelle, deux logiques : le tissu serré du Moyen Âge, l'îlot ouvert et planifié de la fin du XXe.</p>"] },
+
+  { id: "promenade", rubrique: "III · Analyse morphologique", titre: "Une promenade dans Gamla Stan",
+    texte: ["<p>Le champ de vision à hauteur d'yeux, le long d'un parcours de 1 029 m : la surface vue change à chaque rue, à chaque place.</p>"],
+    media: { t: "video", src: V + "20261009-001755-promenade_gamla_stan_1029m.mp4", legende: "Promenade dans Gamla Stan, avec le champ de vision." } },
+
+  { id: "trois-periodes", grand: true, rubrique: "IV · Synthèse et conclusion", titre: "Comparaison de trois périodes : 1600, 1900, 2020",
+    image: C + "23_frise_1600_1900_2020.png", alt: "Comparaison 1600 / 1900 / 2020",
+    legende: "Trois plans, même échelle : le noyau serré, la ville de pierre du XIXe, la métropole actuelle." },
+
+  { id: "synthese", rubrique: "IV · Synthèse et conclusion", titre: "Facteurs, permanences et ruptures", classe: "sans-media",
+    texte: ["<p><b>À écrire.</b> Facteurs de transformation (politique, économie, démographie, transports, environnement) ; ce qui a été conservé, modifié, supprimé ; schéma de synthèse.</p>"] },
+
+  { id: "conclusion", rubrique: "IV · Synthèse et conclusion", titre: "Quelles leçons pour l'avenir ?", classe: "sans-media",
+    texte: ["<p>« Le développement unique de Stockholm tient à sa situation stratégique, à une gouvernance forte et à un urbanisme innovant. » <small>— Urban Studies</small></p>",
+            "<p><b>Conclusion à rédiger</b> : réponse à la problématique.</p>"] },
+
+  { id: "sources", rubrique: "Sources", titre: "Bibliographie et sources cartographiques", classe: "sans-media",
+    texte: ["<ul><li>Cartes anciennes : Harvard Library, via MIT GeoData (Stockholm 1720-1922).</li>",
+            "<li>Satellite : Landsat (1984-2026), GHSL (1975-2020).</li>",
+            "<li>Bâtiments d'architecte : ArkDes, Architecture Map (CC0).</li>",
+            "<li>Données : OpenStreetMap, Wikidata, Lantmäteriet, Overture Maps. Traitement : SiteScope.</li></ul>"] }
+];
+
+/* Les grandes images en travelling sont mises de côté pour l'instant (demandé le 13/10) : on les retire du récit. */
+for (let i = DIAPOS.length - 1; i >= 0; i--) if (DIAPOS[i].grand) DIAPOS.splice(i, 1);
+
+/* ---- fabrication de la page */
+const main = document.getElementById("main");
+const mediaHtml = (m) => {
+  if (!m) return "";
+  let h = "";
+  if (m.t === "img") h = `<img src="${m.src}" alt="${m.alt || ""}">`;
+  else if (m.t === "video") h = `<video src="${m.src}" controls muted playsinline preload="metadata"></video>`;
+  else h = `<div class="a-venir"><div><b>À venir</b>${m.note || ""}</div></div>`;
+  const l = m.legende ? `<div class="legende">${m.legende}</div>` : "";
+  return `<div class="media"><figure>${h}${l}</figure></div>`;
+};
+DIAPOS.forEach((d, i) => {
+  const s = document.createElement("section");
+  s.className = "diapo" + (d.classe === "titre" ? " titre" : "") + (d.grand ? " grand" : !d.media ? " sans-media" : "");
+  s.id = d.id; s.dataset.i = i;
+  if (d.carte) {                                   // une carte d'analyse en plein écran : un encart de texte et une légende
+    s.className = "diapo carte-chapitre";
+    s.innerHTML = `<div class="encart">${d.rubrique ? `<p class="kicker">${d.rubrique}</p>` : ""}${d.annee ? `<p class="annee">${d.annee}</p>` : ""}<h2>${d.titre}</h2>
+      <div class="encart-texte">${(d.texte || []).join("")}</div><div class="encart-legende" data-theme="${d.carte.theme || ""}"></div></div>`;
+    main.appendChild(s); return;
+  }
+  if (d.axo) {
+    s.className = "diapo axo";
+    s.innerHTML = `<div class="axo-cadre"><div class="axo-texte">${d.rubrique ? `<p class="kicker">${d.rubrique}</p>` : ""}<h2>${d.titre}</h2>
+      <p class="axo-intro">${d.intro || ""}</p><ol class="axo-liste"></ol><p class="axo-source legende"></p></div>
+      <div class="axo-scene"><div class="axo-pile"></div></div></div>`;
+    main.appendChild(s); return;
+  }
+  if (d.grand) {
+    s.innerHTML = `<div class="grand-cadre"><img src="${d.image}" alt="${d.alt || ""}" draggable="false">
+      <div class="grand-legende">${d.rubrique ? `<p class="kicker">${d.rubrique}</p>` : ""}<h2>${d.titre}</h2><p>${d.legende || ""}</p></div></div>`;
+    main.appendChild(s); return;
+  }
+  let t = `<div class="texte">${d.rubrique ? `<p class="kicker">${d.rubrique}</p>` : ""}${d.annee ? `<p class="annee">${d.annee}</p>` : ""}`;
+  t += d.classe === "titre" ? `<h1>${d.titre}</h1>` : `<h2>${d.titre}</h2>`;
+  if (d.chiffres) t += `<div class="chiffres">${d.chiffres.map(([n, l]) => `<div><span class="chiffre">${n}</span><small>${l}</small></div>`).join("")}</div>`;
+  if (d.frise) t += `<ul class="frise">${d.frise.map(([a, x]) => `<li><b>${a}</b>${x}</li>`).join("")}</ul>`;
+  t += (d.texte || []).join("") + "</div>";
+  s.innerHTML = t + mediaHtml(d.media);
+  main.appendChild(s);
+});
+const diapos = [...document.querySelectorAll(".diapo")];
+
+/* ---- défilement : révélation + barre de progression */
+const vu = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) e.target.classList.add("vue"); }), { threshold: 0.18 });
+diapos.forEach((s) => vu.observe(s));
+const progres = document.getElementById("progres");
+addEventListener("scroll", () => {
+  const h = document.documentElement; progres.style.width = (100 * h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight)) + "%";
+}, { passive: true });
+
+/* ---- les points de navigation à droite */
+const points = document.createElement("nav"); points.className = "points"; points.setAttribute("aria-label", "Diapositives");
+diapos.forEach((s, i) => { const b = document.createElement("button"); b.className = "point"; b.type = "button"; b.innerHTML = `<i></i><b>${i + 1}. ${DIAPOS[i].titre}</b>`;
+  b.onclick = () => (enDiapo() ? afficher(i) : s.scrollIntoView({ behavior: "smooth" })); points.appendChild(b); });
+document.body.appendChild(points);
+let pointActif = -1;
+function majPoints() {
+  let k = courante;
+  if (!enDiapo()) { const milieu = scrollY + innerHeight * 0.5; k = diapos.findIndex((s) => s.offsetTop + s.offsetHeight > milieu); if (k < 0) k = diapos.length - 1; }
+  if (k === pointActif) return; pointActif = k;
+  [...points.children].forEach((p, i) => p.classList.toggle("actif", i === k));
+}
+addEventListener("scroll", () => requestAnimationFrame(majPoints), { passive: true });
+setInterval(majPoints, 400);
+
+/* ---- diaporama */
+let courante = 0;
+const pNum = document.getElementById("p-num"), pRail = document.getElementById("p-rail"), bMode = document.getElementById("b-mode");
+function afficher(i) {
+  courante = Math.max(0, Math.min(diapos.length - 1, i));
+  diapos.forEach((s, k) => s.classList.toggle("courante", k === courante));
+  pNum.textContent = `${courante + 1} / ${diapos.length}`;
+  pRail.style.width = (100 * (courante + 1) / diapos.length) + "%";
+  document.querySelectorAll("video").forEach((v) => v.pause());
+  history.replaceState(null, "", "#" + diapos[courante].id); majPoints();
+}
+function modeDiaporama(on) {
+  if (on) {
+    const vue = diapos.findIndex((s) => s.getBoundingClientRect().bottom > innerHeight * 0.4);
+    document.body.classList.add("diaporama"); afficher(vue < 0 ? 0 : vue);
+  } else {
+    document.body.classList.remove("diaporama"); diapos[courante].scrollIntoView({ behavior: "instant" });
+    if (typeof dimensionner === "function") setTimeout(() => { dimensionner(); majDefilement(); }, 60);
+    if (document.fullscreenElement) document.exitFullscreen();
+  }
+  bMode.textContent = on ? "☰ Défilement" : "▶ Diaporama";
+}
+const enDiapo = () => document.body.classList.contains("diaporama");
+bMode.onclick = () => modeDiaporama(!enDiapo());
+document.getElementById("b-sommaire").onclick = () => {
+  const liste = diapos.map((s, i) => `${i + 1}. ${DIAPOS[i].titre}`).join("\n");
+  const n = parseInt(prompt("Aller à la diapo :\n\n" + liste), 10);
+  if (n >= 1 && n <= diapos.length) enDiapo() ? afficher(n - 1) : diapos[n - 1].scrollIntoView();
+};
+addEventListener("keydown", (e) => {
+  if (e.target.matches?.("input, textarea")) return;
+  if (e.key === "p" || e.key === "P") modeDiaporama(!enDiapo());
+  else if (e.key === "f" || e.key === "F") { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
+  else if (enDiapo()) {
+    if (["ArrowRight", "PageDown", " "].includes(e.key)) { e.preventDefault(); afficher(courante + 1); }
+    else if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); afficher(courante - 1); }
+    else if (e.key === "Home") afficher(0); else if (e.key === "End") afficher(diapos.length - 1);
+    else if (e.key === "Escape") modeDiaporama(false);
+  }
+});
+/* toucher : glisser à gauche / à droite en diaporama */
+let x0 = null;
+addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+addEventListener("touchend", (e) => {
+  if (x0 === null || !enDiapo()) return;
+  const dx = e.changedTouches[0].clientX - x0; x0 = null;
+  if (Math.abs(dx) > 60) afficher(courante + (dx < 0 ? 1 : -1));
+});
+
+/* ---- agrandir une image */
+const loupe = document.getElementById("loupe");
+document.addEventListener("click", (e) => {
+  const img = e.target.closest(".media img");
+  if (img) { loupe.querySelector("img").src = img.src; loupe.classList.add("on"); }
+  else if (e.target.closest("#loupe")) loupe.classList.remove("on");
+});
+
+/* La carte de la ville (mode défilement) : voir carte.js */
+if (location.hash === "#diaporama") modeDiaporama(true);
+else if (location.hash.length > 1) document.getElementById(location.hash.slice(1))?.scrollIntoView();
+</script>
+<script src="carte.js"></script>
+<script src="temps.js"></script>
+<script src="couches.js"></script>
+<script src="fond.js"></script>
+<script src="themes.js"></script>
+<script src="site.js"></script>
+<script type="module" src="axo3d.js"></script>
+</body>
+</html>

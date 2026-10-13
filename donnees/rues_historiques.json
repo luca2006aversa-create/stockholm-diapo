@@ -1,0 +1,294 @@
+{
+ "lisezmoi": "Rues, ponts et quais datés d'après les sources (Wikipedia sv/en, Stockholmskällan, Stadsmuseet). « existe » = la rue est là AU PLUS TARD cette année (elle apparaît en premier et tire derrière elle les rues qui la relient au centre) ; « ouvre » = elle n'apparaît PAS AVANT (pont ou avenue percée à cette date). Les noms sont ceux d'OpenStreetMap. Dates « approx. » : ordre de grandeur. Fichier à corriger à la main au besoin, puis relancer outils/preparer_donnees.py.",
+ "rues": [
+  {
+   "nom": "Västerlånggatan",
+   "existe": 1265,
+   "note": "suit le mur d'enceinte du XIIIe s."
+  },
+  {
+   "nom": "Österlånggatan",
+   "existe": 1265,
+   "note": "ancienne rive est de Stadsholmen, XIIIe s."
+  },
+  {
+   "nom": "Köpmangatan",
+   "existe": 1330,
+   "note": "rue médiévale (approx.)"
+  },
+  {
+   "nom": "Prästgatan",
+   "existe": 1330,
+   "note": "médiévale, nom attesté 1586 (approx.)"
+  },
+  {
+   "nom": "Stortorget",
+   "existe": 1300,
+   "note": "place du marché médiéval"
+  },
+  {
+   "nom": "Svartmangatan",
+   "existe": 1380,
+   "note": "médiévale (approx.)"
+  },
+  {
+   "nom": "Skomakargatan",
+   "existe": 1380,
+   "note": "médiévale (approx.)"
+  },
+  {
+   "nom": "Slottsbacken",
+   "existe": 1252,
+   "note": "montée au château Tre Kronor"
+  },
+  {
+   "nom": "Järntorget",
+   "existe": 1400,
+   "note": "place du fer, XVe s. (approx.)"
+  },
+  {
+   "nom": "Kåkbrinken",
+   "existe": 1350,
+   "note": "médiévale (approx.)"
+  },
+  {
+   "nom": "Götgatan",
+   "existe": 1300,
+   "note": "Göta landsväg, la route du sud, médiévale"
+  },
+  {
+   "nom": "Stora Nygatan",
+   "existe": 1645,
+   "ouvre": 1630,
+   "note": "percée après l'incendie de 1625 (approx.)"
+  },
+  {
+   "nom": "Lilla Nygatan",
+   "existe": 1645,
+   "ouvre": 1630,
+   "note": "percée après l'incendie de 1625 (approx.)"
+  },
+  {
+   "nom": "Skeppsbron",
+   "existe": 1650,
+   "note": "quai du port, XVIIe s. (approx.)"
+  },
+  {
+   "nom": "Drottninggatan",
+   "existe": 1640,
+   "note": "nommée en 1639 pour la reine Christine ; plan de Norrmalm des années 1630-1640"
+  },
+  {
+   "nom": "Regeringsgatan",
+   "existe": 1645,
+   "note": "plan régulier de Norrmalm, années 1640 (approx.)"
+  },
+  {
+   "nom": "Malmskillnadsgatan",
+   "existe": 1645,
+   "note": "plan de Norrmalm, années 1640 (approx.)"
+  },
+  {
+   "nom": "Hamngatan",
+   "existe": 1650,
+   "note": "plan de Norrmalm (approx.)"
+  },
+  {
+   "nom": "Norrtullsgatan",
+   "existe": 1650,
+   "note": "route d'Uppsala vers l'octroi de Norrtull (approx.)"
+  },
+  {
+   "nom": "Hornsgatan",
+   "existe": 1650,
+   "note": "Hornsvägen, route de l'ouest par Hornstull (approx.)"
+  },
+  {
+   "nom": "Folkungagatan",
+   "existe": 1680,
+   "note": "Södermalm est (approx.)"
+  },
+  {
+   "nom": "Hantverkargatan",
+   "existe": 1650,
+   "note": "ancienne grand-rue de Kungsholmen (approx.)"
+  },
+  {
+   "nom": "Karlbergsvägen",
+   "existe": 1660,
+   "note": "route du château de Karlberg (approx.)"
+  },
+  {
+   "nom": "Storgatan",
+   "existe": 1650,
+   "note": "plan régulier de Ladugårdslandet (Östermalm), années 1640 (approx.)"
+  },
+  {
+   "nom": "Riddargatan",
+   "existe": 1650,
+   "note": "plan de Ladugårdslandet (approx.)"
+  },
+  {
+   "nom": "Djurgårdsvägen",
+   "existe": 1700,
+   "note": "parc royal de Djurgården (approx.)"
+  },
+  {
+   "nom": "Vasagatan",
+   "existe": 1875,
+   "ouvre": 1865,
+   "note": "le long de la gare centrale (1871)"
+  },
+  {
+   "nom": "Strandvägen",
+   "existe": 1897,
+   "ouvre": 1860,
+   "note": "quai aménagé 1860-1897 (Exposition de 1897)"
+  },
+  {
+   "nom": "Birger Jarlsgatan",
+   "existe": 1885,
+   "ouvre": 1860,
+   "note": "plan Lindhagen (1866)"
+  },
+  {
+   "nom": "Sveavägen",
+   "existe": 1890,
+   "ouvre": 1870,
+   "note": "plan Lindhagen, grande avenue (approx.)"
+  },
+  {
+   "nom": "Odengatan",
+   "existe": 1890,
+   "ouvre": 1870,
+   "note": "plan Lindhagen (approx.)"
+  },
+  {
+   "nom": "Karlavägen",
+   "existe": 1890,
+   "ouvre": 1870,
+   "note": "plan Lindhagen (approx.)"
+  },
+  {
+   "nom": "Sankt Eriksgatan",
+   "existe": 1890,
+   "ouvre": 1870,
+   "note": "plan Lindhagen (approx.)"
+  },
+  {
+   "nom": "Fleminggatan",
+   "existe": 1890,
+   "ouvre": 1870,
+   "note": "plan Lindhagen (approx.)"
+  },
+  {
+   "nom": "Valhallavägen",
+   "existe": 1895,
+   "ouvre": 1875,
+   "note": "plan Lindhagen (approx.)"
+  },
+  {
+   "nom": "Narvavägen",
+   "existe": 1900,
+   "ouvre": 1880,
+   "note": "plan Lindhagen (approx.)"
+  },
+  {
+   "nom": "Ringvägen",
+   "existe": 1905,
+   "ouvre": 1875,
+   "note": "boulevard circulaire de Södermalm, plan Lindhagen (approx.)"
+  },
+  {
+   "nom": "Torsgatan",
+   "existe": 1900,
+   "ouvre": 1870,
+   "note": "(approx.)"
+  },
+  {
+   "nom": "Kungsgatan",
+   "existe": 1911,
+   "ouvre": 1905,
+   "note": "percée dans la colline de Brunkeberg, inaugurée en 1911"
+  },
+  {
+   "nom": "Norr Mälarstrand",
+   "existe": 1940,
+   "ouvre": 1900,
+   "note": "quai de Kungsholmen, 1900-1940 (approx.)"
+  }
+ ],
+ "ponts": [
+  {
+   "nom": "Norrbro",
+   "existe": 1300,
+   "note": "passage attesté 1288 ; pont de pierre achevé en 1807"
+  },
+  {
+   "nom": "Skeppsholmsbron",
+   "existe": 1861,
+   "ouvre": 1861
+  },
+  {
+   "nom": "Vasabron",
+   "existe": 1878,
+   "ouvre": 1878
+  },
+  {
+   "nom": "Djurgårdsbron",
+   "existe": 1897,
+   "ouvre": 1897
+  },
+  {
+   "nom": "Sankt Eriksbron",
+   "existe": 1906,
+   "ouvre": 1906
+  },
+  {
+   "nom": "Lidingöbron",
+   "existe": 1925,
+   "ouvre": 1925
+  },
+  {
+   "nom": "Liljeholmsbron",
+   "existe": 1928,
+   "ouvre": 1928
+  },
+  {
+   "nom": "Riksbron",
+   "existe": 1931,
+   "ouvre": 1931
+  },
+  {
+   "nom": "Tranebergsbron",
+   "existe": 1934,
+   "ouvre": 1934
+  },
+  {
+   "nom": "Västerbron",
+   "existe": 1935,
+   "ouvre": 1935,
+   "note": "ouvert le 20 novembre 1935"
+  },
+  {
+   "nom": "Strömbron",
+   "existe": 1946,
+   "ouvre": 1946
+  },
+  {
+   "nom": "Skanstullsbron",
+   "existe": 1946,
+   "ouvre": 1946
+  },
+  {
+   "nom": "Centralbron",
+   "existe": 1967,
+   "ouvre": 1967
+  },
+  {
+   "nom": "Johanneshovsbron",
+   "existe": 1984,
+   "ouvre": 1984
+  }
+ ]
+}
