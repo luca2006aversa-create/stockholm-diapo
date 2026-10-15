@@ -5,7 +5,7 @@
 const FRISE_W = 1000, FRISE_H = 64, FRISE_PAD = 6;
 const COULEURS_EVENEMENTS = { incendie: "#e0301c", plan: "#3f6fb0", infrastructure: "#2f8f8a", economie: "#c99a20", politique: "#7a5c9e", demolition: "#8a3a2a", autre: "#7d776c" };
 const NOMS_TYPES = { incendie: "incendie", plan: "plan d'urbanisme", infrastructure: "infrastructure", economie: "économie", politique: "politique", demolition: "démolition", autre: "autre" };
-let chrono = { phases: [], evenements: [] }, courbe = null;
+let chrono = { phases: [], evenements: [] }, courbe = null, evenementAffiche = null;
 
 /* L'échelle n'est pas linéaire : le Moyen Âge est tassé, les deux derniers siècles ont plus de place. */
 const xAn = (y) => FRISE_PAD + (FRISE_W - 2 * FRISE_PAD) * Math.pow(borne01((y - ANNEE_MIN) / (ANNEE_MAX - ANNEE_MIN)), 1.55);
@@ -60,9 +60,11 @@ function dessinerTemps() {
   /* l'événement du moment, en bandeau sur la carte */
   if (!ville || cam.span > 150000) { bandeau.hidden = true; return; }
   const proches = chrono.evenements.filter((e) => (an >= e.an - 1.5 && an <= e.an + 6) || (e.fin != null && e.fin - e.an <= 25 && an >= e.an && an <= e.fin));
-  if (!proches.length) { bandeau.hidden = true; return; }
+  if (!proches.length) { bandeau.hidden = true; evenementAffiche = null; return; }
   const e = proches.sort((p, q) => Math.abs(an - p.an) - Math.abs(an - q.an))[0], c = COULEURS_EVENEMENTS[e.type] || "#777";
   bandeau.hidden = false;
+  if (e === evenementAffiche) return;                  // le texte ne change pas : pas de réécriture du DOM
+  evenementAffiche = e;
   bandeau.style.setProperty("--c", c);
   bandeau.innerHTML = `<b>${e.an}${e.fin ? "–" + e.fin : ""}</b> ${e.titre}${e.lieu ? `<small>${e.lieu}</small>` : ""}`;
 }

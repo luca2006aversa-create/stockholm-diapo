@@ -51,25 +51,24 @@ async function construire() {
   const chargeur = new THREE.TextureLoader();
   const charger = (f) => new Promise((ok) => chargeur.load(base + f, ok, undefined, () => ok(null)));
   const [texRelief, texSat] = await Promise.all([charger("3d/tex_relief.png"), charger("3d/tex_satellite.jpg")]);
-  const textures = {
-    eau: toile((g) => { eauSurToile(g); g.strokeStyle = "#5b98c4"; g.lineWidth = 1.6; g.beginPath(); geo(g, cours, false); g.stroke(); }),
-    relief: texRelief,
-    bassins: toile((g) => {
+  const pause = () => new Promise((r) => setTimeout(r, 40));      // la construction est coupée en morceaux : le défilement ne se fige pas
+  const textures = { relief: texRelief, satellite: texSat };
+  textures.eau = toile((g) => { eauSurToile(g); g.strokeStyle = "#5b98c4"; g.lineWidth = 1.6; g.beginPath(); geo(g, cours, false); g.stroke(); }); await pause();
+  textures.bassins = toile((g) => {
       const teintes = ["#e7c46a", "#9fc59a", "#d79a7c", "#8fb3d1", "#c6a3cf", "#b8c477", "#e0a1a8", "#86c4b8", "#d3b48c", "#a7a6d9"];
       (bassins?.features || []).forEach((f, i) => { g.globalAlpha = 0.7; g.fillStyle = teintes[i % teintes.length]; g.beginPath(); geo(g, { features: [f] }, true); g.fill(); });
       g.globalAlpha = 1; eauSurToile(g);
       g.strokeStyle = "#5a2d1a"; g.lineWidth = 3.2; g.setLineDash([12, 8]); g.beginPath(); geo(g, partage, false); g.stroke(); g.setLineDash([]);
-    }),
-    vert: toile((g) => {
+    }); await pause();
+  textures.vert = toile((g) => {
       eauSurToile(g); g.fillStyle = "#5f9b55"; g.beginPath();
       for (const v of ville.fond.vert || []) for (const a of v) traceLocal(g, a, true);
       for (const x of ville.objets0 || []) if (x.g === "espaces" && x.k === "poly") for (const a of x.f) traceLocal(g, a, true);
       g.fill();
-    }),
-    satellite: texSat
-  };
+    }); await pause();
   for (const t of Object.values(textures)) if (t) { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; }
 
+  await pause();
   /* le relief : une grille qui suit l'altitude, partagée par toutes les plaques */
   const W = S.largeur, H = S.hauteur, CELL = S.maille_m, pas = 2, w2 = Math.floor((W - 1) / pas) + 1, h2 = Math.floor((H - 1) / pas) + 1;
   const pos = new Float32Array(w2 * h2 * 3), uv = new Float32Array(w2 * h2 * 2);
@@ -82,7 +81,7 @@ async function construire() {
   for (let i = 0; i < h2 - 1; i++) for (let j = 0; j < w2 - 1; j++) { const a = i * w2 + j, b = a + 1, c = a + w2, d = c + 1; idx.set([a, c, b, b, c, d], n); n += 6; }
   const grille = new THREE.BufferGeometry();
   grille.setAttribute("position", new THREE.BufferAttribute(pos, 3)); grille.setAttribute("uv", new THREE.BufferAttribute(uv, 2)); grille.setIndex(new THREE.BufferAttribute(idx, 1));
-  grille.computeVertexNormals();
+  grille.computeVertexNormals(); await pause();
   /* fil de fer pour la plaque de l'eau (comme une maquette filaire), une ligne sur 4 */
   const fil = []; const P = (i, j) => { const k = i * w2 + j; return [pos[k * 3], pos[k * 3 + 1] + 4, pos[k * 3 + 2]]; };
   for (let i = 0; i < h2; i += 4) for (let j = 0; j < w2 - 1; j++) fil.push(...P(i, j), ...P(i, j + 1));

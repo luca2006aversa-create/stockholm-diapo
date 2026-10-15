@@ -20,7 +20,7 @@ const aireAnneau = (r) => { let s = 0; for (let i = 0, j = r.length - 2; i < r.l
 function dessinerDensite(P) {
   if (!densiteOn || cam.span > 60000) {
     legende.hidden = !legende.dataset.carte;
-    if (legende.dataset.carte) legende.innerHTML = `<span class="source">${legende.dataset.carte}</span>`;
+    if (legende.dataset.carte) { const h = `<span class="source">${legende.dataset.carte}</span>`; if (legende._h !== h) legende.innerHTML = legende._h = h; }
     return;
   }
   const cote = cam.span > 15000 ? 500 : cam.span > 4000 ? 250 : 100, cellules = new Map();
@@ -51,9 +51,10 @@ function dessinerDensite(P) {
   top.sort((a, b) => b[0] - a[0]).slice(0, 6).forEach(([ces, x, y]) => { cx.lineWidth = 3 * dpr; cx.strokeStyle = "#fff"; cx.fillStyle = "#3a0b0b"; const t = Math.round(ces * 100) + " %"; cx.strokeText(t, x, y); cx.fillText(t, x, y); });
   cx.restore();
   legende.hidden = false;
-  legende.innerHTML = `<b>Densité bâtie en ${Math.round(an)}</b><span>part du sol couverte par des bâtiments, carrés de ${cote} m</span>
+  const html = `<b>Densité bâtie en ${Math.round(an)}</b><span>part du sol couverte par des bâtiments, carrés de ${cote} m</span>
     <div class="rampe">${RAMPE_D.map(([s, c], i) => `<i style="background:${c}"></i><em>${i === 0 ? "3" : Math.round(RAMPE_D[i - 1][0] * 100)}–${s < 1 ? Math.round(s * 100) : "+"}</em>`).join("")}</div>
     ${legende.dataset.carte ? `<span class="source">${legende.dataset.carte}</span>` : ""}`;
+  if (legende._h !== html) legende.innerHTML = legende._h = html;       // réécrit seulement si le texte change
 }
 
 /* ---- cartes anciennes : la plus récente avant l'année affichée, posée exactement à sa place ---- */

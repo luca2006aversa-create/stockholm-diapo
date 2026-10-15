@@ -42,8 +42,9 @@ const cv = document.getElementById("carte"), cx = cv.getContext("2d");
 const elAn = document.getElementById("an-affiche"), elLieu = document.getElementById("an-lieu"), elCurseur = document.getElementById("an-curseur");
 const elLecture = document.getElementById("an-lecture"), elNote = document.getElementById("an-note");
 let ville = null, europe = null, fondCache = null, sale = true, an = ANNEE_MIN, cam = { x: 0, y: 0, span: 6200000 }, libre = false, lecture = false, dpr = 1;
+let dprMax = 2, lentes = 0;       // résolution maximale : baisse d'un cran si les images sont trop longues à dessiner (tablette, vieux portable)
 let quartiers = { zones: [], batiments: [], dates: [], tout: null }, edition = false;
-const sombre = () => matchMedia("(prefers-color-scheme: dark)").matches;
+const mqSombre = matchMedia("(prefers-color-scheme: dark)"), sombre = () => mqSombre.matches;     // l'objet est créé une fois
 const lisse = (t) => t * t * (3 - 2 * t);
 const borne01 = (t) => Math.max(0, Math.min(1, t));
 const bornes = (f) => { let a = 1e9, b = 1e9, c = -1e9, d = -1e9; for (let i = 0; i < f.length; i += 2) { if (f[i] < a) a = f[i]; if (f[i] > c) c = f[i]; if (f[i + 1] < b) b = f[i + 1]; if (f[i + 1] > d) d = f[i + 1]; } return [a, b, c, d]; };
@@ -111,18 +112,21 @@ function preparerScenes() {
     scenes.push({ ...sc, el: s, ancre: () => s.offsetTop + s.offsetHeight / 2, hist: i >= iH0 && i < iH1 });
   });
 }
+/* positions des scènes : lues une fois (la mise en page est relue seulement quand la page change de taille) */
+const Y = (s) => (s._y ??= s.ancre());
+new ResizeObserver(() => { for (const s of scenes) s._y = undefined; }).observe(document.body);
 function sceneDefilement() {
   const milieu = scrollY + innerHeight * 0.5;
   /* dans une carte plein écran : l'année défile avec le défilement (la petite animation de la carte) */
   for (let k = 0; k < scenes.length - 1; k++) {
     const a = scenes[k], b = scenes[k + 1];
-    if (a.entree && b.sortie && a.el === b.el && milieu >= a.ancre() && milieu <= b.ancre()) {
-      const p = borne01((milieu - a.ancre()) / Math.max(1, b.ancre() - a.ancre())), c = vueCam(a.vue);
+    if (a.entree && b.sortie && a.el === b.el && milieu >= Y(a) && milieu <= Y(b)) {
+      const p = borne01((milieu - Y(a)) / Math.max(1, Y(b) - Y(a))), c = vueCam(a.vue);
       return { an: a.an + (b.an - a.an) * lisse(borne01(p / 0.8)), th: null, cam: { x: c.x, y: c.y, span: c.span }, nom: c.nom, carte: a.carte };
     }
   }
   const nor = scenes;
-  const ys = nor.map((s) => s.ancre());
+  const ys = nor.map(Y);
   let i = ys.findIndex((y) => y > milieu) - 1;
   if (i < 0) i = ys[0] > milieu ? 0 : nor.length - 1;
   const j = Math.min(nor.length - 1, i + 1);
@@ -154,7 +158,7 @@ function pasLisse(t) {
   majTemps(); sale = true; planifier();
   if (fini) anime = false; else requestAnimationFrame(pasLisse);
 }
-function majTemps() { elCurseur.value = Math.round(an); if (typeof dessinerTemps === "function") dessinerTemps(); }
+function majTemps() { elCurseur.value = Math.round(an); }          // la tête de la frise est déplacée par rendre()
 
 /* ---- dessin ---- */
 function trace(c, f, ferme, cm) {
@@ -247,6 +251,15 @@ function dessinerPays(P, alphaPays) {
 
 function rendre() {
   sale = false; if (!ville) return;
+  const t0 = performance.now();
+  rendreImage();
+  if (anime) {                                           // en mouvement seulement : trop lent trop longtemps → on baisse la résolution
+    lentes = performance.now() - t0 > 30 ? lentes + 1 : Math.max(0, lentes - 1);
+    if (lentes >= 15 && dprMax > 1.25 && devicePixelRatio > 1.25) { dprMax = Math.max(1.25, dprMax - 0.5); lentes = 0; dimensionner(); }
+  }
+}
+function rendreImage() {
+  if (!ville) return;
   const P = palette(), dim = themeCourant ? new Set(THEMES_VISIBLES[themeCourant]) : null;
   /* fond : la mer de loin, la terre quand on est dans la ville */
   const loin = 1;      // la carte des pays reste dessous à toutes les échelles : la ville (masquée, bord progressif) s'y fond
@@ -357,7 +370,7 @@ function preparerObjets() {
     if (o.k === "point") continue;                      // pas de points : seulement des surfaces et des lignes
     (o.g === "monument" || (o.fin != null && !(o.g === "bati" && !o.brule)) ? speciaux : stables).push(o);
   }
-  ville.stables = stables; ville.speciaux = speciaux; ville.stablesAn = Float64Array.from(stables, (o) => o.an);
+  ville.batiListe = null; ville.stables = stables; ville.speciaux = speciaux; ville.stablesAn = Float64Array.from(stables, (o) => o.an);
   coucheObjets = null;
 }
 /* range l'objet dans son lot (couleur, opacité, largeur) ; renvoie son âge et sa destruction, ou null s'il n'est pas dessiné */
@@ -469,7 +482,7 @@ function mixer0(a, b, t) {
 let planifie = false;
 function planifier() { if (planifie) return; planifie = true; requestAnimationFrame(() => { planifie = false; if (sale) rendre(); }); }
 function dimensionner() {
-  dpr = Math.min(2, devicePixelRatio || 1);
+  dpr = Math.min(dprMax, devicePixelRatio || 1);
   const r = cv.getBoundingClientRect(); cv.width = Math.max(2, Math.round(r.width * dpr)); cv.height = Math.max(2, Math.round(r.height * dpr));
   fondCache = null; coucheObjets = null; sale = true; planifier();
 }

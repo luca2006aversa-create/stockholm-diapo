@@ -7,7 +7,11 @@ let fondRegion = null, styleCarte = null;
 const CLASSES_SOL = { 10: "foret", 20: "foret", 30: "prairie", 40: "culture", 50: "bati", 60: "solnu", 90: "humide", 95: "humide", 100: "solnu" };
 
 function construireFondRegion() {
-  if (!ville || !styleCarte || !fondRegion?.img || !fondRegion.eau) return;
+  if (!ville || !styleCarte || !fondRegion?.eau) return;
+  if (!fondRegion.img) {                                  // l'image source a été libérée (58 Mo) : on la recharge pour changer de thème
+    if (fondRegion.charge) return; fondRegion.charge = true;
+    const im = new Image(); im.onload = () => { fondRegion.charge = false; fondRegion.img = im; construireFondRegion(); }; im.src = "../donnees/fond/sol_region.png"; return;
+  }
   const st = styleCarte[sombre() ? "sombre" : "clair"], { meta, img, eau } = fondRegion;
   const W = meta.largeur, H = meta.hauteur, c = document.createElement("canvas"); c.width = W; c.height = H;
   const g = c.getContext("2d", { willReadFrequently: true }); g.drawImage(img, 0, 0);
@@ -31,7 +35,7 @@ function construireFondRegion() {
     g.fillStyle = gr; g.fillRect(0, 0, W, H);
   }
   g.globalCompositeOperation = "source-over";
-  fondRegion.c = c; fondRegion.theme = sombre();
+  fondRegion.c = c; fondRegion.theme = sombre(); fondRegion.img = null;      // l'image source n'est plus utile : mémoire rendue
   sale = true; planifier();
 }
 const bougeFond = () => typeof anime !== "undefined" && anime;
