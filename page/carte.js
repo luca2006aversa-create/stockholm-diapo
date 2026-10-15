@@ -212,6 +212,7 @@ let reglageFond = 0;
 /* L'Europe et la Suède : visibles de loin, elles s'effacent quand on entre dans la ville. */
 function dessinerPays(P, alphaPays) {
   if (!europe || alphaPays <= 0.01) return;
+  if (typeof regionCouvre === "function" && regionCouvre()) return;      // le fond régional précis recouvre tout l'écran
   const o = ville.origine;
   cx.save(); cx.globalAlpha = alphaPays; cx.lineJoin = "round";
   /* de près, le trait de côte de Natural Earth (1:50 m) est trop grossier : on le floute, comme une mise au point sur la ville */
