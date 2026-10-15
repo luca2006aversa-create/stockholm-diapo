@@ -141,6 +141,21 @@
     background: color-mix(in srgb, var(--papier) 90%, transparent); padding: 10px 16px 12px; border-radius: 6px; }
   .grand-legende h2 { font-size: clamp(1.1rem, 2vw, 1.6rem); margin: 0 0 .25em; }
   .grand-legende p:last-child { margin: 0; font-size: .92rem; color: var(--discret); }
+  /* page « fixe » : le texte en haut, l'image en bas, tout est lisible sans travelling */
+  .diapo .grand-cadre.fixe { flex-direction: column; align-items: stretch; justify-content: flex-start; padding: 0 0 18px; }
+  .diapo .grand-cadre.fixe .grand-legende { order: -1; position: relative; inset: auto; transform: none; max-width: 56rem; width: auto; margin: 0 auto; padding: 22px clamp(18px, 3vw, 52px) 10px; background: none; text-align: left; opacity: 1 !important; pointer-events: auto; }
+  .diapo .grand-cadre.fixe .grand-legende h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); }
+  .diapo .grand-cadre.fixe .grand-legende p:last-child { font-size: clamp(1rem, 1.5vw, 1.2rem); line-height: 1.6; color: var(--encre); }
+  .diapo .grand-cadre.fixe img { margin: 0 auto; flex: 1 1 0; min-height: 0; width: auto; max-width: 94vw; object-fit: contain; transform: none !important; align-self: center; filter: none; }
+  body.diaporama .diapo .grand-cadre.fixe img { max-height: none; width: auto !important; height: auto !important; max-width: 94vw; }
+  body.diaporama .diapo .grand-cadre.fixe .grand-legende { position: relative; bottom: auto; left: auto; transform: none; width: auto; text-align: left; }
+  /* arrêts de l'histoire : incendies, démolitions, bâtiments — un cartouche coloré, facile à reconnaître */
+  .diapo.arret .texte { border-left: 6px solid rgb(var(--arret, 224, 48, 28)); padding-left: 18px; }
+  .diapo.arret.demolition { --arret: 150, 70, 40; } .diapo.arret.batiment { --arret: 232, 150, 30; }
+  .diapo.arret .annee { color: rgb(var(--arret)); font-weight: 800; font-size: clamp(1.1rem, 2vw, 1.6rem); letter-spacing: .02em; }
+  .diapo.arret .annee::before { content: "● "; }
+  .diapo.arret h2 { font-size: clamp(1.7rem, 3.2vw, 2.6rem); }
+  .arret-lieu { color: var(--discret); font-weight: 600; margin-top: 0; }
   body.diaporama .diapo.grand { display: none; }
   body.diaporama .diapo.grand.courante { display: block; height: 100vh !important; padding: 0; }
   body.diaporama .grand-cadre { top: 0; height: 100vh; justify-content: center; align-items: center; padding: 0; }
@@ -295,6 +310,8 @@
 <div class="pied-diapo"><span id="p-num"></span><span class="rail"><i id="p-rail"></i></span><span class="espace"></span><span>← → pour avancer · Échap pour quitter · F plein écran</span></div>
 <div class="loupe" id="loupe"><img alt=""></div>
 
+<script src="arrets-donnees.js"></script>
+<script src="batiments-dessins.js"></script>
 <script>
 /* Les diapos. Une seule liste sert aux deux modes (défilement et diaporama).
    media : {t:"img"|"video"|"vide", src, alt, note}  — "vide" = emplacement réservé, à remplir. */
@@ -307,6 +324,10 @@ const DIAPOS = [
     chiffres: [["14", "îles"], ["30 %", "eau, parcs et espaces verts"]],
     texte: ["<p>Capitale de la Suède, sur la côte est, dans le comté de Stockholm (région historique du Svealand). Elle s'est installée à l'endroit où le lac Mälaren rejoint la mer, et c'est cette position qui a fait d'elle le principal centre politique, économique et culturel du pays.</p>"],
     sansCarte: true },
+
+  { id: "ambiance-intro", grand: true, fixe: true, rubrique: "I · Introduction et contexte", titre: "L'ambiance de Stockholm",
+    image: "../images/ambiance.jpg", alt: "Ambiance — Stockholm : le cœur historique, l'eau et les quais, l'architecture moderne, les espaces verts, les pratiques quotidiennes",
+    legende: "Avant les chiffres et les cartes : une ville qui vit avec l'eau et la nature. Le cœur historique de Gamla Stan, les quais où l'on se retrouve, l'architecture moderne, les parcs qui entrent jusqu'au centre, et des habitudes bien à elle : le fika (la pause café), Midsommar, le lagom — « ni trop, ni trop peu »." },
 
   { id: "nature", rubrique: "I · Introduction et contexte", titre: "Le contexte naturel : l'eau, la roche, le froid",
     texte: ["<ul><li><b>Ville d'eau.</b> Quatorze îles, de nombreuses rives, des ponts et des espaces naturels.</li>",
@@ -484,7 +505,8 @@ const DIAPOS = [
 ];
 
 /* Les grandes images en travelling sont mises de côté pour l'instant (demandé le 13/10) : on les retire du récit. */
-for (let i = DIAPOS.length - 1; i >= 0; i--) if (DIAPOS[i].grand) DIAPOS.splice(i, 1);
+for (let i = DIAPOS.length - 1; i >= 0; i--) if (DIAPOS[i].grand && !DIAPOS[i].fixe) DIAPOS.splice(i, 1);
+insererArrets(DIAPOS);          // incendies et dessins de bâtiments, à leur date (arrets-donnees.js)
 
 /* ---- fabrication de la page */
 const main = document.getElementById("main");
@@ -499,7 +521,7 @@ const mediaHtml = (m) => {
 };
 DIAPOS.forEach((d, i) => {
   const s = document.createElement("section");
-  s.className = "diapo" + (d.classe === "titre" ? " titre" : "") + (d.grand ? " grand" : !d.media ? " sans-media" : "");
+  s.className = "diapo" + (d.classe === "titre" ? " titre" : "") + (d.grand ? " grand" + (d.fixe ? " fixe" : "") : !d.media ? " sans-media" : "") + (d.arret ? " arret " + d.arret.nature : "");
   s.id = d.id; s.dataset.i = i;
   if (d.carte) {                                   // une carte d'analyse en plein écran : un encart de texte et une légende
     s.className = "diapo carte-chapitre";
@@ -515,7 +537,7 @@ DIAPOS.forEach((d, i) => {
     main.appendChild(s); return;
   }
   if (d.grand) {
-    s.innerHTML = `<div class="grand-cadre"><img src="${d.image}" alt="${d.alt || ""}" draggable="false">
+    s.innerHTML = `<div class="grand-cadre${d.fixe ? " fixe" : ""}"><img src="${d.image}" alt="${d.alt || ""}" draggable="false">
       <div class="grand-legende">${d.rubrique ? `<p class="kicker">${d.rubrique}</p>` : ""}<h2>${d.titre}</h2><p>${d.legende || ""}</p></div></div>`;
     main.appendChild(s); return;
   }
@@ -614,6 +636,7 @@ if (location.hash === "#diaporama") modeDiaporama(true);
 else if (location.hash.length > 1) document.getElementById(location.hash.slice(1))?.scrollIntoView();
 </script>
 <script src="carte.js"></script>
+<script src="arrets.js"></script>
 <script src="temps.js"></script>
 <script src="couches.js"></script>
 <script src="fond.js"></script>

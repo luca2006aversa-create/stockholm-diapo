@@ -149,14 +149,15 @@ function sceneDefilement() {
   const t = i === j ? 0 : borne01((milieu - ys[i]) / (ys[j] - ys[i]));
   const a = nor[i], b = nor[j], ca = vueCam(a.vue), cb = vueCam(b.vue), hist = !!(a.hist && b.hist);
   const e = hist ? lisse(borne01((t - 0.3) / 0.4)) : lisse(borne01((t - 0.42) / 0.16));   // palier au milieu de la diapo ; hors histoire le changement est bref
-  return { an: a.an + (b.an - a.an) * e, th: e < 0.5 ? a.th : b.th, cam: zoomAncre(ca, cb, e), nom: (e < 0.5 ? ca : cb).nom, hist };
+  return { an: a.an + (b.an - a.an) * e, th: e < 0.5 ? a.th : b.th, cam: zoomAncre(ca, cb, e), nom: (e < 0.5 ? ca : cb).nom, hist, arret: (e < 0.5 ? a : b).arret || null };
 }
-let themeCourant = null, cible = null, anime = false, tAvant = 0;
+let themeCourant = null, cible = null, anime = false, tAvant = 0, arretActif = null;      // arretActif : l'arrêt de l'histoire en cours (arrets.js)
 /* Le défilement fixe une CIBLE (année, vue) ; la carte la rejoint en douceur, image après image, quelle que soit la vitesse du doigt ou de la molette. */
 function majDefilement(net = false) {
   if (!ville || enDiapo() || libre || lecture || edition) return;
   const s = sceneDefilement();
   cible = s; themeCourant = s.th || null; elLieu.textContent = s.nom;
+  if (arretActif !== s.arret) { arretActif = s.arret; sale = true; planifier(); }
   if (typeof choisirCarte === "function") choisirCarte(s.carte || null);
   if (net) { an = s.an; cam = { ...s.cam }; majTemps(); sale = true; planifier(); return; }
   if (!anime) { anime = true; tAvant = performance.now(); requestAnimationFrame(pasLisse); }
@@ -312,6 +313,7 @@ function rendreImage() {
   if (typeof dessinerMer === "function") dessinerMer(P);                // routes maritimes et ports (histoire)
   if (typeof dessinerThemeLoin === "function") dessinerThemeLoin(P);      // cartes à grande échelle (routes anciennes)
   if (typeof dessinerDensite === "function") dessinerDensite(P);
+  if (typeof dessinerArret === "function") dessinerArret(P);
   if (typeof dessinerTemps === "function") dessinerTemps();
   if (edition) dessinerEdition(P);
   elAn.textContent = cam.span > 150000 && !(typeof themeActif !== "undefined" && THEMES_CARTE[themeActif]?.loin) ? "" : an < 1000 ? "dès l'an " + Math.round(an) : Math.round(an);
@@ -539,6 +541,12 @@ function majGrands() {
   for (const g of document.querySelectorAll(".diapo.grand")) {
     const img = g.querySelector("img"); if (!img || !img.naturalWidth) continue;
     const cadre = g.querySelector(".grand-cadre");
+    if (g.classList.contains("fixe")) {                // page fixe : l'image reste à sa place ; seul le voile (la ville s'efface) suit le défilement
+      const longueur = vh * 0.9; g.style.height = (vh + longueur) + "px";
+      const p = borne01((scrollY - g.offsetTop) / longueur), voile = Math.sin(Math.PI * p) ** 0.45;
+      cadre.style.setProperty("--voile", Math.max(voile, p > 0 && p < 1 ? Math.min(1, p / 0.12, (1 - p) / 0.12) : 0).toFixed(3));
+      continue;
+    }
     const h = vh * 0.78, w = h * img.naturalWidth / img.naturalHeight;
     img.style.height = h + "px"; img.style.width = w + "px";
     const trajet = vw + w, longueur = Math.max(trajet * 0.75, vh * 1.6);              // distance de défilement vertical pour tout le travelling
