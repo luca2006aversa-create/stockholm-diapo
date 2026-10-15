@@ -12,10 +12,10 @@ const LIEUX = {   /* vues : centre (lon, lat) et largeur montrée en mètres */
   europe: { c: [14, 58.5], span: 6200000, nom: "Europe" },
   suede: { c: [16.5, 62.3], span: 3300000, nom: "Suède" },
   tout: { c: null, span: 23000, nom: "Grand Stockholm" },
-  centre: { c: [18.0700, 59.3290], span: 6200, nom: "Le centre" },
-  gamla: { c: [18.0710, 59.3250], span: 2400, nom: "Gamla Stan · Stadsholmen" },
-  norrmalm: { c: [18.0650, 59.3330], span: 3000, nom: "Norrmalm" },
-  hammarby: { c: [18.1050, 59.3040], span: 4000, nom: "Hammarby Sjöstad" }
+  centre: { c: [18.0700, 59.3290], span: 7600, nom: "Le centre" },
+  gamla: { c: [18.0710, 59.3250], span: 3000, nom: "Gamla Stan · Stadsholmen" },
+  norrmalm: { c: [18.0650, 59.3330], span: 3700, nom: "Norrmalm" },
+  hammarby: { c: [18.1050, 59.3040], span: 4900, nom: "Hammarby Sjöstad" }
 };
 /* Pour chaque diapo : l'année montrée, la vue, et le thème (ce qui est mis en avant). */
 const SCENES = {

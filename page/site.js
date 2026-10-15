@@ -5,7 +5,7 @@
    grille d'écoulement) et ../donnees/routes_anciennes.json (tracés schématiques).
    ===================================================================================== */
 Object.assign(LIEUX, {
-  topo: { c: [18.082, 59.3355], span: 20000, nom: "Le site, 10 km autour du centre" },
+  topo: { c: [18.082, 59.3355], span: 24000, nom: "Le site, 10 km autour du centre" },
   region: { c: [18.19, 59.45], span: 380000, nom: "Le Mälaren et la Baltique" }
 });
 

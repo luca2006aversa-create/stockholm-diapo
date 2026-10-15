@@ -341,9 +341,7 @@ const DIAPOS = [
   { id: "nature", rubrique: "I · Introduction et contexte", titre: "Le contexte naturel : l'eau, la roche, le froid",
     texte: ["<ul><li><b>Ville d'eau.</b> Quatorze îles, de nombreuses rives, des ponts et des espaces naturels.</li>",
             "<li><b>Relief rocheux.</b> Plateaux, vallées, affleurements : la ville s'est développée en s'adaptant au relief.</li>",
-            "<li><b>Climat froid.</b> Hivers longs, étés doux et courts : cela pèse sur les bâtiments, les espaces publics et les modes de vie.</li></ul>"],
-    media: { t: "video", src: V + "20261008-153950-animation_stockholm_eau_800-2026.mp4",
-             legende: "L'eau et les rivages, de l'an 800 à 2026 : la terre remonte, la ville la gagne." } },
+            "<li><b>Climat froid.</b> Hivers longs, étés doux et courts : cela pèse sur les bâtiments, les espaces publics et les modes de vie.</li></ul>"], },
 
   { id: "axo-site", axo: true, rubrique: "I · Introduction et contexte", titre: "Le site en couches",
     intro: "Ce qui fait la forme de Stockholm, couche par couche. Descendez pour décoller les couches et les parcourir ; cliquez sur une couche pour la voir en grand, cliquez de nouveau pour revenir." },
@@ -411,14 +409,14 @@ const DIAPOS = [
     chiffres: [["< 10 000", "habitants en 1600"], ["> 50 000", "habitants en 1675"]],
     texte: ["<p><b>1625</b> : le grand incendie part de Kåkbrinken et ravage le sud-ouest de Stadsholmen (en rouge sur la carte). On reconstruit en rues régulières : Stora et Lilla Nygatan.</p>",
             "<p><b>1635</b> : Norrmalm est réuni à la ville et reçoit un plan ordonné (Anders Torstensson) : rues larges et droites, Drottninggatan, Hötorget. À partir de 1641, des démolitions dégagent de nouveaux espaces. C'est la fin du désordre médiéval.</p>"],
-    media: { t: "vide", note: "Plan du XVIIe siècle (carte de 1642 / Harvard 1720) — rien de géoréférencé avant 1720", cle: "carte-1700" } },
+    media: { t: "img", src: "../images/carte-stockholm-1642.jpg", alt: "Plan de Stockholm, 1640-1642", legende: "Plan de Stockholm vers 1640-1642 (auteur inconnu, domaine public) — Wikimedia Commons." } },
 
   { id: "xviii", rubrique: "II · Formation et histoire urbaine", annee: "XVIIIe siècle", titre: "Reconstruction et règles : puis la stagnation",
     texte: ["<ul><li><b>1697</b> : l'incendie détruit le palais Tre Kronor, reconstruction massive.</li>",
             "<li><b>1725</b> : premier code de construction, le bois est interdit dans la vieille ville.</li>",
             "<li><b>1744-1753</b> : Christopher Polhem redessine l'écluse de Slussen.</li>",
             "<li><b>1750-1850</b> : stagnation démographique et économique, malgré quelques progrès d'infrastructure.</li></ul>"],
-    media: { t: "vide", note: "Carte de Biurman, 1750 (Harvard) — à poser quand les GeoTIFF seront récupérés", cle: "carte-1750" } },
+    media: { t: "img", src: "../images/carte-biurman-1750.jpg", alt: "Carte de Stockholm par Georg Biurman, 1750", legende: "« Charta öfwer Stockholms stads belägenhet », Georg Biurman, 1750-1751 (domaine public) — Kungliga biblioteket, via Wikimedia Commons." } },
 
   { id: "xix", rubrique: "II · Formation et histoire urbaine", annee: "XIXe siècle", titre: "La vapeur, le rail et la ville de pierre",
     chiffres: [["245 000", "habitants"], ["1866", "plan de Lindhagen"]],
@@ -488,8 +486,7 @@ const DIAPOS = [
             "<p>Même échelle, deux logiques : le tissu serré du Moyen Âge, l'îlot ouvert et planifié de la fin du XXe.</p>"] },
 
   { id: "promenade", rubrique: "III · Analyse morphologique", titre: "Une promenade dans Gamla Stan",
-    texte: ["<p>Le champ de vision à hauteur d'yeux, le long d'un parcours de 1 029 m : la surface vue change à chaque rue, à chaque place.</p>"],
-    media: { t: "video", src: V + "20261009-001755-promenade_gamla_stan_1029m.mp4", legende: "Promenade dans Gamla Stan, avec le champ de vision." } },
+    texte: ["<p>Le champ de vision à hauteur d'yeux, le long d'un parcours de 1 029 m : la surface vue change à chaque rue, à chaque place.</p>"], },
 
   { id: "trois-periodes", grand: true, rubrique: "IV · Synthèse et conclusion", titre: "Comparaison de trois périodes : 1600, 1900, 2020",
     image: C + "23_frise_1600_1900_2020.png", alt: "Comparaison 1600 / 1900 / 2020",
