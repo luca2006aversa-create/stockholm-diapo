@@ -155,15 +155,37 @@ function dessinerReseau(P, R) {
     cx.beginPath(); trace(cx, r.f, false, cam); cx.stroke();
   }
   cx.setLineDash([]);
-  /* les flèches : le sens des échanges, avec la marchandise */
-  cx.textAlign = "center"; cx.textBaseline = "middle";
-  for (const { r, v } of actives) for (const fl of r.fleches || []) {
-    if (r.a != null && an > r.a) continue;
-    const q = pointAlong(r.f, fl.t), X = px(q.x), Y = py(q.y), ang = fl.sens < 0 ? q.ang + Math.PI : q.ang, taille = 11 * dpr;
-    cx.globalAlpha = v; cx.save(); cx.translate(X, Y); cx.rotate(-ang);
-    cx.beginPath(); cx.moveTo(taille, 0); cx.lineTo(-taille * 0.7, -taille * 0.75); cx.lineTo(-taille * 0.3, 0); cx.lineTo(-taille * 0.7, taille * 0.75); cx.closePath();
-    cx.fillStyle = r.type === "mer" ? C.mer : C.terre; cx.strokeStyle = C.bord; cx.lineWidth = 2.6 * dpr; cx.stroke(); cx.fill(); cx.restore();
-    if (fl.texte) { cx.font = `700 ${Math.round(12.5 * dpr)}px "Segoe UI", system-ui, sans-serif`; cx.lineWidth = 4.6 * dpr; cx.strokeStyle = C.bord; cx.fillStyle = sb ? "#fff" : "#1d1c1a"; cx.strokeText(fl.texte, X, Y - 19 * dpr); cx.fillText(fl.texte, X, Y - 19 * dpr); }
+  /* les flèches : le sens des échanges. Des chevrons répétés tout le long de la route disent dans quel sens va la marchandise, et une étiquette dit laquelle et vers où. */
+  cx.textBaseline = "middle";
+  for (const { r, v } of actives) {
+    if (r.a != null && an > r.a || !r.fleches?.length) continue;
+    const pts = []; for (let i = 0; i < r.f.length; i += 2) pts.push([px(r.f[i]), py(r.f[i + 1])]);
+    const deux = r.fleches.some((q) => q.sens > 0) && r.fleches.some((q) => q.sens < 0);
+    for (const fl of r.fleches) {
+      const sens = fl.sens < 0 ? -1 : 1, decal = deux ? sens * 8 * dpr : 0, pas = 46 * dpr, taille = 7.5 * dpr;
+      let reste = pas * 0.5; cx.globalAlpha = v;
+      for (let i = 1; i < pts.length; i++) {
+        const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], L = Math.hypot(x1 - x0, y1 - y0); if (L < 1) continue;
+        const ux = (x1 - x0) / L * sens, uy = (y1 - y0) / L * sens, nx = -uy, ny = ux;
+        for (let d = reste; d < L; d += pas) {
+          const t = d / L, X = x0 + (x1 - x0) * t + nx * decal, Y = y0 + (y1 - y0) * t + ny * decal;
+          cx.beginPath(); cx.moveTo(X - ux * taille + nx * taille, Y - uy * taille + ny * taille); cx.lineTo(X + ux * taille * 0.6, Y + uy * taille * 0.6); cx.lineTo(X - ux * taille - nx * taille, Y - uy * taille - ny * taille);
+          cx.strokeStyle = C.bord; cx.lineWidth = 6 * dpr; cx.stroke(); cx.strokeStyle = r.type === "mer" ? C.mer : C.terre; cx.lineWidth = 3 * dpr; cx.stroke();
+        }
+        reste = ((reste - L) % pas + pas) % pas;
+      }
+      if (fl.texte) {
+        const q = pointAlong(r.f, fl.t), X = px(q.x), Y = py(q.y) + decal * 2 + (deux ? sens * 22 * dpr : -22 * dpr);
+        const l1 = fl.texte, l2 = fl.vers ? "→ vers " + fl.vers : "";
+        cx.font = `700 ${Math.round(13 * dpr)}px "Segoe UI", system-ui, sans-serif`; const w1 = cx.measureText(l1).width;
+        cx.font = `600 ${Math.round(12 * dpr)}px "Segoe UI", system-ui, sans-serif`; const w2 = l2 ? cx.measureText(l2).width : 0, W = Math.max(w1, w2) + 16 * dpr, H = (l2 ? 38 : 22) * dpr;
+        cx.globalAlpha = 0.92 * v; cx.fillStyle = sb ? "rgba(12,24,34,.88)" : "rgba(255,255,255,.92)"; cx.strokeStyle = r.type === "mer" ? C.mer : C.terre; cx.lineWidth = 2 * dpr;
+        cx.beginPath(); cx.roundRect ? cx.roundRect(X - W / 2, Y - H / 2, W, H, 6 * dpr) : cx.rect(X - W / 2, Y - H / 2, W, H); cx.fill(); cx.stroke();
+        cx.globalAlpha = v; cx.textAlign = "center"; cx.fillStyle = sb ? "#fff" : "#1d1c1a";
+        cx.font = `700 ${Math.round(13 * dpr)}px "Segoe UI", system-ui, sans-serif`; cx.fillText(l1, X, Y - (l2 ? 8 : 0) * dpr);
+        if (l2) { cx.font = `600 ${Math.round(12 * dpr)}px "Segoe UI", system-ui, sans-serif`; cx.fillStyle = r.type === "mer" ? C.mer : C.terre; cx.fillText(l2, X, Y + 9 * dpr); }
+      }
+    }
   }
   /* les villes et les ports, bien visibles ; Stockholm toujours */
   const stk = R.lieux.find((l) => l.nom === "Stockholm") || { x: 0, y: 0 };

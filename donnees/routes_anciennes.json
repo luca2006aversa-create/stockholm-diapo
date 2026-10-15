@@ -67,9 +67,10 @@
    ],
    "fleches": [
     {
-     "t": 0.5,
+     "t": 0.45,
      "sens": -1,
-     "texte": "fer, cuivre"
+     "texte": "fer, cuivre",
+     "vers": "Birka puis Stockholm"
     }
    ]
   },
@@ -152,9 +153,9 @@
    ],
    "fleches": [
     {
-     "t": 0.5,
+     "t": 0.35,
      "sens": -1,
-     "texte": "produits du nord"
+     "vers": "Stockholm"
     }
    ]
   },
@@ -190,9 +191,9 @@
    ],
    "fleches": [
     {
-     "t": 0.5,
+     "t": 0.3,
      "sens": -1,
-     "texte": "fer, cuivre"
+     "vers": "Stockholm"
     }
    ]
   },
@@ -245,14 +246,16 @@
    ],
    "fleches": [
     {
-     "t": 0.35,
+     "t": 0.55,
      "sens": 1,
-     "texte": "fer, cuivre, fourrures"
+     "texte": "fer, cuivre, fourrures",
+     "vers": "la Baltique"
     },
     {
-     "t": 0.7,
+     "t": 0.8,
      "sens": -1,
-     "texte": "sel, tissus, vin"
+     "texte": "sel, tissus, vin",
+     "vers": "Stockholm"
     }
    ]
   },
@@ -373,9 +376,10 @@
    ],
    "fleches": [
     {
-     "t": 0.5,
+     "t": 0.18,
      "sens": -1,
-     "texte": "vivres, voyageurs"
+     "texte": "vivres, voyageurs",
+     "vers": "Stockholm"
     }
    ]
   },
@@ -424,9 +428,10 @@
    ],
    "fleches": [
     {
-     "t": 0.5,
+     "t": 0.45,
      "sens": -1,
-     "texte": "grain, bétail"
+     "texte": "grain, bétail",
+     "vers": "Stockholm"
     }
    ]
   },
@@ -712,12 +717,14 @@
      {
       "t": 0.45,
       "sens": 1,
-      "texte": "sel, tissus, vin"
+      "texte": "sel, tissus, vin",
+      "vers": "Visby"
      },
      {
       "t": 0.75,
       "sens": -1,
-      "texte": "fer, cuivre, fourrures"
+      "texte": "fer, cuivre, fourrures",
+      "vers": "Lübeck"
      }
     ]
    },
@@ -761,9 +768,10 @@
     ],
     "fleches": [
      {
-      "t": 0.5,
+      "t": 0.3,
       "sens": 1,
-      "texte": "sel, tissus, vin"
+      "texte": "sel, tissus, vin",
+      "vers": "Stockholm"
      }
     ]
    },
@@ -851,7 +859,8 @@
      {
       "t": 0.55,
       "sens": -1,
-      "texte": "fourrures, cire"
+      "texte": "fourrures, cire",
+      "vers": "Reval"
      }
     ]
    },
@@ -901,7 +910,8 @@
      {
       "t": 0.7,
       "sens": -1,
-      "texte": "poisson séché"
+      "texte": "poisson séché",
+      "vers": "Lübeck"
      }
     ]
    }

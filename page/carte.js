@@ -52,6 +52,38 @@ const borne01 = (t) => Math.max(0, Math.min(1, t));
 const bornes = (f) => { let a = 1e9, b = 1e9, c = -1e9, d = -1e9; for (let i = 0; i < f.length; i += 2) { if (f[i] < a) a = f[i]; if (f[i] > c) c = f[i]; if (f[i + 1] < b) b = f[i + 1]; if (f[i + 1] > d) d = f[i + 1]; } return [a, b, c, d]; };
 const lie = (a) => (a.bb ||= bornes(a));
 
+/* Empreintes d'OpenStreetMap qui se superposent (parties d'un même bâtiment, doublons) : un petit bâtiment dont le centre est DANS un plus grand,
+   ou qui le recouvre presque exactement, n'est pas dessiné (c'était ce qui faisait des carrés posés les uns sur les autres). */
+function doublonsBati(liste) {
+  const CELL = 100, G = new Map(), info = liste.map((f) => { const r = f[0], b = lie(r); let a = 0; for (let i = 0, n = r.length; i < n; i += 2) { const j = (i + 2) % n; a += r[i] * r[j + 1] - r[j] * r[i + 1]; } return { r, b, a: Math.abs(a) / 2, x: (b[0] + b[2]) / 2, y: (b[1] + b[3]) / 2 }; });
+  info.forEach((q, i) => { const k = Math.floor(q.x / CELL) + "," + Math.floor(q.y / CELL); (G.get(k) || G.set(k, []).get(k)).push(i); });
+  const sorti = new Set(), ordre = info.map((_, i) => i).sort((i, j) => info[i].a - info[j].a);       // du plus petit au plus grand
+  for (const i of ordre) {
+    const q = info[i]; if (q.a <= 0) continue;
+    for (let gx = Math.floor((q.b[0] - 1) / CELL); gx <= Math.floor((q.b[2] + 1) / CELL); gx++) for (let gy = Math.floor((q.b[1] - 1) / CELL); gy <= Math.floor((q.b[3] + 1) / CELL); gy++) {
+      for (const j of G.get(gx + "," + gy) || []) {
+        if (j === i || sorti.has(j)) continue; const p = info[j];
+        if (p.a < q.a * 0.999 || (p.a < q.a * 1.001 && j < i)) continue;             // seul un bâtiment plus grand (ou identique et plus ancien dans la liste) peut en absorber un autre
+        if (q.x < p.b[0] || q.x > p.b[2] || q.y < p.b[1] || q.y > p.b[3]) continue;
+        if (dansAnneau(q.x, q.y, p.r) || dansAnneau((q.b[0] * 3 + q.b[2]) / 4, (q.b[1] * 3 + q.b[3]) / 4, p.r) && dansAnneau((q.b[0] + q.b[2] * 3) / 4, (q.b[1] + q.b[3] * 3) / 4, p.r)) { sorti.add(i); break; }
+      }
+      if (sorti.has(i)) break;
+    }
+  }
+  return sorti;
+}
+/* Les bâtiments datés à la main ou par les sources (objets) et l'empreinte actuelle d'OpenStreetMap (nouveaux) décrivent parfois le même bâtiment :
+   on ne garde que le premier (sinon deux carrés de couleurs différentes se superposent). */
+function sansDoublonsObjets(nouveaux, objets) {
+  const CELL = 100, G = new Map();
+  for (const o of objets) { if (o.g !== "bati" || o.k !== "poly" || !o.f?.length) continue; const b = lie(o.f[0]); for (let gx = Math.floor(b[0] / CELL); gx <= Math.floor(b[2] / CELL); gx++) for (let gy = Math.floor(b[1] / CELL); gy <= Math.floor(b[3] / CELL); gy++) (G.get(gx + "," + gy) || G.set(gx + "," + gy, []).get(gx + "," + gy)).push(o); }
+  return nouveaux.filter((o) => {
+    if (o.g !== "bati" || o.k !== "poly" || !o.f?.length) return true;
+    const [x, y] = centreBoite(o.f);
+    for (const p of G.get(Math.floor(x / CELL) + "," + Math.floor(y / CELL)) || []) { const b = lie(p.f[0]); if (x >= b[0] && x <= b[2] && y >= b[1] && y <= b[3] && dansAnneau(x, y, p.f[0])) return false; }
+    return true;
+  });
+}
 /* Rues de l'histoire : (1) une rue qui n'est pas un axe principal ne naît qu'à côté d'un bâtiment : chaque rue est découpée en tronçons d'environ
    40 m, et un tronçon n'apparaît que lorsqu'un bâtiment existe à moins de 30 m (à sa date moins 3 ans) ; un tronçon sans bâtiment voisin attend 1960.
    Les axes principaux (C.axes) gardent leur date. (2) Avant 1900 les rues sont SIMPLIFIÉES : un seul trait par rue (les voies parallèles d'une
@@ -63,22 +95,23 @@ function elaguerRues(liste, objets, C) {
   const poser = (o) => { if (o.g !== "bati" || o.k !== "poly" || !o.f?.length) return; const [x, y] = centreBoite(o.f), k = Math.floor(x / CELL) + "," + Math.floor(y / CELL); (G.get(k) || G.set(k, []).get(k)).push([x, y, o.an]); };
   for (const o of objets) poser(o); for (const o of liste) poser(o);
   const proche = (x, y) => { let m = 1e9; for (let gx = Math.floor((x - RAY) / CELL); gx <= Math.floor((x + RAY) / CELL); gx++) for (let gy = Math.floor((y - RAY) / CELL); gy <= Math.floor((y + RAY) / CELL); gy++) { const g = G.get(gx + "," + gy); if (g) for (const b of g) if (b[2] < m && Math.hypot(b[0] - x, b[1] - y) < RAY) m = b[2]; } return m; };
+  /* les carrefours : un sommet partagé par deux tracés (ou plus) coupe le tronçon, pour que le réseau reste relié */
+  const usage = new Map(), cl = (x, y) => Math.round(x / 4) + "," + Math.round(y / 4);
+  for (const o of liste) if (o.g === "voirie" && o.trim !== undefined && o.an < ELAGAGE.fin) for (const f of o.f) for (let i = 0; i < f.length; i += 2) { const k = cl(f[i], f[i + 1]); usage.set(k, (usage.get(k) || 0) + 1); }
   const sortie = [], pieces = [];
   for (const o of liste) {
     if (o.g !== "voirie" || o.trim === undefined || o.an >= ELAGAGE.fin) { sortie.push(o); continue; }
     const axe = axes.has(o.trim);
     for (const f of o.f) {
-      let debut = 0, len = 0;
-      for (let k = 2; k <= f.length; k += 2) {
-        if (k < f.length) len += Math.hypot(f[k] - f[k - 2], f[k + 1] - f[k - 1]);
-        if (len >= PAS || k === f.length) {
-          if (len > 0) {
-            const xa = f[debut], ya = f[debut + 1], xb = f[k - 2], yb = f[k - 1];
-            const m = axe ? 1e9 : Math.min(proche(xa, ya), proche((xa + xb) / 2, (ya + yb) / 2), proche(xb, yb));
-            const an = axe ? o.an : m < 1e9 ? Math.max(o.an, m - 3) : Math.max(o.an, ELAGAGE.sans);
-            pieces.push({ o, an: Math.round(an), f: f.slice(debut, k), len, mx: (xa + xb) / 2, my: (ya + yb) / 2, ang: Math.atan2(yb - ya, xb - xa), w: o.w || 1 });
-          }
-          debut = k - 2; len = 0;
+      const n = f.length / 2; let debut = 0, len = 0;
+      for (let v = 1; v < n; v++) {
+        len += Math.hypot(f[2 * v] - f[2 * v - 2], f[2 * v + 1] - f[2 * v - 1]);
+        if (len >= PAS || v === n - 1 || usage.get(cl(f[2 * v], f[2 * v + 1])) >= 2) {
+          const xa = f[2 * debut], ya = f[2 * debut + 1], xb = f[2 * v], yb = f[2 * v + 1];
+          const m = axe ? 1e9 : Math.min(proche(xa, ya), proche((xa + xb) / 2, (ya + yb) / 2), proche(xb, yb));
+          const an = axe ? o.an : m < 1e9 ? Math.max(o.an, m - 3) : Math.max(o.an, ELAGAGE.sans);
+          pieces.push({ o, an: Math.round(an), f: f.slice(2 * debut, 2 * v + 2), len, mx: (xa + xb) / 2, my: (ya + yb) / 2, ang: Math.atan2(yb - ya, xb - xa), w: o.w || 1 });
+          debut = v; len = 0;
         }
       }
     }
@@ -100,6 +133,32 @@ function elaguerRues(liste, objets, C) {
       const k = Math.floor(p.mx / CP) + "," + Math.floor(p.my / CP); (gardes.get(k) || gardes.set(k, []).get(k)).push(p);
     }
     finaux.push(p);
+  }
+  /* connexion : chaque îlot de bâtiments doit être relié au centre par des rues PRINCIPALES. On cherche, dans le réseau des tronçons, le chemin le moins coûteux
+     (les grandes rues coûtent peu, les ruelles beaucoup) depuis les axes principaux et le centre (Stadsholmen) jusqu'à chaque tronçon desservi ; ce chemin naît
+     en même temps que le tronçon desservi (jamais plus tard). */
+  { const cle = (x, y) => Math.round(x / 4) + "," + Math.round(y / 4), noeuds = new Map(), adj = [];
+    const [mxc, myc] = merc(18.0715, 59.3250), Cx = mxc - ville.origine[0], Cy = myc - ville.origine[1];
+    finaux.forEach((p, i) => { const f = p.f; p.n0 = cle(f[0], f[1]); p.n1 = cle(f[f.length - 2], f[f.length - 1]); p.i = i; p.axe = axes.has(p.o.trim); p.centre = Math.hypot(p.mx - Cx, p.my - Cy) < 300 * E;
+      for (const k of [p.n0, p.n1]) (noeuds.get(k) || noeuds.set(k, []).get(k)).push(p); });
+    const dist = new Map(), vient = new Map(), tas = [];
+    const pousser = (d, k) => { tas.push([d, k]); let i = tas.length - 1; while (i > 0) { const j = (i - 1) >> 1; if (tas[j][0] <= tas[i][0]) break; [tas[j], tas[i]] = [tas[i], tas[j]]; i = j; } };
+    const sortir = () => { const t = tas[0], l = tas.pop(); if (tas.length) { tas[0] = l; let i = 0; for (;;) { let m = i; const g = 2 * i + 1, d = g + 1; if (g < tas.length && tas[g][0] < tas[m][0]) m = g; if (d < tas.length && tas[d][0] < tas[m][0]) m = d; if (m === i) break; [tas[m], tas[i]] = [tas[i], tas[m]]; i = m; } } return t; };
+    for (const p of finaux) if (p.axe || p.centre || p.w >= 3) for (const k of [p.n0, p.n1]) if (!dist.has(k)) { dist.set(k, 0); pousser(0, k); }
+    const facteur = (w) => w >= 3 ? 0.25 : w >= 2 ? 0.55 : 1;
+    while (tas.length) {
+      const [d, k] = sortir(); if (d > dist.get(k)) continue;
+      for (const p of noeuds.get(k) || []) { const k2 = p.n0 === k ? p.n1 : p.n0, nd = d + p.len * facteur(p.w); if (nd < (dist.get(k2) ?? 1e18)) { dist.set(k2, nd); vient.set(k2, p); pousser(nd, k2); } }
+    }
+    finaux.forEach((p) => { p.an0 = p.an; });
+    const servis = finaux.filter((p) => !p.axe && p.an < ELAGAGE.sans).sort((p, q) => p.an - q.an);
+    let isoles = 0;
+    for (const p of servis) {
+      if (Math.min(dist.get(p.n0) ?? 1e18, dist.get(p.n1) ?? 1e18) >= 1e18) isoles++;
+      let k = (dist.get(p.n0) ?? 1e18) <= (dist.get(p.n1) ?? 1e18) ? p.n0 : p.n1;
+      for (let pas = 0; pas < 4000 && (dist.get(k) ?? 0) > 0; pas++) { const q = vient.get(k); if (!q) break; if (q.an > p.an) q.an = p.an; k = q.n0 === k ? q.n1 : q.n0; }
+    }
+    ville.statRues = { isolesAvant1800: servis.filter((p) => p.an0 < 1800 && Math.min(dist.get(p.n0) ?? 1e18, dist.get(p.n1) ?? 1e18) >= 1e18).length, servisAvant1800: servis.filter((p) => p.an0 < 1800).length, noeudsAtteints: dist.size, noeuds: noeuds.size, servis: servis.length, isoles, racines: [...finaux].filter((p) => p.axe || p.centre).length, tronçons: finaux.length };
   }
   const groupes = new Map();
   for (const p of finaux) { const cle = p.o.trim + "|" + p.an; let g = groupes.get(cle); if (!g) groupes.set(cle, g = { o: p.o, an: p.an, f: [] }); g.f.push(p.f); }
@@ -720,7 +779,9 @@ function appliquerQuartiers() {
      tels qu'ils sont sur la carte actuelle : plus de carrés isolés qui surgissent un à un au milieu d'un bloc */
   const ilotAn = new Map(), IL = ville.ilots?.bati;
   if (IL && C?.bati) IL.forEach((k, i) => { if (k >= 0 && C.bati[i] != null) ilotAn.set(k, Math.min(ilotAn.get(k) ?? 1e9, C.bati[i])); });
+  const doublons = doublonsBati(ville.bati0); ville.nbDoublons = doublons.size;
   ville.bati0.forEach((f, i) => {
+    if (doublons.has(i)) return;                         // empreinte recouverte par un plus grand bâtiment
     const [x, y] = centreBoite(f), fo = forces.get(f);
     if (fo) { nouveaux.push({ g: "bati", k: "poly", an: fo.an, fin: fo.fin ?? undefined, brule: fo.fin != null, f }); return; }
     const z = zoneDe(x, y);
@@ -740,7 +801,7 @@ function appliquerQuartiers() {
     nouveaux.push({ g: b.monument ? "monument" : "bati", k: "poly", an: b.an, fin: b.fin ?? undefined, brule: b.fin != null, nom: b.nom || undefined, f: [versM(b.f)], main: true });
   }
   /* la terre doit être sèche : aucun bâtiment ni aucune rue avant l'émergence de leur terrain */
-  const tous = objets.concat(elaguerRues(nouveaux, objets, C));
+  const tous = objets.concat(elaguerRues(sansDoublonsObjets(nouveaux, objets), objets, C));
   for (let i = 0; i < tous.length; i++) {
     const o = tous[i]; if (o.main || (o.g !== "bati" && o.g !== "voirie") || !o.f.length) continue;
     const [x, y] = centreBoite(o.f), s = delaiTerre(x, y);
