@@ -20,7 +20,7 @@
 
   /* ---- barre du haut : le mode, le sommaire */
   .barre { position: fixed; z-index: 20; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 12px;
-    padding: 8px 16px; background: color-mix(in srgb, var(--papier) 88%, transparent); backdrop-filter: blur(8px);
+    padding: 8px 16px; background: color-mix(in srgb, var(--papier) 94%, transparent);
     border-bottom: 1px solid var(--trait); font-size: 13px; }
   .barre b { letter-spacing: .04em; }
   .barre .espace { flex: 1; }
@@ -138,7 +138,7 @@
   .grand-cadre { position: sticky; top: 48px; height: calc(100vh - 48px); overflow: hidden; display: flex; align-items: flex-end; padding-bottom: 14px; box-sizing: border-box; }
   .grand-cadre img { flex: none; max-width: none; margin-left: 40px; will-change: transform; user-select: none; filter: drop-shadow(0 6px 18px rgba(0,0,0,.18)); }
   .grand-legende { position: absolute; left: clamp(18px, 3vw, 52px); right: clamp(18px, 3vw, 52px); top: 12px; max-width: 46rem; pointer-events: none;
-    background: color-mix(in srgb, var(--papier) 82%, transparent); backdrop-filter: blur(6px); padding: 10px 16px 12px; border-radius: 6px; }
+    background: color-mix(in srgb, var(--papier) 90%, transparent); padding: 10px 16px 12px; border-radius: 6px; }
   .grand-legende h2 { font-size: clamp(1.1rem, 2vw, 1.6rem); margin: 0 0 .25em; }
   .grand-legende p:last-child { margin: 0; font-size: .92rem; color: var(--discret); }
   body.diaporama .diapo.grand { display: none; }
@@ -162,7 +162,7 @@
   .frise-bulle { position: absolute; bottom: 70px; width: 220px; padding: 6px 9px; border-radius: 6px; background: var(--papier); color: var(--encre);
     border: 1px solid var(--trait); font: 12px/1.35 "Segoe UI", system-ui, sans-serif; box-shadow: 0 6px 18px rgba(0,0,0,.18); pointer-events: none; }
   .an-evenement { position: absolute; left: 20px; top: 42px; max-width: min(420px, calc(100% - 320px)); padding: 8px 12px 8px 14px; border-left: 4px solid var(--c, var(--accent));
-    background: color-mix(in srgb, var(--papier) 88%, transparent); backdrop-filter: blur(4px); border-radius: 4px; font: 13px/1.4 "Segoe UI", system-ui, sans-serif; color: var(--encre); pointer-events: none; }
+    background: color-mix(in srgb, var(--papier) 93%, transparent); border-radius: 4px; font: 13px/1.4 "Segoe UI", system-ui, sans-serif; color: var(--encre); pointer-events: none; }
   .an-evenement b { color: var(--c, var(--accent)); margin-right: 6px; }
   .an-evenement small { display: block; color: var(--discret); font-size: 11px; }
   .an-bouton { width: 34px; height: 34px; padding: 0; border-radius: 50%; border: 1px solid var(--trait); background: var(--papier); color: var(--encre); cursor: pointer; font-size: 15px; flex: none; }
@@ -228,7 +228,7 @@
   .diapo.carte-chapitre { display: block; padding: 0; background: transparent; }
   body:not(.diaporama) .diapo.carte-chapitre { margin-left: 0; z-index: 3; min-height: 0; height: 230vh; padding: 0; background: transparent; pointer-events: none; align-content: start; }
   .encart { position: sticky; top: 64px; margin: 0 22px 0 auto; width: min(430px, 92vw); max-height: calc(100vh - 190px); overflow: auto; pointer-events: auto;
-    background: rgba(18, 20, 22, .76); color: #f4f1ea; backdrop-filter: blur(6px); border-radius: 10px; padding: 16px 20px 14px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+    background: rgba(18, 20, 22, .86); color: #f4f1ea; border-radius: 10px; padding: 16px 20px 14px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
   .encart h2 { color: #fff; font-size: clamp(1.3rem, 2vw, 1.8rem); margin: 0 0 .4em; }
   .encart .kicker { color: #ff9a6e; }
   .encart .annee { color: #c9c3b5; }
@@ -490,7 +490,7 @@ const main = document.getElementById("main");
 const mediaHtml = (m) => {
   if (!m) return "";
   let h = "";
-  if (m.t === "img") h = `<img src="${m.src}" alt="${m.alt || ""}">`;
+  if (m.t === "img") h = `<img src="${m.src}" alt="${m.alt || ""}" loading="lazy" decoding="async">`;
   else if (m.t === "video") h = `<video src="${m.src}" controls muted playsinline preload="metadata"></video>`;
   else h = `<div class="a-venir"><div><b>À venir</b>${m.note || ""}</div></div>`;
   const l = m.legende ? `<div class="legende">${m.legende}</div>` : "";
@@ -508,7 +508,7 @@ DIAPOS.forEach((d, i) => {
   }
   if (d.axo) {
     s.className = "diapo axo";
-    s.innerHTML = `<div class="axo-cadre"><div class="axo-texte">${d.rubrique ? `<p class="kicker">${d.rubrique}</p>` : ""}<h2>${d.titre}</h2>
+    s.innerHTML = `<div class="axo-cadre cache"><div class="axo-texte">${d.rubrique ? `<p class="kicker">${d.rubrique}</p>` : ""}<h2>${d.titre}</h2>
       <p class="axo-intro">${d.intro || ""}</p><ol class="axo-liste"></ol><p class="axo-source legende"></p></div>
       <div class="axo-scene"><div class="axo-pile"></div></div></div>`;
     main.appendChild(s); return;
@@ -541,15 +541,15 @@ const points = document.createElement("nav"); points.className = "points"; point
 diapos.forEach((s, i) => { const b = document.createElement("button"); b.className = "point"; b.type = "button"; b.innerHTML = `<i></i><b>${i + 1}. ${DIAPOS[i].titre}</b>`;
   b.onclick = () => (enDiapo() ? afficher(i) : s.scrollIntoView({ behavior: "smooth" })); points.appendChild(b); });
 document.body.appendChild(points);
-let pointActif = -1;
+let pointActif = -1, bas = null;      // bas : fin de chaque diapo (relue seulement quand la page change de taille)
+new ResizeObserver(() => { bas = null; majPoints(); }).observe(document.body);
 function majPoints() {
   let k = courante;
-  if (!enDiapo()) { const milieu = scrollY + innerHeight * 0.5; k = diapos.findIndex((s) => s.offsetTop + s.offsetHeight > milieu); if (k < 0) k = diapos.length - 1; }
+  if (!enDiapo()) { bas ||= diapos.map((s) => s.offsetTop + s.offsetHeight); const milieu = scrollY + innerHeight * 0.5; k = bas.findIndex((b) => b > milieu); if (k < 0) k = diapos.length - 1; }
   if (k === pointActif) return; pointActif = k;
   [...points.children].forEach((p, i) => p.classList.toggle("actif", i === k));
 }
 addEventListener("scroll", () => requestAnimationFrame(majPoints), { passive: true });
-setInterval(majPoints, 400);
 
 /* ---- diaporama */
 let courante = 0;

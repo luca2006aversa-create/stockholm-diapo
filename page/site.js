@@ -187,8 +187,9 @@ function imageEcoulement() {
 }
 
 /* ---- chargement (après ville.json : il faut l'origine de la carte) */
-(function attendre() {
-  if (!ville) return setTimeout(attendre, 200);
+let topoDemande = false;
+function chargerTopo() {
+  if (topoDemande || !ville) return; topoDemande = true;
   const geo = (f) => fetch(TOPO + f).then((r) => r.ok ? r.json() : null).catch(() => null);
   Promise.all([chargerImage("relief_mnt.png"), chargerImage("ombrage.png"), chargerImage("pentes.png"), chargerImage("formes_relief.png"), chargerImage("cote_basse.png"),
     geo("bassins_versants.geojson"), geo("lignes_partage_eaux.geojson"), geo("cours_eau_calcules.geojson"), geo("courbes_niveau.geojson"), geo("sommets.geojson"),
@@ -210,7 +211,9 @@ function imageEcoulement() {
     }
     remplirLegendes(); sale = true; planifier();
   });
-})();
+}
+/* l'étude topo (images, grilles, 13 fichiers ≈ 4 Mo) n'est chargée qu'à l'approche du site en couches, ou en diaporama */
+surveillerAccesTardif(chargerTopo, (d, i) => i >= DIAPOS.findIndex((x) => x.id === "axo-site"));
 
 /* ---- sur la carte de l'histoire : routes maritimes en pointillé bleu clair, ports qui apparaissent à leur date */
 function dessinerMer(P) {

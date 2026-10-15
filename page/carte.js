@@ -42,8 +42,9 @@ const cv = document.getElementById("carte"), cx = cv.getContext("2d");
 const elAn = document.getElementById("an-affiche"), elLieu = document.getElementById("an-lieu"), elCurseur = document.getElementById("an-curseur");
 const elLecture = document.getElementById("an-lecture"), elNote = document.getElementById("an-note");
 let ville = null, europe = null, fondCache = null, sale = true, an = ANNEE_MIN, cam = { x: 0, y: 0, span: 6200000 }, libre = false, lecture = false, dpr = 1;
+let dprMax = 2, lentes = 0;       // résolution maximale : baisse d'un cran si les images sont trop longues à dessiner (tablette, vieux portable)
 let quartiers = { zones: [], batiments: [], dates: [], tout: null }, edition = false;
-const sombre = () => matchMedia("(prefers-color-scheme: dark)").matches;
+const mqSombre = matchMedia("(prefers-color-scheme: dark)"), sombre = () => mqSombre.matches;     // l'objet est créé une fois
 const lisse = (t) => t * t * (3 - 2 * t);
 const borne01 = (t) => Math.max(0, Math.min(1, t));
 const bornes = (f) => { let a = 1e9, b = 1e9, c = -1e9, d = -1e9; for (let i = 0; i < f.length; i += 2) { if (f[i] < a) a = f[i]; if (f[i] > c) c = f[i]; if (f[i + 1] < b) b = f[i + 1]; if (f[i + 1] > d) d = f[i + 1]; } return [a, b, c, d]; };
@@ -80,6 +81,15 @@ function vueCam(nom) {
   return { x: x - ville.origine[0], y: y - ville.origine[1], span: v.span, nom: v.nom };
 }
 
+/* Chargements différés : « declencher » part quand une diapo choisie (ids) approche à 2 écrans, ou en diaporama. */
+function surveillerAccesTardif(declencher, ids) {
+  const lancer = () => { if (!ville) return setTimeout(lancer, 300); declencher(); };
+  const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); lancer(); } }, { rootMargin: "180% 0px 180% 0px" });
+  diapos.forEach((s, i) => { if (ids(DIAPOS[i], i)) io.observe(s); });
+  new MutationObserver(() => { if (enDiapo()) { io.disconnect(); lancer(); } }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+  if (enDiapo()) lancer();
+}
+
 /* ---- scène courante d'après le défilement : l'année et la vue se fondent d'une diapo à la suivante ---- */
 /* D'une vue à l'autre : l'échelle varie en logarithme et le point visé glisse en proportion de l'écran, pas du terrain —
    en zoomant sur Stockholm depuis l'Europe, la ville reste sous les yeux au lieu de dériver (puis d'arriver d'un coup). */
@@ -111,18 +121,21 @@ function preparerScenes() {
     scenes.push({ ...sc, el: s, ancre: () => s.offsetTop + s.offsetHeight / 2, hist: i >= iH0 && i < iH1 });
   });
 }
+/* positions des scènes : lues une fois (la mise en page est relue seulement quand la page change de taille) */
+const Y = (s) => (s._y ??= s.ancre());
+new ResizeObserver(() => { for (const s of scenes) s._y = undefined; }).observe(document.body);
 function sceneDefilement() {
   const milieu = scrollY + innerHeight * 0.5;
   /* dans une carte plein écran : l'année défile avec le défilement (la petite animation de la carte) */
   for (let k = 0; k < scenes.length - 1; k++) {
     const a = scenes[k], b = scenes[k + 1];
-    if (a.entree && b.sortie && a.el === b.el && milieu >= a.ancre() && milieu <= b.ancre()) {
-      const p = borne01((milieu - a.ancre()) / Math.max(1, b.ancre() - a.ancre())), c = vueCam(a.vue);
+    if (a.entree && b.sortie && a.el === b.el && milieu >= Y(a) && milieu <= Y(b)) {
+      const p = borne01((milieu - Y(a)) / Math.max(1, Y(b) - Y(a))), c = vueCam(a.vue);
       return { an: a.an + (b.an - a.an) * lisse(borne01(p / 0.8)), th: null, cam: { x: c.x, y: c.y, span: c.span }, nom: c.nom, carte: a.carte };
     }
   }
   const nor = scenes;
-  const ys = nor.map((s) => s.ancre());
+  const ys = nor.map(Y);
   let i = ys.findIndex((y) => y > milieu) - 1;
   if (i < 0) i = ys[0] > milieu ? 0 : nor.length - 1;
   const j = Math.min(nor.length - 1, i + 1);
@@ -154,7 +167,7 @@ function pasLisse(t) {
   majTemps(); sale = true; planifier();
   if (fini) anime = false; else requestAnimationFrame(pasLisse);
 }
-function majTemps() { elCurseur.value = Math.round(an); if (typeof dessinerTemps === "function") dessinerTemps(); }
+function majTemps() { elCurseur.value = Math.round(an); }          // la tête de la frise est déplacée par rendre()
 
 /* ---- dessin ---- */
 function trace(c, f, ferme, cm) {
@@ -212,6 +225,7 @@ let reglageFond = 0;
 /* L'Europe et la Suède : visibles de loin, elles s'effacent quand on entre dans la ville. */
 function dessinerPays(P, alphaPays) {
   if (!europe || alphaPays <= 0.01) return;
+  if (typeof regionCouvre === "function" && regionCouvre()) return;      // le fond régional précis recouvre tout l'écran
   const o = ville.origine;
   cx.save(); cx.globalAlpha = alphaPays; cx.lineJoin = "round";
   /* de près, le trait de côte de Natural Earth (1:50 m) est trop grossier : on le floute, comme une mise au point sur la ville */
@@ -246,6 +260,15 @@ function dessinerPays(P, alphaPays) {
 
 function rendre() {
   sale = false; if (!ville) return;
+  const t0 = performance.now();
+  rendreImage();
+  if (anime) {                                           // en mouvement seulement : trop lent trop longtemps → on baisse la résolution
+    lentes = performance.now() - t0 > 30 ? lentes + 1 : Math.max(0, lentes - 1);
+    if (lentes >= 15 && dprMax > 1.25 && devicePixelRatio > 1.25) { dprMax = Math.max(1.25, dprMax - 0.5); lentes = 0; dimensionner(); }
+  }
+}
+function rendreImage() {
+  if (!ville) return;
   const P = palette(), dim = themeCourant ? new Set(THEMES_VISIBLES[themeCourant]) : null;
   /* fond : la mer de loin, la terre quand on est dans la ville */
   const loin = 1;      // la carte des pays reste dessous à toutes les échelles : la ville (masquée, bord progressif) s'y fond
@@ -337,56 +360,107 @@ function dessinerEau(P, villeA) {
   }
 }
 
-/* Objets datés : regroupés par couleur et par largeur (quelques traits au lieu de dizaines de milliers). */
-function dessinerObjets(P, dim) {
-  const pal = sombre() ? GROUPES_SOMBRE : GROUPES, k = Math.max(0.55, Math.min(2.4, Math.sqrt(30000 / cam.span))) * dpr;
-  const lots = new Map(), noms = [];
+/* Objets datés : regroupés par couleur et par largeur (quelques traits au lieu de dizaines de milliers).
+   Les objets « mûrs » (bâtis depuis plus de 28 ans : leur couleur ne change plus) sont dessinés une fois dans une COUCHE hors écran,
+   complétée au fil des années (on n'ajoute que les nouveaux) ; seuls les jeunes et les destructions sont redessinés à chaque image.
+   Pendant un mouvement de caméra, la couche (déplacée) sert d'image provisoire, puis elle est refaite nette 140 ms après l'arrêt. */
+const AGE_MUR = 28.2;                                  // au-delà : t = 1 dans le fondu de couleur (voir empiler)
+let coucheObjets = null, reglageObjets = 0;
+const compter = (tri, x) => { let a = 0, b = tri.length; while (a < b) { const m = (a + b) >> 1; if (tri[m] <= x) a = m + 1; else b = m; } return a; };   // éléments ≤ x d'un tableau trié
+function aireM2(o) {
+  if (o.m2 !== undefined) return o.m2;
+  const a = o.f[0]; let s = 0; for (let i = 0, n = a.length; i < n; i += 2) { const j = (i + 2) % n; s += a[i] * a[j + 1] - a[j] * a[i + 1]; }
+  return (o.m2 = Math.abs(s) / 2 / (KM * KM));      // KM : voir themes.js
+}
+/* prépare les listes d'objets à dessiner (appelé quand ville.objets change) */
+function preparerObjets() {
+  const stables = [], speciaux = [];
   for (const o of ville.objets) {
-    if (o.an > an) break;                               // triés par année
     if (o.k === "point") continue;                      // pas de points : seulement des surfaces et des lignes
-    if (o.g === "voirie" && cam.span > 9000 && (o.w || 1) < 1.9) continue;   // de loin : seulement les grandes rues
-    let brule = -1;                                     // années depuis la destruction (incendie, démolition) ; -1 = debout
-    if (o.fin != null && an > o.fin + 0.001) {
-      const apres = an - o.fin;
-      if (o.g === "bati" && !o.brule) { /* un bâtiment démoli d'après OSM reste : on ne sait pas le remplacer */ }
-      else if ((o.brule || o.g === "monument") && apres < 20) brule = apres;
-      else continue;
-    }
-    if (!o.f.length || !dansVue(lie(o.f[0]), cam)) continue;
-    const age = an - o.an, t = Math.min(1, Math.round(age / 30 * 8) / 8), coul = o.couleur || (pal[o.g] || pal.bati);
-    let col = typeof coul === "string" ? coul : t < 1 ? mixer(coul[1], coul[0], t) : coul[0];
-    if (brule >= 0) col = mixer(o.demoli ? "#b9a48c" : "#e0301c", sombre() ? "#4a3a36" : "#6b5a52", Math.round(Math.min(1, brule / 20) * 8) / 8);
-    const al = (dim && !dim.has(o.g) ? 0.22 : 1) * (brule >= 0 ? Math.max(0.15, 1 - brule / 22) : 1), lw = o.k === "ligne" ? Math.max(0.6 * dpr, (o.w || 1) * 0.55 * k * (o.g === "lignes" ? 1.3 : 1)) : 0;
-    const cle = `${o.k}|${col}|${al}|${lw.toFixed(1)}|${o.tunnel ? 1 : 0}`;
-    let l = lots.get(cle); if (!l) lots.set(cle, l = { k: o.k, col, al, lw, tunnel: !!o.tunnel, liste: [] });
-    l.liste.push(o);
-    if (o.nom && age >= 0 && age < 18 && o.k === "ligne" && o.g === "ponts") noms.push([o, age]);
-    if (o.nom && o.g === "monument" && age >= 0 && (age < 25 || brule >= 0 || edition)) noms.push([o, brule >= 0 ? 0 : Math.min(age, 17)]);
+    (o.g === "monument" || (o.fin != null && !(o.g === "bati" && !o.brule)) ? speciaux : stables).push(o);
   }
-  cx.lineJoin = cx.lineCap = "round";
-  const S = cv.width / cam.span; let tiny = null;
+  ville.batiListe = null; ville.stables = stables; ville.speciaux = speciaux; ville.stablesAn = Float64Array.from(stables, (o) => o.an);
+  coucheObjets = null;
+}
+/* range l'objet dans son lot (couleur, opacité, largeur) ; renvoie son âge et sa destruction, ou null s'il n'est pas dessiné */
+function empiler(lots, o, pal, k, dim, span) {
+  if (o.g === "voirie" && span > 9000 && (o.w || 1) < 1.9) return null;   // de loin : seulement les grandes rues
+  if (o.g === "bati" && o.k === "poly") { const a = aireM2(o); if (a < 15 || (span > 2500 && a < 40)) return null; }   // kiosques, abris, entrées de métro : pas des bâtiments
+  let brule = -1;                                       // années depuis la destruction (incendie, démolition) ; -1 = debout
+  if (o.fin != null && an > o.fin + 0.001) {
+    const apres = an - o.fin;
+    if (o.g === "bati" && !o.brule) { /* un bâtiment démoli d'après OSM reste : on ne sait pas le remplacer */ }
+    else if ((o.brule || o.g === "monument") && apres < 20) brule = apres;
+    else return null;
+  }
+  const age = an - o.an, t = Math.min(1, Math.round(age / 30 * 8) / 8), coul = o.couleur || (pal[o.g] || pal.bati);
+  let col = typeof coul === "string" ? coul : t < 1 ? mixer(coul[1], coul[0], t) : coul[0];
+  if (brule >= 0) col = mixer(o.demoli ? "#b9a48c" : "#e0301c", sombre() ? "#4a3a36" : "#6b5a52", Math.round(Math.min(1, brule / 20) * 8) / 8);
+  const al = (dim && !dim.has(o.g) ? 0.22 : 1) * (brule >= 0 ? Math.max(0.15, 1 - brule / 22) : 1), lw = o.k === "ligne" ? Math.max(0.6 * dpr, (o.w || 1) * 0.55 * k * (o.g === "lignes" ? 1.3 : 1)) : 0;
+  const cle = `${o.k}|${col}|${al}|${lw.toFixed(1)}|${o.tunnel ? 1 : 0}`;
+  let l = lots.get(cle); if (!l) lots.set(cle, l = { k: o.k, col, al, lw, tunnel: !!o.tunnel, liste: [] });
+  l.liste.push(o);
+  return { age, brule };
+}
+/* dessine les lots sur g (la toile principale ou la couche) avec la caméra cm */
+function tracerLots(g, cm, lots) {
+  const S = g.canvas.width / cm.span, W2 = g.canvas.width / 2, H2 = g.canvas.height / 2, petit = 7 * dpr;
+  g.lineJoin = g.lineCap = "round";
   for (const l of lots.values()) {
-    cx.globalAlpha = l.al; cx.beginPath(); if (l.k === "poly") cx.fillStyle = l.col;
+    g.globalAlpha = l.al; g.beginPath();
     for (const o of l.liste) {
-      const b = lie(o.f[0]), w = (b[2] - b[0]) * S, h = (b[3] - b[1]) * S;
-      if (l.k === "poly" && w < 7 * dpr && h < 7 * dpr) {                // de loin : un petit carré, écrit directement dans les pixels (22 000 fillRect prenaient 1,3 s)
-        if (!tiny) { tiny = { img: cx.createImageData(cv.width, cv.height) }; }
-        if (l.rgb === undefined) { const hx = l.col; l.rgb = hx[0] === "#" && hx.length === 7 ? [1, 3, 5].map((i) => parseInt(hx.slice(i, i + 2), 16)) : null; }
-        if (l.rgb) {
-          const X0 = Math.floor(px(b[0])), X1 = Math.max(X0 + 1, Math.ceil(px(b[2]))), Y0 = Math.floor(py(b[3])), Y1 = Math.max(Y0 + 1, Math.ceil(py(b[1]))), d = tiny.img.data, A = Math.round(255 * l.al);
-          for (let yy = Y0; yy < Y1; yy++) for (let xx = X0; xx < X1; xx++) {
-            if (xx < 0 || yy < 0 || xx >= cv.width || yy >= cv.height) continue; const i = 4 * (yy * cv.width + xx); d[i] = l.rgb[0]; d[i + 1] = l.rgb[1]; d[i + 2] = l.rgb[2]; d[i + 3] = A;
-          }
-        }
-        continue;
+      const b = lie(o.f[0]);
+      if (!dansVue(b, cm, g.canvas)) continue;
+      const w = (b[2] - b[0]) * S, h = (b[3] - b[1]) * S;
+      if (l.k === "poly" && w < petit && h < petit) {      // de loin : un petit rectangle calé sur les pixels
+        const X0 = Math.floor(W2 + (b[0] - cm.x) * S), Y0 = Math.floor(H2 - (b[3] - cm.y) * S);
+        g.rect(X0, Y0, Math.max(1, Math.ceil(W2 + (b[2] - cm.x) * S) - X0), Math.max(1, Math.ceil(H2 - (b[1] - cm.y) * S) - Y0)); continue;
       }
       if (l.k === "ligne" && w < 1.5 && h < 1.5) continue;
-      for (const a of o.f) trace(cx, a, l.k === "poly", cam);
+      for (const a of o.f) trace(g, a, l.k === "poly", cm);
     }
-    if (l.k === "poly") { cx.fillStyle = l.col; cx.fill(); }
-    else { cx.strokeStyle = l.col; cx.lineWidth = l.lw; cx.setLineDash(l.tunnel ? [4 * dpr, 4 * dpr] : []); cx.stroke(); cx.setLineDash([]); }
+    if (l.k === "poly") { g.fillStyle = l.col; g.fill(); }
+    else { g.strokeStyle = l.col; g.lineWidth = l.lw; g.setLineDash(l.tunnel ? [4 * dpr, 4 * dpr] : []); g.stroke(); g.setLineDash([]); }
   }
-  if (tiny) { const c2 = document.createElement("canvas"); c2.width = cv.width; c2.height = cv.height; c2.getContext("2d").putImageData(tiny.img, 0, 0); cx.globalAlpha = 1; cx.drawImage(c2, 0, 0); }
+  g.globalAlpha = 1;
+}
+/* la couche des objets mûrs : de l'indice a (inclus) à b (exclu) de ville.stables */
+function remplirCouche(L, a, b, pal, k, dim) {
+  const lots = new Map(), S = ville.stables;
+  for (let i = a; i < b; i++) if (S[i].an <= an - AGE_MUR) empiler(lots, S[i], pal, k, dim, L.cm.span);
+  tracerLots(L.g, L.cm, lots); L.vers = b;
+}
+function nouvelleCouche(pal, k, dim, cle) {
+  const c = document.createElement("canvas"); c.width = cv.width; c.height = cv.height;
+  const L = { c, g: c.getContext("2d"), cm: { ...cam }, vers: 0, cle };
+  remplirCouche(L, 0, compter(ville.stablesAn, an - AGE_MUR), pal, k, dim); return L;
+}
+function dessinerObjets(P, dim) {
+  if (!ville.stables) preparerObjets();
+  const pal = sombre() ? GROUPES_SOMBRE : GROUPES, k = Math.max(0.55, Math.min(2.4, Math.sqrt(30000 / cam.span))) * dpr;
+  const mur = compter(ville.stablesAn, an - AGE_MUR), tout = compter(ville.stablesAn, an);
+  const cle = `${sombre() ? 1 : 0}|${dpr}|${cv.width}|${cv.height}|${dim ? themeCourant : ""}`;
+  let L = coucheObjets;
+  if (!L || L.cle !== cle || mur < L.vers || L.c.width !== cv.width || L.c.height !== cv.height) L = coucheObjets = nouvelleCouche(pal, k, dim, cle);
+  else if (meme(L.cm, cam)) { if (mur > L.vers) remplirCouche(L, L.vers, mur, pal, k, dim); }
+  else if (mur - L.vers > 4000) L = coucheObjets = nouvelleCouche(pal, k, dim, cle);
+  else { clearTimeout(reglageObjets); reglageObjets = setTimeout(() => { if (coucheObjets && !meme(coucheObjets.cm, cam)) { coucheObjets = null; sale = true; planifier(); } }, 140); }
+  /* la couche : à sa place, ou déplacée et mise à l'échelle pendant le mouvement */
+  const f = L.cm, S = cv.width / cam.span, ech = f.span / cam.span;
+  cx.save(); cx.globalAlpha = 1;
+  if (meme(f, cam)) cx.drawImage(L.c, 0, 0);
+  else { cx.translate(cv.width / 2 + (f.x - cam.x) * S, cv.height / 2 - (f.y - cam.y) * S); cx.scale(ech, ech); cx.drawImage(L.c, -cv.width / 2, -cv.height / 2); }
+  cx.restore();
+  /* les objets pas encore dans la couche (jeunes, destructions) : dessinés en direct */
+  const lots = new Map(), noms = [], S2 = ville.stables;
+  const note = (o, r) => {
+    if (!r) return; const { age, brule } = r;
+    if (o.nom && age >= 0 && age < 18 && o.k === "ligne" && o.g === "ponts") noms.push([o, age]);
+    if (o.nom && o.g === "monument" && age >= 0 && (age < 25 || brule >= 0 || edition)) noms.push([o, brule >= 0 ? 0 : Math.min(age, 17)]);
+  };
+  for (let i = L.vers; i < tout; i++) note(S2[i], empiler(lots, S2[i], pal, k, dim, cam.span));
+  for (const o of ville.speciaux) { if (o.an > an) break; note(o, empiler(lots, o, pal, k, dim, cam.span)); }
+  tracerLots(cx, cam, lots);
   cx.globalAlpha = 1;
   for (const z of ville.zonesM || []) {
     const finEclair = z.detruitFin ?? z.detruit + 14;
@@ -417,9 +491,9 @@ function mixer0(a, b, t) {
 let planifie = false;
 function planifier() { if (planifie) return; planifie = true; requestAnimationFrame(() => { planifie = false; if (sale) rendre(); }); }
 function dimensionner() {
-  dpr = Math.min(2, devicePixelRatio || 1);
+  dpr = Math.min(dprMax, devicePixelRatio || 1);
   const r = cv.getBoundingClientRect(); cv.width = Math.max(2, Math.round(r.width * dpr)); cv.height = Math.max(2, Math.round(r.height * dpr));
-  fondCache = null; sale = true; planifier();
+  fondCache = null; coucheObjets = null; sale = true; planifier();
 }
 addEventListener("resize", () => { if (!enDiapo()) { dimensionner(); majDefilement(); majGrands(); } });
 addEventListener("scroll", () => { if (!enDiapo()) { if (libre && !lecture && !edition) { libre = false; elNote.textContent = "défiler ou jouer"; } majDefilement(); majGrands(); } }, { passive: true });
@@ -607,7 +681,7 @@ function appliquerQuartiers() {
   }
   tous.sort((p, q) => p.an - q.an);
   ville.objets = tous; ville.fond.bati = resteB; ville.fond.rues = resteR; ville.zonesM = zones.concat(eclairs);
-  fondCache = null; sale = true; planifier();
+  preparerObjets(); fondCache = null; sale = true; planifier();
   if (typeof recalculerCourbe === "function") recalculerCourbe();
 }
 let sauvegarde = 0;

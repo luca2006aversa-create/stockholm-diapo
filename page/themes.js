@@ -9,8 +9,14 @@ const KM = 1 / Math.cos(59.33 * Math.PI / 180);          // 1 m au sol ≈ 1,96 
 const attDe = (o) => o.att || ville.attParF?.get(o.f);
 const debout = (o) => o.an <= an && !(o.fin != null && an > o.fin && (o.brule || o.g === "monument"));
 function voile(P, a) { cx.save(); cx.globalAlpha = a; cx.fillStyle = P.terre; cx.fillRect(0, 0, cv.width, cv.height); cx.restore(); }
-function batiDebout(cb) { for (const o of ville.objets) { if (o.an > an) break; if ((o.g === "bati" || o.g === "monument") && o.k === "poly" && o.f.length && debout(o)) cb(o); } }
+function batiDebout(cb) { for (const o of ville.batiListe || (ville.batiListe = ville.objets.filter((x) => (x.g === "bati" || x.g === "monument") && x.k === "poly" && x.f.length))) { if (o.an > an) break; if (debout(o)) cb(o); } }
+const cacheGrilles = new Map();      // une grille par (taille, valeur) et par année : on ne recompte pas 25 000 bâtiments à chaque image
 function grille(coteSol, valeur) {
+  const cle = coteSol + "|" + valeur, a = Math.round(an), c = cacheGrilles.get(cle);
+  if (c && c.a === a && c.src === ville.objets) return c.g;
+  const g = grilleCalculee(coteSol, valeur); cacheGrilles.set(cle, { a, src: ville.objets, g }); return g;
+}
+function grilleCalculee(coteSol, valeur) {
   const cote = coteSol * KM, cellules = new Map();
   batiDebout((o) => { const b = lie(o.f[0]), x = (b[0] + b[2]) / 2, y = (b[1] + b[3]) / 2, k = Math.floor(x / cote) + "," + Math.floor(y / cote); cellules.set(k, (cellules.get(k) || 0) + valeur(o)); });
   return { cote, cellules };
@@ -171,10 +177,17 @@ function choisirCarte(c) {
 function remplirLegendes() {
   document.querySelectorAll(".encart-legende").forEach((el) => {
     const T = THEMES_CARTE[el.dataset.theme]; if (!T) { el.hidden = true; return; }
+    el.hidden = false;
     el.innerHTML = T.legende().map(([c, t, forme]) => `<div><i class="${forme || "surface"}" style="--c:${c}"></i><span>${t}</span></div>`).join("") + `<p class="encart-source">${T.source}</p>`;
   });
 }
-fetch("../donnees/analyses.json").then((r) => r.ok ? r.json() : null).then((a) => { analyses = a; remplirLegendes(); sale = true; planifier(); }).catch(() => remplirLegendes());
+let analysesDemandees = false;
+function chargerAnalyses() {      // 1,3 Mo : seulement à l'approche des cartes d'analyse
+  if (analysesDemandees) return; analysesDemandees = true;
+  fetch("../donnees/analyses.json").then((r) => r.ok ? r.json() : null).then((a) => { analyses = a; remplirLegendes(); sale = true; planifier(); }).catch(() => remplirLegendes());
+}
+document.addEventListener("DOMContentLoaded", remplirLegendes);      // après site.js : les thèmes de la topo sont alors connus
+surveillerAccesTardif(chargerAnalyses, (d) => !!d.carte);
 
 /* la carte change de largeur en glissant : on redessine à la bonne taille à la fin du mouvement */
 document.getElementById("carte-bloc").addEventListener("transitionend", (e) => { if (e.propertyName === "width") { dimensionner(); majDefilement(true); } });

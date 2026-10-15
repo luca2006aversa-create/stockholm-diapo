@@ -7,18 +7,21 @@ let fondRegion = null, styleCarte = null;
 const CLASSES_SOL = { 10: "foret", 20: "foret", 30: "prairie", 40: "culture", 50: "bati", 60: "solnu", 90: "humide", 95: "humide", 100: "solnu" };
 
 function construireFondRegion() {
-  if (!ville || !styleCarte || !fondRegion?.img || !fondRegion.eau) return;
+  if (!ville || !styleCarte || !fondRegion?.eau) return;
+  if (!fondRegion.img) {                                  // l'image source a été libérée (58 Mo) : on la recharge pour changer de thème
+    if (fondRegion.charge) return; fondRegion.charge = true;
+    const im = new Image(); im.onload = () => { fondRegion.charge = false; fondRegion.img = im; construireFondRegion(); }; im.src = "../donnees/fond/sol_region.png"; return;
+  }
   const st = styleCarte[sombre() ? "sombre" : "clair"], { meta, img, eau } = fondRegion;
   const W = meta.largeur, H = meta.hauteur, c = document.createElement("canvas"); c.width = W; c.height = H;
   const g = c.getContext("2d", { willReadFrequently: true }); g.drawImage(img, 0, 0);
-  const d = g.getImageData(0, 0, W, H), px4 = d.data, rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
-  const col = {}; for (const [k, nom] of Object.entries(CLASSES_SOL)) col[k] = rgb(st[nom]);
-  const mer = rgb(st.eauSalee), terre = rgb(st.terre);
-  for (let i = 0; i < W * H; i++) {
-    const k = px4[i * 4], r = k === 0 || k === 80 ? mer : col[k] || terre;
-    px4[i * 4] = r[0]; px4[i * 4 + 1] = r[1]; px4[i * 4 + 2] = r[2]; px4[i * 4 + 3] = 255;
-  }
-  g.putImageData(d, 0, 0);
+  const d = g.getImageData(0, 0, W, H), src = d.data, out = new Uint32Array(src.length >> 2), rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const pack = (r) => (255 << 24) | (r[2] << 16) | (r[1] << 8) | r[0];          // petit-boutiste : ABGR
+  const lut = new Uint32Array(256), terre = pack(rgb(st.terre)), mer = pack(rgb(st.eauSalee)); lut.fill(terre);
+  for (const [k, nom] of Object.entries(CLASSES_SOL)) lut[k] = pack(rgb(st[nom]));
+  lut[0] = lut[80] = mer;
+  for (let i = 0, n = out.length; i < n; i++) out[i] = lut[src[i << 2]];
+  g.putImageData(new ImageData(new Uint8ClampedArray(out.buffer), W, H), 0, 0);
   /* l'eau : les contours JRC, salée puis douce, par-dessus (bords nets, couleurs distinctes) */
   const [x0, y0, x1, y1] = meta.limites_merc, S = W / (x1 - x0), tr = (a) => { for (let i = 0; i < a.length; i += 2) { const X = (a[i] - x0) * S, Y = (y1 - a[i + 1]) * S; i ? g.lineTo(X, Y) : g.moveTo(X, Y); } g.closePath(); };
   g.fillStyle = st.eauSalee; g.beginPath(); for (const a of eau.salee) tr(a); g.fill("evenodd");
@@ -32,16 +35,34 @@ function construireFondRegion() {
     g.fillStyle = gr; g.fillRect(0, 0, W, H);
   }
   g.globalCompositeOperation = "source-over";
-  fondRegion.c = c; fondRegion.theme = sombre();
+  fondRegion.c = c; fondRegion.theme = sombre(); fondRegion.img = null;      // l'image source n'est plus utile : mémoire rendue
   sale = true; planifier();
 }
+let cacheRegion = null;
+const bougeFond = () => typeof anime !== "undefined" && anime;
 /* pose le fond régional (sous la zone détaillée) */
 function dessinerFondRegion(alpha = 1) {
   if (!fondRegion?.c) return false;
   if (fondRegion.theme !== sombre()) construireFondRegion();
-  const [x0, y0, x1, y1] = fondRegion.meta.limites_merc;
-  cx.save(); cx.globalAlpha = alpha; cx.imageSmoothingEnabled = true; cx.imageSmoothingQuality = "high";
-  cx.drawImage(fondRegion.c, px(x0), py(y1), px(x1) - px(x0), py(y0) - py(y1)); cx.restore();
+  if (alpha <= 0.004) return true;
+  const [x0, y0, x1, y1] = fondRegion.meta.limites_merc, c = fondRegion.c;
+  const dx = px(x0), dy = py(y1), dw = px(x1) - dx, dh = py(y0) - dy;
+  /* seule la partie à l'écran est copiée (l'image fait 14,6 M de pixels : la copier en entier à chaque image coûtait 0,5 à 1,8 s) */
+  const ix0 = Math.max(dx, 0), iy0 = Math.max(dy, 0), ix1 = Math.min(dx + dw, cv.width), iy1 = Math.min(dy + dh, cv.height);
+  if (ix1 <= ix0 || iy1 <= iy0) return true;
+  const kx = c.width / dw, ky = c.height / dh, mouv = bougeFond();
+  /* caméra immobile (cartes d'analyse : seule l'année change) : l'image mise à l'échelle est gardée, une simple copie suffit */
+  if (!mouv && cacheRegion && cacheRegion.src === c && cacheRegion.w === cv.width && cacheRegion.h === cv.height && meme(cacheRegion.cm, cam)) {
+    cx.save(); cx.globalAlpha = alpha; cx.drawImage(cacheRegion.c, 0, 0); cx.restore(); return true;
+  }
+  let cible = cx, tout = false;
+  if (!mouv) {
+    if (!cacheRegion || cacheRegion.w !== cv.width || cacheRegion.h !== cv.height) { const k = document.createElement("canvas"); k.width = cv.width; k.height = cv.height; cacheRegion = { c: k, w: cv.width, h: cv.height }; }
+    cacheRegion.c.getContext("2d").clearRect(0, 0, cv.width, cv.height); cacheRegion.src = c; cacheRegion.cm = { ...cam }; cible = cacheRegion.c.getContext("2d"); tout = true;
+  }
+  cible.save(); if (!tout) cible.globalAlpha = alpha; cible.imageSmoothingEnabled = true; cible.imageSmoothingQuality = mouv ? "low" : "high";
+  cible.drawImage(c, (ix0 - dx) * kx, (iy0 - dy) * ky, (ix1 - ix0) * kx, (iy1 - iy0) * ky, ix0, iy0, ix1 - ix0, iy1 - iy0); cible.restore();
+  if (tout) { cx.save(); cx.globalAlpha = alpha; cx.drawImage(cacheRegion.c, 0, 0); cx.restore(); }
   return true;
 }
 (function attendre() {
@@ -59,3 +80,11 @@ function dessinerFondRegion(alpha = 1) {
   });
   matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => setTimeout(construireFondRegion, 60));
 })();
+
+/* Le fond régional recouvre tout l'écran (hors du bord fondu) : la carte des pays dessous ne se voit plus, on ne la dessine pas
+   (son flou plein écran coûtait plusieurs centaines de ms par image à l'échelle de la ville). */
+function regionCouvre() {
+  if (!fondRegion?.c || fondRegion.theme !== sombre() || cam.span > 600000) return false;
+  const [x0, y0, x1, y1] = fondRegion.meta.limites_merc, mx = (x1 - x0) * 0.09, my = (y1 - y0) * 0.09, dx = cam.span / 2, dy = dx * cv.height / cv.width;
+  return cam.x - dx > x0 + mx && cam.x + dx < x1 - mx && cam.y - dy > y0 + my && cam.y + dy < y1 - my;
+}

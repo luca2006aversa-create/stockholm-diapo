@@ -1,0 +1,6 @@
+const { chromium } = require("playwright"); const http=require("http"),fs=require("fs"),path=require("path");
+const racine=path.resolve(process.argv[2]||path.join(__dirname,"..",".."));const T={".js":"text/javascript",".json":"application/json",".html":"text/html",".png":"image/png",".jpg":"image/jpeg",".webp":"image/webp"};const srv=http.createServer((q,r)=>{let p=decodeURIComponent(q.url.split("?")[0]);const f=path.join(racine,p);if(!fs.existsSync(f)||fs.statSync(f).isDirectory()){r.writeHead(404);return r.end()}r.writeHead(200,{"content-type":T[path.extname(f)]||"application/octet-stream"});fs.createReadStream(f).pipe(r)});
+(async()=>{await new Promise(o=>srv.listen(0,o));const nav=await chromium.launch();const page=await (await nav.newContext({viewport:{width:1440,height:900}})).newPage();
+await page.goto(`http://localhost:${srv.address().port}/page/index.html`);await page.waitForFunction(()=>typeof fondGlobal!=="undefined"&&fondGlobal,null,{timeout:120000});await page.waitForTimeout(2000);
+const r=await page.evaluate(()=>performance.getEntriesByType("resource").map(e=>[e.name.replace(location.origin,""),Math.round(e.encodedBodySize/1024)]).sort((a,b)=>b[1]-a[1]));
+let t=0;for(const [n,k] of r){t+=k;if(k>40)console.log(String(k).padStart(7)+" Ko  "+n)}console.log("total",Math.round(t/1024),"Mo,",r.length,"requêtes");await nav.close();srv.close()})();

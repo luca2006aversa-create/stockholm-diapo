@@ -1,0 +1,175 @@
+{
+ "etiquette": "avant",
+ "dpr": 1,
+ "demarrageMs": 3445,
+ "reseau": {
+  "requetes": 57,
+  "octets": 24603546
+ },
+ "memoire": {
+  "canvas": [
+   {
+    "n": "fondGlobal",
+    "w": 4096,
+    "h": 3099,
+    "Mo": 48.4
+   },
+   {
+    "n": "fondRegion.c",
+    "w": 3930,
+    "h": 3720,
+    "Mo": 55.8
+   },
+   {
+    "n": "fondRegion.img",
+    "w": 3930,
+    "h": 3720,
+    "Mo": 55.8
+   },
+   {
+    "n": "carte",
+    "w": 835,
+    "h": 852,
+    "Mo": 2.7
+   }
+  ],
+  "totalMo": 162.7,
+  "objets": 70179
+ },
+ "etapes": {
+  "europe@800": {
+   "rendreMs": 2.8,
+   "etapes": {
+    "dessinerPays": 2.1,
+    "dessinerFondRegion": 0.5,
+    "dessinerDensite": 0,
+    "dessinerTemps": 0
+   }
+  },
+  "tout@1950": {
+   "rendreMs": 58.2,
+   "etapes": {
+    "dessinerPays": 3.1,
+    "dessinerFondRegion": 5,
+    "copierToile": 0,
+    "dessinerEau": 2.7,
+    "poserFondGlobal": 0,
+    "dessinerObjets": 46.9,
+    "dessinerTheme": 0,
+    "masquerZone": 0,
+    "dessinerDensite": 0,
+    "dessinerTemps": 0.1
+   }
+  },
+  "centre@1790": {
+   "rendreMs": 935.8,
+   "etapes": {
+    "dessinerPays": 2.7,
+    "dessinerFondRegion": 909.6,
+    "copierToile": 0.1,
+    "dessinerEau": 0.7,
+    "poserFondGlobal": 0,
+    "dessinerObjets": 22.4,
+    "dessinerTheme": 0,
+    "masquerZone": 0.1,
+    "dessinerDensite": 0,
+    "dessinerTemps": 0
+   }
+  },
+  "centre@2026": {
+   "rendreMs": 2021,
+   "etapes": {
+    "dessinerPays": 3.3,
+    "dessinerFondRegion": 1807.5,
+    "copierToile": 0,
+    "dessinerEau": 0.7,
+    "poserFondGlobal": 0,
+    "dessinerObjets": 209.1,
+    "dessinerTheme": 0,
+    "masquerZone": 0,
+    "dessinerDensite": 0,
+    "dessinerTemps": 0
+   }
+  },
+  "gamla@1500": {
+   "rendreMs": 591.9,
+   "etapes": {
+    "dessinerPays": 2.5,
+    "dessinerFondRegion": 584.4,
+    "copierToile": 0.1,
+    "dessinerEau": 0.5,
+    "dessinerObjets": 4.1,
+    "dessinerTheme": 0,
+    "masquerZone": 0.1,
+    "dessinerDensite": 0,
+    "dessinerTemps": 0.1
+   }
+  },
+  "norrmalm@1968": {
+   "rendreMs": 755,
+   "etapes": {
+    "dessinerPays": 3.2,
+    "dessinerFondRegion": 705.6,
+    "copierToile": 0.1,
+    "dessinerEau": 0.7,
+    "dessinerObjets": 44.9,
+    "dessinerTheme": 0,
+    "masquerZone": 0.1,
+    "dessinerDensite": 0,
+    "dessinerTemps": 0.2
+   }
+  }
+ },
+ "defilement": {
+  "Europe→Suède": {
+   "n": 98,
+   "mediane": 16.7,
+   "p95": 166.7,
+   "max": 1283.2,
+   "sup50": 11,
+   "sup100": 11,
+   "rendusWebGL": 22,
+   "pixels": 1800
+  },
+  "Histoire 1250→1520": {
+   "n": 220,
+   "mediane": 16.7,
+   "p95": 16.8,
+   "max": 3749.9,
+   "sup50": 9,
+   "sup100": 9,
+   "rendusWebGL": 143,
+   "pixels": 3996
+  },
+  "Histoire 1660→1925": {
+   "n": 242,
+   "mediane": 16.7,
+   "p95": 16.8,
+   "max": 2883.2,
+   "sup50": 10,
+   "sup100": 10,
+   "rendusWebGL": 11,
+   "pixels": 4392
+  },
+  "Cartes d'analyse": {
+   "n": 688,
+   "mediane": 16.7,
+   "p95": 16.8,
+   "max": 1749.9,
+   "sup50": 5,
+   "sup100": 5,
+   "rendusWebGL": 11,
+   "pixels": 12420
+  },
+  "Topo et 3D": {
+   "n": 458,
+   "mediane": 16.7,
+   "p95": 16.8,
+   "max": 3633.1,
+   "sup50": 3,
+   "sup100": 3,
+   "rendusWebGL": 11,
+   "pixels": 8280
+  }
+ }
+}
