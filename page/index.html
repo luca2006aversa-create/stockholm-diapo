@@ -301,6 +301,9 @@
     .an-affiche { font-size: 2.6rem; bottom: 52px; }
   }
   @media print { .barre, .progres, .pied-diapo { display: none; } .diapo { min-height: 0; break-inside: avoid; } .texte, .media { opacity: 1 !important; transform: none !important; } }
+  .barre .b-lien { color: inherit; text-decoration: none; border: 1px solid var(--trait); border-radius: 18px; padding: 6px 13px; font: 13px "Segoe UI", system-ui, sans-serif; white-space: nowrap; }
+  .barre .b-lien:hover { border-color: var(--accent); color: var(--accent); }
+  @media (max-width: 720px) { .barre .b-lien { display: none; } }
 </style>
 </head>
 <body>
@@ -308,6 +311,8 @@
 <div class="barre">
   <b>STOCKHOLM</b><span class="pas-mobile" style="color:var(--discret)">comment la ville s'est construite</span>
   <span class="espace"></span>
+  <a class="b-lien" href="presentation.html" title="La présentation résumée (37 diapos), avec son PDF">Présentation courte</a>
+  <a class="b-lien" href="texte.html" title="Le texte à dire, à deux voix, avec son PDF">Texte à dire</a>
   <button id="b-sommaire" type="button">Sommaire</button>
   <button id="b-mode" type="button" title="Touche P">▶ Diaporama</button>
 </div>
