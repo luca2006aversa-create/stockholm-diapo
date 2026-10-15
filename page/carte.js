@@ -81,6 +81,15 @@ function vueCam(nom) {
   return { x: x - ville.origine[0], y: y - ville.origine[1], span: v.span, nom: v.nom };
 }
 
+/* Chargements différés : « declencher » part quand une diapo choisie (ids) approche à 2 écrans, ou en diaporama. */
+function surveillerAccesTardif(declencher, ids) {
+  const lancer = () => { if (!ville) return setTimeout(lancer, 300); declencher(); };
+  const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); lancer(); } }, { rootMargin: "180% 0px 180% 0px" });
+  diapos.forEach((s, i) => { if (ids(DIAPOS[i], i)) io.observe(s); });
+  new MutationObserver(() => { if (enDiapo()) { io.disconnect(); lancer(); } }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+  if (enDiapo()) lancer();
+}
+
 /* ---- scène courante d'après le défilement : l'année et la vue se fondent d'une diapo à la suivante ---- */
 /* D'une vue à l'autre : l'échelle varie en logarithme et le point visé glisse en proportion de l'écran, pas du terrain —
    en zoomant sur Stockholm depuis l'Europe, la ville reste sous les yeux au lieu de dériver (puis d'arriver d'un coup). */

@@ -16,9 +16,11 @@ const COUCHES = [   // de bas en haut
 const EXAG = 6;
 const etat = { pret: false, focus: -1, sale: true, p: 0 };
 let proche = false, tourne = false, secAxo = null, lisAxo = null, hauteurPosee = 0, dernierFond = "", dernierContenu = "";
+/* la section défile sur 1,6 + 0,5 × (nombre de couches) hauteurs d'écran : posée dès le départ, même avant que la 3D soit construite */
+function fixerHauteur(section) { if (enDiapo()) return; if (hauteurPosee !== innerHeight) { hauteurPosee = innerHeight; section.style.height = (innerHeight * (1.6 + COUCHES.length * 0.5)) + "px"; } }
 function relancer() { etat.sale = true; if (!tourne && etat.pret && !window.__sansRaf) { tourne = true; tPrec = performance.now(); requestAnimationFrame(boucle); } }
 function surveillerProche(section) {
-  new IntersectionObserver((es) => { proche = es.some((e) => e.isIntersecting); if (proche) relancer(); }, { rootMargin: "100% 0px 100% 0px" }).observe(section);
+  new IntersectionObserver((es) => { proche = es.some((e) => e.isIntersecting); if (proche) relancer(); else { section.querySelector(".axo-cadre")?.classList.add("cache"); dernierFond = ""; etat.focus = -1; } }, { rootMargin: "100% 0px 100% 0px" }).observe(section);
 }
 let renderer, scene, camera, plaques = [], etiquettes = [], S, SIDE, cible = null, courant = null, tPrec = 0;
 
@@ -144,7 +146,7 @@ function cibles() {
   const section = secAxo ||= document.querySelector(".diapo.axo"), n = COUCHES.length, diapo = enDiapo(), cadre = section.querySelector(".axo-cadre");
   let p = 0.55;
   if (!diapo) {
-    if (hauteurPosee !== innerHeight) { hauteurPosee = innerHeight; section.style.height = (innerHeight * (1.6 + n * 0.5)) + "px"; }
+    fixerHauteur(section);
     p = borne01((scrollY - section.offsetTop) / (section.offsetHeight - innerHeight));
     /* fondu d'entrée et de sortie : le fond fonce d'abord sur la carte, puis les plaques apparaissent ; à la sortie, l'inverse */
     const R = section.getBoundingClientRect(), H = innerHeight, entree = (H - R.top) / H, sortie = R.bottom / H;
@@ -223,10 +225,11 @@ function rendre3d() {
 
 addEventListener("resize", () => { dimensionner3d(); });
 addEventListener("scroll", () => { if (proche) etat.sale = true; }, { passive: true });
-/* la 3D (three.js, textures, relief) n'est construite qu'à l'approche de la section : 3 écrans avant */
+/* la 3D (three.js, textures, relief) n'est construite qu'à l'approche de la section : 2 écrans avant */
 (function attendre() {
   const sec = document.querySelector(".diapo.axo");
   if (typeof ville === "undefined" || !ville || !ville.objets0 || !sec) return setTimeout(attendre, 300);
-  const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); construire(); } }, { rootMargin: "300% 0px 300% 0px" });
+  fixerHauteur(sec); addEventListener("resize", () => fixerHauteur(sec));
+  const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); construire(); } }, { rootMargin: "180% 0px 180% 0px" });
   io.observe(sec);
 })();

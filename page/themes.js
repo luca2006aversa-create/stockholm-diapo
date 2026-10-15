@@ -177,10 +177,17 @@ function choisirCarte(c) {
 function remplirLegendes() {
   document.querySelectorAll(".encart-legende").forEach((el) => {
     const T = THEMES_CARTE[el.dataset.theme]; if (!T) { el.hidden = true; return; }
+    el.hidden = false;
     el.innerHTML = T.legende().map(([c, t, forme]) => `<div><i class="${forme || "surface"}" style="--c:${c}"></i><span>${t}</span></div>`).join("") + `<p class="encart-source">${T.source}</p>`;
   });
 }
-fetch("../donnees/analyses.json").then((r) => r.ok ? r.json() : null).then((a) => { analyses = a; remplirLegendes(); sale = true; planifier(); }).catch(() => remplirLegendes());
+let analysesDemandees = false;
+function chargerAnalyses() {      // 1,3 Mo : seulement à l'approche des cartes d'analyse
+  if (analysesDemandees) return; analysesDemandees = true;
+  fetch("../donnees/analyses.json").then((r) => r.ok ? r.json() : null).then((a) => { analyses = a; remplirLegendes(); sale = true; planifier(); }).catch(() => remplirLegendes());
+}
+document.addEventListener("DOMContentLoaded", remplirLegendes);      // après site.js : les thèmes de la topo sont alors connus
+surveillerAccesTardif(chargerAnalyses, (d) => !!d.carte);
 
 /* la carte change de largeur en glissant : on redessine à la bonne taille à la fin du mouvement */
 document.getElementById("carte-bloc").addEventListener("transitionend", (e) => { if (e.propertyName === "width") { dimensionner(); majDefilement(true); } });
