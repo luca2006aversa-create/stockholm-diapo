@@ -145,7 +145,7 @@
   .diapo .grand-cadre.fixe { flex-direction: column; align-items: stretch; justify-content: flex-start; padding: 0 0 18px; }
   .diapo .grand-cadre.fixe .grand-legende { order: -1; position: relative; inset: auto; transform: none; max-width: 56rem; width: auto; margin: 0 auto; padding: 22px clamp(18px, 3vw, 52px) 10px; background: none; text-align: left; opacity: 1 !important; pointer-events: auto; }
   .diapo .grand-cadre.fixe .grand-legende h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); }
-  .diapo .grand-cadre.fixe .grand-legende p:last-child { font-size: clamp(1rem, 1.5vw, 1.2rem); line-height: 1.6; color: var(--encre); }
+  .diapo .grand-cadre.fixe .grand-legende p { font-size: clamp(1rem, 1.4vw, 1.15rem); line-height: 1.6; color: var(--encre); margin: 0 0 .6em; }
   .diapo .grand-cadre.fixe img { margin: 0 auto; flex: 1 1 0; min-height: 0; width: auto; max-width: 94vw; object-fit: contain; transform: none !important; align-self: center; filter: none; }
   body.diaporama .diapo .grand-cadre.fixe img { max-height: none; width: auto !important; height: auto !important; max-width: 94vw; }
   body.diaporama .diapo .grand-cadre.fixe .grand-legende { position: relative; bottom: auto; left: auto; transform: none; width: auto; text-align: left; }
@@ -325,9 +325,9 @@ const DIAPOS = [
     texte: ["<p>Capitale de la Suède, sur la côte est, dans le comté de Stockholm (région historique du Svealand). Elle s'est installée à l'endroit où le lac Mälaren rejoint la mer, et c'est cette position qui a fait d'elle le principal centre politique, économique et culturel du pays.</p>"],
     sansCarte: true },
 
-  { id: "ambiance-intro", grand: true, fixe: true, rubrique: "I · Introduction et contexte", titre: "L'ambiance de Stockholm",
+  { id: "ambiance-intro", grand: true, fixe: true, rubrique: "I · Introduction et contexte", titre: "Stockholm : une ambiance urbaine entre nature, histoire et art de vivre",
     image: "../images/ambiance.jpg", alt: "Ambiance — Stockholm : le cœur historique, l'eau et les quais, l'architecture moderne, les espaces verts, les pratiques quotidiennes",
-    legende: "Avant les chiffres et les cartes : une ville qui vit avec l'eau et la nature. Le cœur historique de Gamla Stan, les quais où l'on se retrouve, l'architecture moderne, les parcs qui entrent jusqu'au centre, et des habitudes bien à elle : le fika (la pause café), Midsommar, le lagom — « ni trop, ni trop peu »." },
+    legende: "L'identité de Stockholm repose sur une forte relation entre la ville, l'eau et la nature, qui crée une ambiance à la fois calme, lumineuse et ouverte.</p><p>Cette atmosphère singulière se lit à travers le contraste visuel du montage photo : entre l'intimité chaleureuse du cœur historique, les lignes épurées de l'architecture moderne et la présence constante des espaces verts.</p><p>Elle se vit aussi au quotidien dans les traditions et les habitudes, comme le fika, Midsommar ou le sens de l'équilibre du <i>lagom</i> — la philosophie du « ni trop, ni trop peu » : l'art de trouver le juste équilibre et la modération dans tout, que ce soit au travail, dans la déco ou au quotidien.</p><p>Pour résumer, l'ambiance de Stockholm se construit à travers ses paysages, ses pratiques et ses formes urbaines, mêlant douceur de vivre et modernité." },
 
   { id: "nature", rubrique: "I · Introduction et contexte", titre: "Le contexte naturel : l'eau, la roche, le froid",
     texte: ["<ul><li><b>Ville d'eau.</b> Quatorze îles, de nombreuses rives, des ponts et des espaces naturels.</li>",
