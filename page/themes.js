@@ -155,7 +155,7 @@ const aireAnneau2 = (r) => { let s = 0; for (let i = 0, j = r.length - 2; i < r.
 if (typeof aireAnneau === "undefined") window.aireAnneau = aireAnneau2;
 
 function dessinerTheme(P) {
-  if (!themeActif || enDiapo()) return;
+  if (!themeActif) return;
   const T = THEMES_CARTE[themeActif]; if (T && !T.loin) T.dessiner(P);
 }
 

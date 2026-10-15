@@ -87,6 +87,15 @@
   body.diaporama .diapo:not(.courante) { display: none; }
   body.diaporama .media img, body.diaporama .media video { max-height: 78vh; }
   body.diaporama .texte { font-size: clamp(16px, 1.55vw, 24px); }
+  /* en diaporama aussi, la carte reste à gauche et se déplace d'une diapo à l'autre ; le texte est à droite */
+  body.diaporama #carte-bloc { display: block; position: fixed; z-index: 1; top: 48px; left: 0; width: 58vw; height: calc(100vh - 48px - 42px); background: var(--fond-carte); transition: width .6s cubic-bezier(.3,.7,.2,1); }
+  body.diaporama.plein-carte #carte-bloc { width: 100vw; }
+  body.diaporama .diapo.courante:not(.grand):not(.axo):not(.carte-chapitre) { display: grid; grid-template-columns: minmax(0, 1fr); margin-left: 58vw; position: relative; z-index: 2; background: var(--papier);
+    overflow: auto; align-content: center; align-items: start; gap: 22px; box-sizing: border-box; padding: 56px clamp(18px, 3vw, 52px); }
+  body.diaporama .diapo.courante.grand, body.diaporama .diapo.courante.axo, body.diaporama .diapo.courante.carte-chapitre { position: relative; z-index: 3; }
+  body.diaporama .diapo.courante.grand, body.diaporama .diapo.courante.axo { background: var(--papier); }
+  body.diaporama .diapo.courante.titre { color: var(--encre); text-align: left; align-items: center; }
+  body.diaporama .diapo.courante.titre p { color: var(--discret); }
   .pied-diapo { display: none; position: fixed; z-index: 20; bottom: 0; left: 0; right: 0; padding: 10px 18px; align-items: center; gap: 12px;
     font: 13px "Segoe UI", system-ui, sans-serif; color: var(--discret); }
   body.diaporama .pied-diapo { display: flex; }
@@ -580,11 +589,13 @@ function afficher(i) {
   pRail.style.width = (100 * (courante + 1) / diapos.length) + "%";
   document.querySelectorAll("video").forEach((v) => v.pause());
   history.replaceState(null, "", "#" + diapos[courante].id); majPoints();
+  if (typeof majDiapo === "function" && enDiapo()) majDiapo();
 }
 function modeDiaporama(on) {
   if (on) {
     const vue = diapos.findIndex((s) => s.getBoundingClientRect().bottom > innerHeight * 0.4);
     document.body.classList.add("diaporama"); afficher(vue < 0 ? 0 : vue);
+    setTimeout(() => { if (typeof majDiapo === "function") majDiapo(); }, 80);
   } else {
     document.body.classList.remove("diaporama"); diapos[courante].scrollIntoView({ behavior: "instant" });
     if (typeof dimensionner === "function") setTimeout(() => { dimensionner(); majDefilement(); }, 60);

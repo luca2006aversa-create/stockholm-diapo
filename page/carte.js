@@ -12,10 +12,10 @@ const LIEUX = {   /* vues : centre (lon, lat) et largeur montrée en mètres */
   europe: { c: [14, 58.5], span: 6200000, nom: "Europe" },
   suede: { c: [16.5, 62.3], span: 3300000, nom: "Suède" },
   tout: { c: null, span: 23000, nom: "Grand Stockholm" },
-  centre: { c: [18.0700, 59.3290], span: 5000, nom: "Le centre" },
-  gamla: { c: [18.0710, 59.3250], span: 1900, nom: "Gamla Stan · Stadsholmen" },
-  norrmalm: { c: [18.0650, 59.3330], span: 2400, nom: "Norrmalm" },
-  hammarby: { c: [18.1050, 59.3040], span: 3200, nom: "Hammarby Sjöstad" }
+  centre: { c: [18.0700, 59.3290], span: 6200, nom: "Le centre" },
+  gamla: { c: [18.0710, 59.3250], span: 2400, nom: "Gamla Stan · Stadsholmen" },
+  norrmalm: { c: [18.0650, 59.3330], span: 3000, nom: "Norrmalm" },
+  hammarby: { c: [18.1050, 59.3040], span: 4000, nom: "Hammarby Sjöstad" }
 };
 /* Pour chaque diapo : l'année montrée, la vue, et le thème (ce qui est mis en avant). */
 const SCENES = {
@@ -151,11 +151,26 @@ function sceneDefilement() {
   const e = hist ? lisse(borne01((t - 0.3) / 0.4)) : lisse(borne01((t - 0.42) / 0.16));   // palier au milieu de la diapo ; hors histoire le changement est bref
   return { an: a.an + (b.an - a.an) * e, th: e < 0.5 ? a.th : b.th, cam: zoomAncre(ca, cb, e), nom: (e < 0.5 ? ca : cb).nom, hist, arret: (e < 0.5 ? a : b).arret || null };
 }
+/* En diaporama : la scène de la diapo affichée (la carte reste à gauche, comme en défilement). Une carte d'analyse : l'année avance doucement de l'entrée à la sortie. */
+let rampeAn = 0;
+function sceneDiapo() {
+  clearInterval(rampeAn);
+  const sc = scenes.filter((s) => s.el === diapos[courante]); if (!sc.length) return null;
+  const a = sc[0], v = vueCam(a.vue), r = { an: a.an, th: a.th || null, cam: { x: v.x, y: v.y, span: v.span }, nom: v.nom, hist: !!a.hist, arret: a.arret || null, carte: a.carte };
+  const fin = sc.find((s) => s.sortie);
+  if (fin && fin.an !== a.an) {
+    const t0 = performance.now(), duree = Math.min(9000, 700 + Math.abs(fin.an - a.an) * 9);
+    rampeAn = setInterval(() => { if (!enDiapo() || !cible) return clearInterval(rampeAn); const p = borne01((performance.now() - t0) / duree); cible.an = a.an + (fin.an - a.an) * lisse(p); if (!anime) { anime = true; tAvant = performance.now(); requestAnimationFrame(pasLisse); } if (p >= 1) clearInterval(rampeAn); }, 80);
+  }
+  return r;
+}
+function majDiapo() { libre = false; dimensionner(); majDefilement(); }
 let themeCourant = null, cible = null, anime = false, tAvant = 0, arretActif = null;      // arretActif : l'arrêt de l'histoire en cours (arrets.js)
 /* Le défilement fixe une CIBLE (année, vue) ; la carte la rejoint en douceur, image après image, quelle que soit la vitesse du doigt ou de la molette. */
 function majDefilement(net = false) {
-  if (!ville || enDiapo() || libre || lecture || edition) return;
-  const s = sceneDefilement();
+  if (!ville || libre || lecture || edition) return;
+  const s = enDiapo() ? sceneDiapo() : sceneDefilement();
+  if (!s) return;                                      // diapo sans carte propre (image, 3D) : la carte reste comme elle est
   cible = s; themeCourant = s.th || null; elLieu.textContent = s.nom;
   if (arretActif !== s.arret) { arretActif = s.arret; sale = true; planifier(); }
   if (typeof choisirCarte === "function") choisirCarte(s.carte || null);
@@ -163,7 +178,7 @@ function majDefilement(net = false) {
   if (!anime) { anime = true; tAvant = performance.now(); requestAnimationFrame(pasLisse); }
 }
 function pasLisse(t) {
-  if (!cible || libre || lecture || edition || enDiapo()) { anime = false; return; }
+  if (!cible || libre || lecture || edition) { anime = false; return; }
   const dt = Math.min(0.25, (t - tAvant) / 1000); tAvant = t;
   const k = 1 - Math.exp(-dt / (cible.hist ? 0.22 : 0.1));                          // lissage exponentiel, indépendant du nombre d'images par seconde
   const c = cible.cam, ls = Math.log(cam.span);
@@ -421,9 +436,8 @@ function tracerLots(g, cm, lots) {
       const b = lie(o.f[0]);
       if (!dansVue(b, cm, g.canvas)) continue;
       const w = (b[2] - b[0]) * S, h = (b[3] - b[1]) * S;
-      if (l.k === "poly" && w < petit && h < petit) {      // de loin : un petit rectangle calé sur les pixels
-        const X0 = Math.floor(W2 + (b[0] - cm.x) * S), Y0 = Math.floor(H2 - (b[3] - cm.y) * S);
-        g.rect(X0, Y0, Math.max(1, Math.ceil(W2 + (b[2] - cm.x) * S) - X0), Math.max(1, Math.ceil(H2 - (b[1] - cm.y) * S) - Y0)); continue;
+      if (l.k === "poly" && w < petit && h < petit) {      // de loin : un rectangle à la taille réelle (fondu aux bords) — plus de carrés gonflés à 1-2 pixels qui se chevauchent
+        g.rect(W2 + (b[0] - cm.x) * S, H2 - (b[3] - cm.y) * S, Math.max(0.55 * dpr, w), Math.max(0.55 * dpr, h)); continue;
       }
       if (l.k === "ligne" && w < 1.5 && h < 1.5) continue;
       for (const a of o.f) trace(g, a, l.k === "poly", cm);
@@ -504,7 +518,7 @@ function dimensionner() {
   const r = cv.getBoundingClientRect(); cv.width = Math.max(2, Math.round(r.width * dpr)); cv.height = Math.max(2, Math.round(r.height * dpr));
   fondCache = null; coucheObjets = null; sale = true; planifier();
 }
-addEventListener("resize", () => { if (!enDiapo()) { dimensionner(); majDefilement(); majGrands(); } });
+addEventListener("resize", () => { dimensionner(); if (enDiapo()) majDefilement(); else { majDefilement(); majGrands(); } });
 addEventListener("scroll", () => { if (!enDiapo()) { if (libre && !lecture && !edition) { libre = false; elNote.textContent = "défiler ou jouer"; } majDefilement(); majGrands(); } }, { passive: true });
 
 /* ---- le lecteur : année par année, indépendamment du défilement ---- */

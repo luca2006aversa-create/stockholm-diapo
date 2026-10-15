@@ -5,7 +5,7 @@
    grille d'écoulement) et ../donnees/routes_anciennes.json (tracés schématiques).
    ===================================================================================== */
 Object.assign(LIEUX, {
-  topo: { c: [18.082, 59.3355], span: 17000, nom: "Le site, 10 km autour du centre" },
+  topo: { c: [18.082, 59.3355], span: 20000, nom: "Le site, 10 km autour du centre" },
   region: { c: [18.19, 59.45], span: 380000, nom: "Le Mälaren et la Baltique" }
 });
 
@@ -159,7 +159,7 @@ function dessinerRoutesAnciennes(P) {
   cx.restore();
 }
 function dessinerThemeLoin(P) {
-  if (!themeActif || enDiapo()) return;
+  if (!themeActif) return;
   const T = THEMES_CARTE[themeActif]; if (T && T.loin) T.dessiner(P);
 }
 
@@ -175,7 +175,7 @@ function lancerEcoulement() {
   const g = topo.grille;
   gouttes = Array.from({ length: 3200 }, () => ({ x: Math.random() * g.largeur, y: Math.random() * g.hauteur, vie: Math.random() * 120 }));
   const pas = () => {
-    if (themeActif !== "site-bassins" || enDiapo()) { boucleEau = 0; toileEau.style.display = "none"; cxEau.clearRect(0, 0, toileEau.width, toileEau.height); return; }
+    if (themeActif !== "site-bassins") { boucleEau = 0; toileEau.style.display = "none"; cxEau.clearRect(0, 0, toileEau.width, toileEau.height); return; }
     boucleEau = requestAnimationFrame(pas); imageEcoulement();
   };
   toileEau.style.display = "block"; boucleEau = requestAnimationFrame(pas);
