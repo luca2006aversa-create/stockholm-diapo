@@ -151,7 +151,9 @@ function sceneDefilement() {
   const t = i === j ? 0 : borne01((milieu - ys[i]) / (ys[j] - ys[i]));
   const a = nor[i], b = nor[j], ca = vueCam(a.vue), cb = vueCam(b.vue), hist = !!(a.hist && b.hist);
   const e = hist ? lisse(borne01((t - 0.3) / 0.4)) : lisse(borne01((t - 0.42) / 0.16));   // palier au milieu de la diapo ; hors histoire le changement est bref
-  return { an: a.an + (b.an - a.an) * e, th: e < 0.5 ? a.th : b.th, cam: zoomAncre(ca, cb, e), nom: (e < 0.5 ? ca : cb).nom, hist, arret: (e < 0.5 ? a : b).arret || null };
+  /* deux cartes plein écran qui se suivent : on reste en plein écran, sans repasser par la carte de la ville (le thème change au milieu) */
+  const carte = a.carte && b.carte ? (e < 0.5 ? a.carte : b.carte) : undefined;
+  return { an: a.an + (b.an - a.an) * e, th: e < 0.5 ? a.th : b.th, cam: zoomAncre(ca, cb, e), nom: (e < 0.5 ? ca : cb).nom, hist, arret: (e < 0.5 ? a : b).arret || null, carte };
 }
 /* En diaporama : la scène de la diapo affichée (la carte reste à gauche, comme en défilement). Une carte d'analyse : l'année avance doucement de l'entrée à la sortie. */
 let rampeAn = 0;
