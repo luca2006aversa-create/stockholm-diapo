@@ -127,10 +127,58 @@ Object.assign(THEMES_CARTE, {
     legende: () => [["#1f5fa8", "routes d'eau (lac et mer)", "ligne"], ["#a0461e", "routes de terre", "ligne"], ["#9a948a", "route abandonnée", "ligne"], ["#c8572a", "villes et ports (à leur date)", "point"]],
     source: "Tracés schématiques d'après les sources écrites (Wikipedia, Stockholmskällan, Riksantikvarieämbetet) ; dates approximatives. Fond : eau JRC et sol ESA WorldCover (Earth Engine).",
     dessiner(P) { dessinerRoutesAnciennes(P); }
+  },
+  "routes-hanse": {
+    loin: true,
+    legende: () => [["#ffe08a", "routes maritimes (flèche : sens de la marchandise)", "ligne"], ["#e8573a", "villes et ports de la Hanse", "point"], ["#ffd400", "Stockholm", "point"]],
+    source: "Tracés SCHÉMATIQUES d'après les descriptions des sources (Ligue hanséatique, XIIIe-XVe siècles), pas relevés sur une carte ancienne. Fond : Natural Earth.",
+    dessiner(P) { dessinerRoutesHanse(P); }
   }
 });
 
-/* ---- la carte régionale : fond Natural Earth, routes d'eau et de terre qui s'allument à leur date */
+/* ---- les routes anciennes : routes d'eau et de terre qui s'allument à leur date, avec le SENS des échanges (flèches) et les villes */
+function pointAlong(f, t) {                      // point et direction (angle sur l'écran) à la fraction t de la longueur d'un tracé
+  let L = 0; const cum = [0];
+  for (let i = 2; i < f.length; i += 2) { L += Math.hypot(f[i] - f[i - 2], f[i + 1] - f[i - 1]); cum.push(L); }
+  const d = t * L; let i = 1; while (i < cum.length - 1 && cum[i] < d) i++;
+  const u = (d - cum[i - 1]) / Math.max(1e-9, cum[i] - cum[i - 1]), ax = f[2 * i - 2], ay = f[2 * i - 1], bx = f[2 * i], by = f[2 * i + 1];
+  return { x: ax + (bx - ax) * u, y: ay + (by - ay) * u, ang: Math.atan2(-(by - ay), bx - ax) };
+}
+function dessinerReseau(P, R) {
+  const sb = sombre(), C = sb ? { mer: "#ffe08a", terre: "#ff9a66", fini: "#9fb0ba", bord: "rgba(6,18,28,.88)", ville: "#e8573a" } : { mer: "#0f4c81", terre: "#a0461e", fini: "#7b858c", bord: "rgba(255,255,255,.92)", ville: "#c8572a" };
+  cx.lineJoin = cx.lineCap = "round";
+  const actives = R.routes.map((r) => ({ r, v: borne01((an - r.de) / 40) })).filter((q) => q.v > 0);
+  for (const passe of [0, 1]) for (const { r, v } of actives) {      // d'abord les bords sombres/clairs, puis les traits
+    const fini = r.a != null && an > r.a, mer = r.type === "mer", w = (mer ? 4.4 : 3.6) * dpr;
+    cx.globalAlpha = (fini ? 0.6 : 1) * v; cx.setLineDash(mer && !fini ? [] : fini ? [3 * dpr, 5 * dpr] : [9 * dpr, 6 * dpr]);
+    cx.strokeStyle = passe ? (fini ? C.fini : mer ? C.mer : C.terre) : C.bord; cx.lineWidth = passe ? w : w + 3.4 * dpr;
+    cx.beginPath(); trace(cx, r.f, false, cam); cx.stroke();
+  }
+  cx.setLineDash([]);
+  /* les flèches : le sens des échanges, avec la marchandise */
+  cx.textAlign = "center"; cx.textBaseline = "middle";
+  for (const { r, v } of actives) for (const fl of r.fleches || []) {
+    if (r.a != null && an > r.a) continue;
+    const q = pointAlong(r.f, fl.t), X = px(q.x), Y = py(q.y), ang = fl.sens < 0 ? q.ang + Math.PI : q.ang, taille = 11 * dpr;
+    cx.globalAlpha = v; cx.save(); cx.translate(X, Y); cx.rotate(-ang);
+    cx.beginPath(); cx.moveTo(taille, 0); cx.lineTo(-taille * 0.7, -taille * 0.75); cx.lineTo(-taille * 0.3, 0); cx.lineTo(-taille * 0.7, taille * 0.75); cx.closePath();
+    cx.fillStyle = r.type === "mer" ? C.mer : C.terre; cx.strokeStyle = C.bord; cx.lineWidth = 2.6 * dpr; cx.stroke(); cx.fill(); cx.restore();
+    if (fl.texte) { cx.font = `700 ${Math.round(12.5 * dpr)}px "Segoe UI", system-ui, sans-serif`; cx.lineWidth = 4.6 * dpr; cx.strokeStyle = C.bord; cx.fillStyle = sb ? "#fff" : "#1d1c1a"; cx.strokeText(fl.texte, X, Y - 19 * dpr); cx.fillText(fl.texte, X, Y - 19 * dpr); }
+  }
+  /* les villes et les ports, bien visibles ; Stockholm toujours */
+  const stk = R.lieux.find((l) => l.nom === "Stockholm") || { x: 0, y: 0 };
+  cx.textAlign = "left";
+  for (const l of R.lieux) {
+    const toujours = l.nom === "Stockholm", v = toujours ? 1 : borne01((an - l.de) / 30); if (v <= 0) continue;
+    if (!toujours && R === routesAnciennes && Math.hypot(l.x - stk.x, l.y - stk.y) < 16000) continue;      // les petits ports de la ville : pas à cette échelle
+    const fini = l.a != null && an > l.a, X = px(l.x), Y = py(l.y), r = (l.fort ? 9 : 6.5) * dpr;
+    cx.globalAlpha = (fini ? 0.65 : 1) * v;
+    cx.beginPath(); cx.arc(X, Y, r + 2.6 * dpr, 0, 6.3); cx.fillStyle = "#fff"; cx.fill();
+    cx.beginPath(); cx.arc(X, Y, r, 0, 6.3); cx.fillStyle = fini ? C.fini : l.nom === "Stockholm" ? "#ffd400" : C.ville; cx.fill(); cx.strokeStyle = "#1d1c1a"; cx.lineWidth = 2.2 * dpr; cx.stroke();
+    cx.font = `700 ${Math.round((l.fort ? 18 : 14.5) * dpr)}px "Segoe UI", system-ui, sans-serif`; cx.lineWidth = 5.4 * dpr; cx.strokeStyle = C.bord; cx.fillStyle = sb ? "#fff" : "#1d1c1a";
+    const t = l.nom + (fini ? " (abandonnée)" : ""); cx.strokeText(t, X + r + 7 * dpr, Y); cx.fillText(t, X + r + 7 * dpr, Y);
+  }
+}
 function dessinerRoutesAnciennes(P) {
   if (!routesAnciennes || !europe) return;
   cx.save();
@@ -139,24 +187,13 @@ function dessinerRoutesAnciennes(P) {
     cx.fillStyle = sombre() ? "#2a2d30" : "#efe9db"; cx.beginPath(); for (const p of europe.pays) for (const an_ of p.proj) for (const a of an_) trace(cx, a, true, cam); cx.fill("evenodd");
     cx.fillStyle = sombre() ? "#2b6a92" : "#bcdcef"; cx.beginPath(); for (const l of europe.lacsProj) for (const a of l) trace(cx, a, true, cam); cx.fill("evenodd");
   }
-  cx.lineJoin = cx.lineCap = "round";
-  for (const r of routesAnciennes.routes) {
-    const v = borne01((an - r.de) / 40); if (v <= 0) continue;
-    const fini = r.a != null && an > r.a, mer = r.type === "mer";
-    cx.globalAlpha = fini ? 0.55 : v;
-    cx.strokeStyle = fini ? "#9a948a" : mer ? "#1f5fa8" : "#a0461e"; cx.lineWidth = (mer ? 3.2 : 2.6) * dpr;
-    cx.setLineDash(mer ? [] : [8 * dpr, 5 * dpr]); if (fini) cx.setLineDash([3 * dpr, 4 * dpr]);
-    cx.beginPath(); trace(cx, r.f, false, cam); cx.stroke();
-  }
-  cx.setLineDash([]); cx.textAlign = "left"; cx.textBaseline = "middle";
-  for (const l of routesAnciennes.lieux) {
-    const v = borne01((an - l.de) / 30); if (v <= 0) continue;
-    const fini = l.a != null && an > l.a, X = px(l.x), Y = py(l.y), r = (l.fort ? 7 : 4.5) * dpr;
-    cx.globalAlpha = fini ? 0.5 : v; cx.fillStyle = fini ? "#9a948a" : "#c8572a"; cx.strokeStyle = "#fff"; cx.lineWidth = 2 * dpr;
-    cx.beginPath(); cx.arc(X, Y, r, 0, 6.3); cx.fill(); cx.stroke();
-    etiquette(l.nom + (fini ? " (abandonnée)" : ""), X + r + 5 * dpr, Y, P, l.fort ? 16 : 13);
-  }
+  dessinerReseau(P, routesAnciennes);
   cx.restore();
+}
+/* la Hanse : les routes maritimes de la Baltique et de la mer du Nord, sur la carte de l'Europe du Nord */
+function dessinerRoutesHanse(P) {
+  if (!routesAnciennes?.hanse || !europe) return;
+  cx.save(); dessinerReseau(P, routesAnciennes.hanse); cx.restore();
 }
 function dessinerThemeLoin(P) {
   if (!themeActif) return;
@@ -222,6 +259,7 @@ function chargerTopo() {
       routesAnciennes = ra;
       for (const r of ra.routes) r.f = r.p.flatMap(versLocal);
       for (const l of ra.lieux) [l.x, l.y] = versLocal(l.p);
+      if (ra.hanse) { for (const r of ra.hanse.routes) r.f = r.p.flatMap(versLocal); for (const l of ra.hanse.lieux) [l.x, l.y] = versLocal(l.p); }
     }
     remplirLegendes(); sale = true; planifier();
   });

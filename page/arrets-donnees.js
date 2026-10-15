@@ -8,6 +8,7 @@ const RUBRIQUE_HISTOIRE = "II · Formation et histoire urbaine";
 const ARRETS = [
   { id: "inc-1625", type: "incendie", an: 1625, date: "1er septembre 1625", titre: "Le grand incendie de Stadsholmen", lieu: "Sud-ouest de Stadsholmen, depuis Kåkbrinken",
     c: [18.0685, 59.3239], span: 1700, zone: "Grand incendie de 1625",
+    media: { t: "img", src: "../images/incendie-1625-kakbrinken.jpg", alt: "Carte ancienne annotée : départ du feu à Kåkbrinken et zone totalement détruite", legende: "Carte ancienne annotée : le feu part de Kåkbrinken (carré rouge) ; les hachures marquent la zone totalement détruite." },
     texte: ["<p>Le feu part de Kåkbrinken et ravage le sud-ouest de l'île : les ruelles étroites et les maisons de bois partent en fumée.</p>", "<p>On reconstruit selon un plan régulier : des rues droites (Stora et Lilla Nygatan) remplacent le dédale médiéval. C'est l'une des premières « villes neuves » de Stockholm.</p>"] },
   { id: "inc-1642", type: "incendie", an: 1642, date: "1642", titre: "L'incendie du Brunkebergsåsen", lieu: "Norrmalm, sur la crête de Brunkeberg",
     c: [18.0700, 59.3335], span: 2000, approx: true,
@@ -39,7 +40,7 @@ const ANNEES_HISTOIRE = { frise: 1250, fondateur: 1252, origines: 1300, hanse: 1
 function arretsEnDiapos() {
   const liste = ARRETS.map((a) => ({
     an: a.an, ordre: 0,
-    diapos: [{ id: "arret-" + a.id, arret: { ...a, nature: a.type }, rubrique: RUBRIQUE_HISTOIRE, annee: a.date, titre: a.titre, texte: [`<p class="arret-lieu">${a.lieu}</p>`, ...a.texte] }]
+    diapos: [{ id: "arret-" + a.id, arret: { ...a, nature: a.type }, rubrique: RUBRIQUE_HISTOIRE, annee: a.date, titre: a.titre, media: a.media, texte: [`<p class="arret-lieu">${a.lieu}</p>`, ...a.texte] }]
   }));
   BATIMENTS.forEach((b, i) => {
     const arret = { id: "bat-" + i, type: "batiment", nature: "batiment", an: b.an, c: b.c, span: b.span || 1000, nom: b.nom };

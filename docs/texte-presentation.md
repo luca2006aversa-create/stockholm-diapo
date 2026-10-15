@@ -1,6 +1,6 @@
 # Texte de présentation — « Comment la ville s'est construite : Stockholm »
 
-Deux voix : **A** et **B**. Chaque section commence par les numéros de diapos du site (mode défilement ou diaporama). Durée visée : 15 à 18 minutes, soit environ 1 minute par groupe de diapos. Les passages entre crochets sont des gestes ou des indications (« laisser défiler »), pas du texte à lire. Les chiffres viennent des diapos du site ; les années des bâtiments sont celles de vos dessins.
+Deux voix : **A** et **B**. Chaque section commence par les numéros de diapos du site (mode défilement ou diaporama). Durée visée : 15 à 18 minutes, soit environ 1 minute par groupe de diapos. Attention : les numéros de diapos entre crochets ne sont plus exacts depuis les derniers ajouts (routes de la Hanse, cartes anciennes, circulation, promenade) : se repérer aux **titres**. Les passages entre crochets sont des gestes ou des indications (« laisser défiler »), pas du texte à lire. Les chiffres viennent des diapos du site ; les années des bâtiments sont celles de vos dessins.
 
 ---
 
@@ -24,7 +24,9 @@ Deux voix : **A** et **B**. Chaque section commence par les numéros de diapos d
 
 **B —** Et la pluie. [Diapo 9] Neuf bassins versants dans ce carré de 10 kilomètres : les gouttes suivent la pente et se rassemblent dans les vallées. Sur des îles, tout est court, et les bas de la ville sont les premiers exposés aux inondations.
 
-**A —** Avant Stockholm, une route d'eau et de terre. [Diapo 10] Birka à l'âge viking, puis Sigtuna : quand la terre remonte, le passage se resserre exactement ici. Qui tient ce détroit tient le commerce du lac, le fer et le cuivre de la Bergslagen, avec la Baltique et la Hanse.
+**A —** Avant Stockholm, une route d'eau et de terre. [Diapo 10] Birka à l'âge viking, puis Sigtuna : quand la terre remonte, le passage se resserre exactement ici. Qui tient ce détroit tient le commerce du lac, le fer et le cuivre de la Bergslagen, avec la Baltique et la Hanse. Sur la carte, les flèches montrent le sens des marchandises : le fer et le cuivre descendent vers Stockholm, le sel, les tissus et le vin remontent.
+
+**B —** Zoomons sur la Baltique. [Diapo « Les routes de la Hanse »] Les marchands de Lübeck font de la mer un seul marché : Visby sur Gotland est le grand relais, Riga et Reval mènent à Novgorod pour les fourrures et la cire, Bergen vend son poisson séché. Stockholm y exporte son fer et son cuivre et reçoit sel, tissus et vin.
 
 ## 3. Naissance de la ville — diapos 11 à 18
 
@@ -46,7 +48,7 @@ Deux voix : **A** et **B**. Chaque section commence par les numéros de diapos d
 
 **A —** À partir d'ici, la carte s'arrête sur les événements importants. Chaque fois, la date s'affiche, le lieu est zoomé et la zone touchée est surlignée en rouge. [Diapo : Bromma kyrka, vers 1165 ; montrer le dessin ; elle s'affiche juste après la frise] D'abord, une église qui date d'avant la ville : celle de Bromma, vers 1160-1170, une église fortifiée à plan circulaire, au bord des voies d'eau du Mälaren. Elle rappelle que le territoire de Stockholm était fait de villages dispersés avant l'expansion de la métropole.
 
-**B —** Le 1er septembre 1625. [Diapo 21] Un incendie part de Kåkbrinken et ravage le sud-ouest de Stadsholmen. On reconstruit avec des rues droites, Stora et Lilla Nygatan : c'est l'une des premières villes neuves. En 1642, un incendie touche la crête de Brunkeberg ; les autorités encouragent alors la pierre. [Diapo 22] Le XVIIe siècle est celui d'une capitale en plein essor, qui passe de moins de 10 000 habitants en 1600 à plus de 50 000 en 1675. [Diapo 23]
+**B —** Le 1er septembre 1625. [Diapo 21 ; la carte ancienne annotée montre le départ du feu et la zone détruite en hachures] Un incendie part de Kåkbrinken et ravage le sud-ouest de Stadsholmen. On reconstruit avec des rues droites, Stora et Lilla Nygatan : c'est l'une des premières villes neuves. En 1642, un incendie touche la crête de Brunkeberg ; les autorités encouragent alors la pierre. [Diapo 22] Le XVIIe siècle est celui d'une capitale en plein essor, qui passe de moins de 10 000 habitants en 1600 à plus de 50 000 en 1675. [Diapo 23]
 
 **A —** 7 mai 1697. [Diapo 24] Le château Tre Kronor est détruit par un incendie. Nicodemus Tessin le Jeune dessine à sa place le palais baroque, l'actuel palais royal. En 1719, environ 200 maisons brûlent à Norrmalm. [Diapo 25]
 
@@ -54,7 +56,7 @@ Deux voix : **A** et **B**. Chaque section commence par les numéros de diapos d
 
 **A —** Puis 1751, l'incendie de Klara, 221 maisons ; [Diapo 29] et le 19 juillet 1759, la *Mariabranden* : environ 300 maisons, 20 îlots, 2 000 sans-abri. [Diapo 30] La conséquence est directe : on est obligé de bâtir en brique et en pierre. C'est la fin de la ville de bois.
 
-**B —** Les règles qui suivent : en 1725, premier code de construction, le bois est interdit dans la vieille ville. Puis, de 1750 à 1850, c'est la stagnation. [Diapo 31]
+**B —** Les règles qui suivent : en 1725, premier code de construction, le bois est interdit dans la vieille ville. Puis, de 1750 à 1850, c'est la stagnation. [Diapo 31] Sur cette carte ancienne du XVIIIe siècle, Norrmalm est tracée en grille régulière alors que Stadsholmen garde son plan médiéval ; et sur Stortorget, les façades colorées de Gamla Stan donnent sa silhouette à la vieille ville.
 
 **A —** En 1838, une maison de campagne, Karlshälls gård, sur l'île de Långholmen. [Diapo 32-33] Un *malmgård* : une résidence de familles aisées, à l'écart de la densité du centre, construite d'ailleurs en terre argileuse et paille plutôt qu'en brique. Elle témoigne d'un Stockholm où ville et campagne étaient encore très liées.
 
@@ -86,11 +88,15 @@ Deux voix : **A** et **B**. Chaque section commence par les numéros de diapos d
 
 **B —** Huit siècles de croissance. [Diapo 52] Le noyau serré de Stadsholmen, la grille du XVIIe, les boulevards et les îlots fermés du XIXe, les villes nouvelles du métro, puis la reconversion des ports. Chaque étape répond à un problème de son temps.
 
-**A —** Quelques cartes pour lire la ville d'aujourd'hui. [Diapo 53] Environ un million d'habitants dans ce carré de 22 kilomètres : les plus fortes densités sont dans les îlots fermés du XIXe et autour des stations de métro. [Diapo 54] Les routes arrivent avant les bâtiments : la ville se construit le long d'elles.
+**A —** Quelques cartes pour lire la ville d'aujourd'hui. [Diapo 53] Environ un million d'habitants dans ce carré de 22 kilomètres : les plus fortes densités sont dans les îlots fermés du XIXe et autour des stations de métro. [Diapo 54] Les routes arrivent avant les bâtiments : la ville se construit le long d'elles. Toutes ces cartes montrent la ville d'aujourd'hui, sans animation dans le temps.
 
 **B —** [Diapo 55] Les transports : trains en 1871, métro en 1950 ; l'essentiel de la ville bâtie après 1950 est à moins de 10 minutes à pied d'une station. [Diapo 56] Les centres : Hötorget et Sergels torg, puis Medborgarplatsen et les centres des villes du métro. [Diapo 57] Les types de bâtiments, et [Diapo 58] la trame verte et bleue : l'eau et la végétation forment un réseau continu qui pénètre jusqu'au cœur de la ville.
 
 ## 8. Deux études de cas et conclusion — diapos 59 à 63
+
+**B —** La circulation. [Diapo « La circulation dans Stockholm » ; photo aérienne de Gamla Stan] Stockholm est une ville d'îles : tout passe par un pont ou une écluse, et Slussen est le grand nœud. Dans les années 1960 on a favorisé la voiture ; aujourd'hui le métro et les trains portent l'essentiel des déplacements, et depuis 2006-2007 une taxe de congestion limite les voitures dans le centre.
+
+**A —** Une promenade. [Diapo « Une promenade dans Gamla Stan » ; laisser tourner] Le point avance dans les rues et la zone orange est ce qu'on voit à hauteur d'yeux, jusqu'au premier mur : dans les ruelles la vue se resserre, sur une place elle s'ouvre. La surface vue s'affiche en direct : c'est la « vision sérielle » des urbanistes.
 
 **A —** Deux logiques, à la même échelle. [Diapo 59] Gamla Stan : 39 % d'emprise bâtie, 471 carrefours par km², îlot médian 1 870 m² — le tissu serré du Moyen Âge. Hammarby Sjöstad : 23 % d'emprise bâtie, 135 carrefours par km², îlot médian 7 110 m² — l'îlot ouvert et planifié de la fin du XXe.
 

@@ -15,7 +15,9 @@ const LIEUX = {   /* vues : centre (lon, lat) et largeur montrée en mètres */
   centre: { c: [18.0700, 59.3290], span: 7600, nom: "Le centre" },
   gamla: { c: [18.0710, 59.3250], span: 3000, nom: "Gamla Stan · Stadsholmen" },
   norrmalm: { c: [18.0650, 59.3330], span: 3700, nom: "Norrmalm" },
-  hammarby: { c: [18.1050, 59.3040], span: 4900, nom: "Hammarby Sjöstad" }
+  hammarby: { c: [18.1050, 59.3040], span: 4900, nom: "Hammarby Sjöstad" },
+  promenade: { c: [18.0716, 59.3250], span: 2300, nom: "Gamla Stan · promenade" },
+  baltique: { c: [19.2, 57.7], span: 3500000, nom: "La Baltique et la Hanse" }
 };
 /* Pour chaque diapo : l'année montrée, la vue, et le thème (ce qui est mis en avant). */
 const SCENES = {

@@ -366,6 +366,10 @@ const DIAPOS = [
     texte: ["<p>Avant Stockholm, le Mälaren était un golfe de la mer et ses ports se succédaient : <b>Birka</b> à l'âge viking (vers 750-975), puis <b>Sigtuna</b>. Quand la terre remonte, le passage vers la mer se resserre à l'endroit de Stockholm : qui tient ce détroit tient le commerce du lac (le fer et le cuivre de Bergslagen) avec la Baltique et la Hanse.</p>",
             "<p>Sur terre, les routes d'Uppsala, du sud (Göta landsväg, dont Götgatan est le départ), d'Enköping et du Roslagen convergent vers la ville. Les tracés sont schématiques.</p>"] },
 
+  { id: "routes-hanse", carte: { theme: "routes-hanse", vue: "baltique", an: [1200, 1450] }, rubrique: "I · Introduction et contexte", titre: "Les routes de la Hanse : la Baltique, grande rue du Nord",
+    texte: ["<p>À partir du XIIIe siècle, les marchands de Lübeck et des villes allemandes font de la Baltique un seul marché. <b>Visby</b>, sur l'île de Gotland, est le grand relais ; <b>Riga</b> et <b>Reval</b> mènent vers <b>Novgorod</b>, où l'on achète fourrures et cire ; <b>Bergen</b> vend son poisson séché.</p>",
+            "<p>Stockholm est un nœud de cette toile : elle exporte le fer et le cuivre de la Bergslagen, et reçoit sel, tissus et vin. Les flèches montrent le sens de chaque marchandise. Les tracés sont schématiques.</p>"] },
+
   { id: "paysages", grand: true, rubrique: "I · Introduction et contexte", titre: "L'eau, les îles et les saisons",
     image: "../images/paysages.png", alt: "Stockholm vue d'en haut, l'hiver, les îles",
     legende: "Quatorze îles, la glace, les rochers : la ville s'est installée dans l'eau." },
@@ -426,6 +430,14 @@ const DIAPOS = [
             "<li><b>1750-1850</b> : stagnation démographique et économique, malgré quelques progrès d'infrastructure.</li></ul>"],
     media: { t: "img", src: "../images/carte-biurman-1750.jpg", alt: "Carte de Stockholm par Georg Biurman, 1750", legende: "« Charta öfwer Stockholms stads belägenhet », Georg Biurman, 1750-1751 (domaine public) — Kungliga biblioteket, via Wikimedia Commons." } },
 
+  { id: "carte-xviii-ancienne", grand: true, fixe: true, rubrique: "II · Formation et histoire urbaine", annee: "XVIIIe siècle", titre: "Une ville de grilles et de ports",
+    image: "../images/carte-ancienne-xviii.jpg", alt: "Carte ancienne de Stockholm : Norrmalm en grille régulière, Stadsholmen, la forteresse de Skeppsholmen et les navires",
+    legende: "Sur cette carte ancienne, les quartiers neufs de Norrmalm sont tracés en grille régulière, alors que Stadsholmen, en bas, garde son plan serré du Moyen Âge. La forteresse sur son îlot garde l'entrée du port, où mouillent les navires : la ville vit de la mer.</p><p><i>Carte ancienne, XVIIIe siècle — source à préciser.</i>" },
+
+  { id: "stortorget", grand: true, fixe: true, rubrique: "II · Formation et histoire urbaine", annee: "XVIIe – XVIIIe siècles", titre: "Stortorget : les façades colorées de Gamla Stan",
+    image: "../images/stortorget-facades.jpg", alt: "Façades colorées et pignons de la place Stortorget à Gamla Stan",
+    legende: "Sur Stortorget, la place du cœur médiéval, les maisons étroites aux pignons à gradins et aux façades ocre, rouge ou verte donnent à Gamla Stan sa silhouette et ses couleurs. Le bois a laissé place à la pierre et à l'enduit après les incendies, mais le plan, lui, reste celui du Moyen Âge.</p><p><i>Photo d'ambiance — source à préciser.</i>" },
+
   { id: "xix", rubrique: "II · Formation et histoire urbaine", annee: "XIXe siècle", titre: "La vapeur, le rail et la ville de pierre",
     chiffres: [["245 000", "habitants"], ["1866", "plan de Lindhagen"]],
     texte: ["<p>Les machines à vapeur (années 1800) et les usines (années 1840) font croître la ville vite ; la gare centrale et les tramways à cheval l'intègrent à un réseau plus large.</p>",
@@ -467,31 +479,37 @@ const DIAPOS = [
   { id: "fin-histoire", carte: { theme: null, vue: "tout", an: [2026, 2026] }, rubrique: "II · Formation et histoire urbaine", annee: "2026", titre: "Stockholm aujourd'hui",
     texte: ["<p>Huit siècles de croissance : le noyau serré de Stadsholmen, la grille du XVIIe siècle sur Norrmalm et Södermalm, les boulevards et les îlots fermés du XIXe, les villes nouvelles du métro au XXe, puis la reconversion des ports et des friches. Chaque étape répond à un problème de son temps : défendre et commercer, résister au feu, assainir, loger, se déplacer, préserver.</p>"] },
 
-  { id: "carte-pop", carte: { theme: "pop", vue: "tout", an: [1850, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "Où vivent les habitants ?",
-    texte: ["<p>Environ un million d'habitants dans ce carré de 22 km. La population (GHS-POP 2025) est répartie dans chaque bâtiment selon sa surface de plancher, puis comptée par carré.</p><p>Les plus fortes densités sont dans les îlots fermés du XIXe siècle (Vasastan, Södermalm, Östermalm) et autour des stations des villes du métro. L'animation remplit les bâtiments à mesure qu'ils apparaissent : elle montre où la ville s'est remplie, pas la population de chaque époque.</p>"] },
+  { id: "carte-pop", carte: { theme: "pop", vue: "tout", an: [2026, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "Où vivent les habitants ?",
+    texte: ["<p>Environ un million d'habitants dans ce carré de 22 km. La population (GHS-POP 2025) est répartie dans chaque bâtiment selon sa surface de plancher, puis comptée par carré.</p><p>Les plus fortes densités sont dans les îlots fermés du XIXe siècle (Vasastan, Södermalm, Östermalm) et autour des stations des villes du métro.</p>"] },
 
-  { id: "carte-routes", carte: { theme: "routes", vue: "tout", an: [1252, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "Les routes",
+  { id: "carte-routes", carte: { theme: "routes", vue: "tout", an: [2026, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "Les routes",
     texte: ["<p>Les rues selon leur importance : grandes radiales qui rejoignent les ponts, rues secondaires, puis le réseau de desserte. Les routes arrivent avant les bâtiments : elles portent les flux de personnes et de marchandises, la ville se construit le long d'elles.</p>"] },
 
-  { id: "carte-transports", carte: { theme: "transports", vue: "tout", an: [1860, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "Les transports",
+  { id: "carte-transports", carte: { theme: "transports", vue: "tout", an: [2026, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "Les transports",
     texte: ["<p>Trains (1871), tramways, puis le métro (1950) qui rayonne vers les villes nouvelles. En vert : ce qu'on atteint à pied en 5 et 10 minutes depuis une station — l'essentiel de la ville bâtie après 1950 en est à moins de 10 minutes.</p>"] },
 
   { id: "carte-centres", carte: { theme: "centres", vue: "tout", an: [2026, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "Les centres",
     texte: ["<p>Là où se concentrent commerces, services et stations. Le centre principal est autour de Hötorget et Sergels torg (la City reconstruite) ; viennent ensuite Medborgarplatsen (Södermalm), Sankt Eriksgatan, et les centres des villes du métro.</p>"] },
 
-  { id: "carte-types", carte: { theme: "types", vue: "centre", an: [1850, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "Les types de bâtiments",
+  { id: "carte-types", carte: { theme: "types", vue: "centre", an: [2026, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "Les types de bâtiments",
     texte: ["<p>Logements, commerces et bureaux, équipements (écoles, santé, culte), industrie. Le type vient d'OpenStreetMap, et de l'occupation du sol autour quand le bâtiment n'est pas renseigné : une carte indicative.</p>"] },
 
   { id: "carte-trame", carte: { theme: "trame", vue: "tout", an: [2026, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "La trame verte et bleue",
     texte: ["<p>L'eau (douce du Mälaren, salée de la Baltique) et la végétation forment un réseau continu : des coins verts et des rives qui pénètrent jusqu'au cœur de la ville.</p>"] },
 
+  { id: "circulation", rubrique: "III · La ville aujourd'hui", titre: "La circulation dans Stockholm",
+    texte: ["<p>Stockholm est une ville d'îles : presque tous les déplacements passent par un pont ou une écluse. <b>Slussen</b>, entre le lac et la mer, est le grand nœud qui relie Gamla Stan, Södermalm et Norrmalm.</p>",
+            "<p>Dans les années 1960, la voiture est favorisée : voies rapides le long de l'eau et grands viaducs. Aujourd'hui, le métro (1950) et les trains de banlieue portent l'essentiel des déplacements, et depuis 2006-2007 une <b>taxe de congestion</b> (trängselskatt) limite les voitures qui entrent dans le centre.</p>",
+            "<p>Sur la photo, à Gamla Stan : au nord, les ponts et les voies rapides qui longent l'eau ; au cœur, des ruelles qui n'ont jamais changé de largeur.</p>"],
+    media: { t: "img", src: "../images/gamla-stan-aerien.jpg", alt: "Gamla Stan vue du ciel : ruelles, toits colorés, ponts et voies rapides au bord de l'eau", legende: "Gamla Stan vue du ciel : le tissu médiéval serré et, au bord de l'eau, les ponts et les voies rapides. (Photo — source à préciser.)" } },
+
+  { id: "promenade", carte: { theme: "promenade", vue: "promenade", an: [2026, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "Une promenade dans Gamla Stan",
+    texte: ["<p>Un point avance dans les rues de Gamla Stan (environ 1 km) ; la zone orange est ce qu'on voit depuis lui à hauteur d'yeux, jusqu'au premier mur.</p><p>Dans les ruelles, la vue se resserre ; sur une place ou au bord de l'eau, elle s'ouvre d'un coup : c'est la « vision sérielle » des urbanistes, une succession de resserrements et d'ouvertures. La surface vue est calculée en continu et affichée sur la carte.</p>"] },
+
   { id: "cas", rubrique: "III · Analyse morphologique", titre: "Deux études de cas : Gamla Stan et Hammarby Sjöstad",
     texte: ["<ul><li><b>Gamla Stan</b> — 39 % d'emprise bâtie, 471 carrefours par km², îlot médian 1 870 m².</li>",
             "<li><b>Hammarby Sjöstad</b> — 23 % d'emprise bâtie, 135 carrefours par km², îlot médian 7 110 m².</li></ul>",
             "<p>Même échelle, deux logiques : le tissu serré du Moyen Âge, l'îlot ouvert et planifié de la fin du XXe.</p>"] },
-
-  { id: "promenade", rubrique: "III · Analyse morphologique", titre: "Une promenade dans Gamla Stan",
-    texte: ["<p>Le champ de vision à hauteur d'yeux, le long d'un parcours de 1 029 m : la surface vue change à chaque rue, à chaque place.</p>"], },
 
   { id: "trois-periodes", grand: true, rubrique: "IV · Synthèse et conclusion", titre: "Comparaison de trois périodes : 1600, 1900, 2020",
     image: C + "23_frise_1600_1900_2020.png", alt: "Comparaison 1600 / 1900 / 2020",
@@ -651,6 +669,7 @@ else if (location.hash.length > 1) document.getElementById(location.hash.slice(1
 <script src="fond.js?v=20261015c"></script>
 <script src="themes.js?v=20261015c"></script>
 <script src="site.js?v=20261015c"></script>
+<script src="promenade.js?v=20261016"></script>
 <script type="module" src="axo3d.js?v=20261015c"></script>
 </body>
 </html>
