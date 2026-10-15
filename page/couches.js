@@ -61,6 +61,7 @@ function dessinerDensite(P) {
 function dessinerCartesAnciennes(P) {
   delete legende.dataset.carte;
   if (!cartesOn || !cartesAnciennes.length || cam.span > 80000) return;
+  if (arretActif && arretActif.nature === "batiment") return;                   // sur un bâtiment dessiné : seulement le bâtiment et ses voisins (arrets.js)
   const avant = cartesAnciennes.filter((c) => c.an <= an + 0.5); if (!avant.length) return;
   const c = avant[avant.length - 1], ecart = an - c.an;
   const alpha = 0.92 * (1 - borne01((ecart - 25) / 50));                    // s'efface quand on s'éloigne de sa date

@@ -5,8 +5,8 @@ BATIMENTS.push(...[
   "an": 1600,
   "adresse": "Bromma kyrkväg, Bromma",
   "c": [
-   17.9398,
-   59.3377
+   17.9208,
+   59.3544
   ],
   "texte": "Petite église de pierre de la campagne de Bromma, bien avant que la ville ne l'atteigne. Un clocher à bulbe coiffe la tour. Elle rappelle que Stockholm s'est étendue sur d'anciens villages.",
   "dessin": "../images/batiments/bromma-kyrka.png"
@@ -16,7 +16,7 @@ BATIMENTS.push(...[
   "an": 1800,
   "adresse": "Karlshällsvägen 14, Långholmen",
   "c": [
-   18.0178,
+   18.0184,
    59.3219
   ],
   "texte": "Maison de campagne (malmgård) sur l'île de Långholmen, du nom de son premier propriétaire, Carl Modéer. Au XIXe siècle elle sert de résidence d'été au « roi de l'eau-de-vie » Lars Ohlsson Smith. Aujourd'hui lieu de réception.",
@@ -27,8 +27,8 @@ BATIMENTS.push(...[
   "an": 1720,
   "adresse": "Högbergsgatan 13, Södermalm",
   "c": [
-   18.0745,
-   59.3182
+   18.0781,
+   59.3171
   ],
   "texte": "Église à plan centré et grande coupole, consacrée à la mère du roi Charles X Gustave. Terminée en 1695, elle brûle avec le quartier en 1723 puis est rebâtie. Elle a de nouveau brûlé en 1990 avant d'être rouverte en 1995.",
   "dessin": "../images/batiments/katarina-kyrka.png"
