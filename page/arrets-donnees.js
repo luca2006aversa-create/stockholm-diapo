@@ -44,7 +44,7 @@ function arretsEnDiapos() {
   BATIMENTS.forEach((b, i) => {
     const arret = { id: "bat-" + i, type: "batiment", nature: "batiment", an: b.an, c: b.c, span: b.span || 700, nom: b.nom };
     liste.push({ an: b.an, ordre: 1, diapos: [
-      { id: "bat-" + i, arret, rubrique: RUBRIQUE_HISTOIRE, annee: String(b.an), titre: b.nom, texte: [`<p class="arret-lieu">${b.adresse || ""}</p>`, "<p>Le dessin en grand, à la page suivante.</p>"] },
+      { id: "bat-" + i, arret, rubrique: RUBRIQUE_HISTOIRE, annee: String(b.an), titre: b.nom, texte: [`<p class="arret-lieu">${b.adresse || ""}</p>`, `<p>${b.texte || ""}</p>`, "<p><i>Le dessin en grand, à la page suivante.</i></p>"] },
       { id: "bat-" + i + "-dessin", grand: true, fixe: true, rubrique: RUBRIQUE_HISTOIRE, titre: `${b.nom} — ${b.an}`, image: b.dessin, alt: `Dessin : ${b.nom}`, legende: b.texte || "" }
     ] });
   });
