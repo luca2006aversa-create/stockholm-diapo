@@ -2,7 +2,7 @@
    Serveur statique intégré (racine du dépôt), Chromium via Playwright. */
 const { chromium } = require("playwright");
 const http = require("http"), fs = require("fs"), path = require("path");
-const racine = path.resolve(__dirname, "..", "..");
+const racine = path.resolve(process.env.RACINE || path.join(__dirname, "..", ".."));
 const etiquette = process.argv[2] || "avant", dprArg = +(process.argv[3] || 1);
 const types = { ".html": "text/html", ".js": "text/javascript", ".json": "application/json", ".png": "image/png", ".jpg": "image/jpeg", ".webp": "image/webp", ".mp4": "video/mp4", ".f32": "application/octet-stream", ".css": "text/css", ".geojson": "application/json" };
 const srv = http.createServer((q, r) => {

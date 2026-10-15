@@ -38,6 +38,7 @@ function construireFondRegion() {
   fondRegion.c = c; fondRegion.theme = sombre(); fondRegion.img = null;      // l'image source n'est plus utile : mémoire rendue
   sale = true; planifier();
 }
+let cacheRegion = null;
 const bougeFond = () => typeof anime !== "undefined" && anime;
 /* pose le fond régional (sous la zone détaillée) */
 function dessinerFondRegion(alpha = 1) {
@@ -49,9 +50,19 @@ function dessinerFondRegion(alpha = 1) {
   /* seule la partie à l'écran est copiée (l'image fait 14,6 M de pixels : la copier en entier à chaque image coûtait 0,5 à 1,8 s) */
   const ix0 = Math.max(dx, 0), iy0 = Math.max(dy, 0), ix1 = Math.min(dx + dw, cv.width), iy1 = Math.min(dy + dh, cv.height);
   if (ix1 <= ix0 || iy1 <= iy0) return true;
-  const kx = c.width / dw, ky = c.height / dh;
-  cx.save(); cx.globalAlpha = alpha; cx.imageSmoothingEnabled = true; cx.imageSmoothingQuality = bougeFond() ? "low" : "high";
-  cx.drawImage(c, (ix0 - dx) * kx, (iy0 - dy) * ky, (ix1 - ix0) * kx, (iy1 - iy0) * ky, ix0, iy0, ix1 - ix0, iy1 - iy0); cx.restore();
+  const kx = c.width / dw, ky = c.height / dh, mouv = bougeFond();
+  /* caméra immobile (cartes d'analyse : seule l'année change) : l'image mise à l'échelle est gardée, une simple copie suffit */
+  if (!mouv && cacheRegion && cacheRegion.src === c && cacheRegion.w === cv.width && cacheRegion.h === cv.height && meme(cacheRegion.cm, cam)) {
+    cx.save(); cx.globalAlpha = alpha; cx.drawImage(cacheRegion.c, 0, 0); cx.restore(); return true;
+  }
+  let cible = cx, tout = false;
+  if (!mouv) {
+    if (!cacheRegion || cacheRegion.w !== cv.width || cacheRegion.h !== cv.height) { const k = document.createElement("canvas"); k.width = cv.width; k.height = cv.height; cacheRegion = { c: k, w: cv.width, h: cv.height }; }
+    cacheRegion.c.getContext("2d").clearRect(0, 0, cv.width, cv.height); cacheRegion.src = c; cacheRegion.cm = { ...cam }; cible = cacheRegion.c.getContext("2d"); tout = true;
+  }
+  cible.save(); if (!tout) cible.globalAlpha = alpha; cible.imageSmoothingEnabled = true; cible.imageSmoothingQuality = mouv ? "low" : "high";
+  cible.drawImage(c, (ix0 - dx) * kx, (iy0 - dy) * ky, (ix1 - ix0) * kx, (iy1 - iy0) * ky, ix0, iy0, ix1 - ix0, iy1 - iy0); cible.restore();
+  if (tout) { cx.save(); cx.globalAlpha = alpha; cx.drawImage(cacheRegion.c, 0, 0); cx.restore(); }
   return true;
 }
 (function attendre() {

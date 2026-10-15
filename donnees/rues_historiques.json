@@ -1,15 +1,17 @@
 {
- "lisezmoi": "Rues, ponts et quais datés d'après les sources (Wikipedia sv/en, Stockholmskällan, Stadsmuseet). « existe » = la rue est là AU PLUS TARD cette année (elle apparaît en premier et tire derrière elle les rues qui la relient au centre) ; « ouvre » = elle n'apparaît PAS AVANT (pont ou avenue percée à cette date). Les noms sont ceux d'OpenStreetMap. Dates « approx. » : ordre de grandeur. Fichier à corriger à la main au besoin, puis relancer outils/preparer_donnees.py.",
+ "lisezmoi": "Rues, ponts et quais datés d'après les sources (Wikipedia sv/en, Stockholmskällan, Stadsmuseet). « existe » = la rue est là AU PLUS TARD cette année (elle apparaît en premier et tire derrière elle les rues qui la relient au centre) ; « ouvre » = elle n'apparaît PAS AVANT (pont ou avenue percée à cette date). Les noms sont ceux d'OpenStreetMap. Dates « approx. » : ordre de grandeur. Fichier à corriger à la main au besoin, puis relancer outils/preparer_donnees.py. « axe » : axe principal de base (ossature) : il naît à sa date et grandit avant tout le reste ; toute autre rue ne naît que peu avant son premier bâtiment (outils/preparer_donnees.py, DECALAGE_RUE).",
  "rues": [
   {
    "nom": "Västerlånggatan",
    "existe": 1265,
-   "note": "suit le mur d'enceinte du XIIIe s."
+   "note": "suit le mur d'enceinte du XIIIe s.",
+   "axe": true
   },
   {
    "nom": "Österlånggatan",
    "existe": 1265,
-   "note": "ancienne rive est de Stadsholmen, XIIIe s."
+   "note": "ancienne rive est de Stadsholmen, XIIIe s.",
+   "axe": true
   },
   {
    "nom": "Köpmangatan",
@@ -39,7 +41,8 @@
   {
    "nom": "Slottsbacken",
    "existe": 1252,
-   "note": "montée au château Tre Kronor"
+   "note": "montée au château Tre Kronor",
+   "axe": true
   },
   {
    "nom": "Järntorget",
@@ -54,7 +57,8 @@
   {
    "nom": "Götgatan",
    "existe": 1300,
-   "note": "Göta landsväg, la route du sud, médiévale"
+   "note": "Göta landsväg, la route du sud, médiévale",
+   "axe": true
   },
   {
    "nom": "Stora Nygatan",
@@ -75,8 +79,9 @@
   },
   {
    "nom": "Drottninggatan",
-   "existe": 1640,
-   "note": "nommée en 1639 pour la reine Christine ; plan de Norrmalm des années 1630-1640"
+   "existe": 1400,
+   "note": "axe : route du nord vers Uppsala (nom donné en 1639) ; date provisoire, à caler sur les cartes anciennes",
+   "axe": true
   },
   {
    "nom": "Regeringsgatan",
@@ -95,13 +100,15 @@
   },
   {
    "nom": "Norrtullsgatan",
-   "existe": 1650,
-   "note": "route d'Uppsala vers l'octroi de Norrtull (approx.)"
+   "existe": 1450,
+   "note": "axe : route d'Uppsala vers l'octroi de Norrtull ; date provisoire, à caler sur les cartes anciennes",
+   "axe": true
   },
   {
    "nom": "Hornsgatan",
-   "existe": 1650,
-   "note": "Hornsvägen, route de l'ouest par Hornstull (approx.)"
+   "existe": 1450,
+   "note": "axe : route de l'ouest (Hornsvägen) ; date provisoire, à caler sur les cartes anciennes",
+   "axe": true
   },
   {
    "nom": "Folkungagatan",
@@ -110,8 +117,9 @@
   },
   {
    "nom": "Hantverkargatan",
-   "existe": 1650,
-   "note": "ancienne grand-rue de Kungsholmen (approx.)"
+   "existe": 1600,
+   "note": "axe : grand-rue de Kungsholmen ; date provisoire, à caler sur les cartes anciennes",
+   "axe": true
   },
   {
    "nom": "Karlbergsvägen",
@@ -130,8 +138,9 @@
   },
   {
    "nom": "Djurgårdsvägen",
-   "existe": 1700,
-   "note": "parc royal de Djurgården (approx.)"
+   "existe": 1550,
+   "note": "axe : route du parc royal de Djurgården ; date provisoire, à caler sur les cartes anciennes",
+   "axe": true
   },
   {
    "nom": "Vasagatan",

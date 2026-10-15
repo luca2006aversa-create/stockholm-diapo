@@ -1,5 +1,5 @@
 /* node resume.js avant p3 … : tableau comparatif des résultats-*.json */
-const fs = require("fs"), n = process.argv.slice(2), R = n.map((e) => JSON.parse(fs.readFileSync(`resultats-${e}-dpr1.json`)));
+const fs = require("fs"), n = process.argv.slice(2), R = n.map((e) => JSON.parse(fs.readFileSync(`resultats-${e}-dpr${process.env.DPR||1}.json`)));
 const ligne = (t, f) => console.log(t.padEnd(34), R.map((r) => String(f(r) ?? "—").padStart(12)).join(""));
 console.log("".padEnd(34), n.map((e) => e.padStart(12)).join(""));
 ligne("démarrage (ms)", (r) => r.demarrageMs);
