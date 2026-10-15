@@ -59,10 +59,10 @@ const THEMES_CARTE = {
     legende: () => [["#fde0c5", "5 – 25 habitants par hectare"], ["#f9a46b", "25 – 75"], ["#e8613a", "75 – 150"], ["#b8281d", "150 – 300"], ["#5e0b0b", "plus de 300 hab/ha"]],
     source: "GHS-POP 2025 (JRC) réparti par bâtiment selon la surface de plancher (SiteScope) ; carrés de 250 m",
     dessiner(P) {
-      voile(P, 0.62);
+      voile(P, 0.34);
       const g = grille(250, (o) => attDe(o)?.p || 0), ha = 250 * 250 / 10000;
       const f = rampe([[5 * ha, "#fde0c5"], [25 * ha, "#f9a46b"], [75 * ha, "#e8613a"], [150 * ha, "#b8281d"], [300 * ha, "#5e0b0b"]]);
-      peindreGrille(g, f, 0.88);
+      peindreGrille(g, f, 0.5);
     }
   },
   bati: {

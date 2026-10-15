@@ -42,7 +42,7 @@ function dessinerDensite(P) {
     const [i, j] = k.split(",").map(Number), ces = v / aire; if (ces < 0.03) continue;
     const x0 = px(i * cote), y0 = py((j + 1) * cote), t = cote * S;
     if (x0 > cv.width || y0 > cv.height || x0 + t < 0 || y0 + t < 0) continue;
-    cx.globalAlpha = 0.62; cx.fillStyle = RAMPE_D.find(([s]) => ces < s)?.[1] || RAMPE_D[RAMPE_D.length - 1][1];
+    cx.globalAlpha = 0.4; cx.fillStyle = RAMPE_D.find(([s]) => ces < s)?.[1] || RAMPE_D[RAMPE_D.length - 1][1];
     cx.fillRect(x0, y0, t + 0.5, t + 0.5);
     if (t > 34 * dpr) top.push([ces, x0 + t / 2, y0 + t / 2]);
   }
