@@ -254,6 +254,9 @@
   body:not(.diaporama) .diapo.carte-chapitre { margin-left: 0; z-index: 3; min-height: 0; height: 230vh; padding: 0; background: transparent; pointer-events: none; align-content: start; }
   .encart { position: sticky; top: 64px; margin: 0 22px 0 auto; width: min(430px, 92vw); max-height: calc(100vh - 190px); overflow: auto; pointer-events: auto;
     background: rgba(18, 20, 22, .86); color: #f4f1ea; border-radius: 10px; padding: 16px 20px 14px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+  .encart, .diapo, .axo-texte, #editeur { scrollbar-width: none; -ms-overflow-style: none; }
+  .diapo::-webkit-scrollbar, .axo-texte::-webkit-scrollbar, #editeur::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  .encart::-webkit-scrollbar { display: none; width: 0; height: 0; }
   .encart h2 { color: #fff; font-size: clamp(1.3rem, 2vw, 1.8rem); margin: 0 0 .4em; }
   .encart .kicker { color: #ff9a6e; }
   .encart .annee { color: #c9c3b5; }
