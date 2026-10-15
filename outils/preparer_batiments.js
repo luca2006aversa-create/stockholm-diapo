@@ -15,9 +15,9 @@ for (const l of lignes) {
   const v = l.split(";"), r = Object.fromEntries(noms.map((n, i) => [n, (v[i] || "").trim()]));
   const an = parseInt(r.annee, 10), lon = parseFloat(String(r.lon).replace(",", ".")), lat = parseFloat(String(r.lat).replace(",", "."));
   const fichier = path.join(racine, "images", "batiments", r.dessin || "?");
-  const pb = [!r.nom && "nom", !an && "année", !(lon && lat) && "à localiser (lon/lat)", !(r.dessin && fs.existsSync(fichier)) && "dessin introuvable dans images/batiments/"].filter(Boolean);
+  const pb = [!r.nom && "nom", !an && "année", !(lon && lat) && "à localiser (lon/lat)", (r.dessin && !fs.existsSync(fichier)) && "dessin introuvable dans images/batiments/"].filter(Boolean);
   if (pb.length) { ignores.push(`${r.nom || "(sans nom)"} : ${pb.join(", ")}`); continue; }
-  ok.push({ nom: r.nom, an, adresse: r.adresse, c: [lon, lat], texte: r.texte, dessin: "../images/batiments/" + r.dessin });
+  ok.push({ nom: r.nom, an, adresse: r.adresse, c: [lon, lat], texte: r.texte, dessin: r.dessin ? "../images/batiments/" + r.dessin : "" });
 }
 fs.writeFileSync(sortie, `/* GÉNÉRÉ par outils/preparer_batiments.js depuis donnees/batiments_dessins.csv : ne pas modifier à la main */\nBATIMENTS.push(...${JSON.stringify(ok, null, 1)});\n`);
 console.log(`${ok.length} bâtiment(s) écrit(s) dans page/batiments-dessins.js`);

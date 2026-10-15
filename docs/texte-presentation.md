@@ -44,19 +44,19 @@ Deux voix : **A** et **B**. Chaque section commence par les numéros de diapos d
 
 ## 4. Le temps des incendies — diapos 19 à 31
 
-**A —** À partir d'ici, la carte s'arrête sur les événements importants. Chaque fois, la date s'affiche, le lieu est zoomé et la zone touchée est surlignée en rouge. [Diapo 19-20 : Bromma kyrka, 1600 ; montrer le dessin] D'abord une petite église de pierre de la campagne de Bromma, bien avant que la ville ne l'atteigne : Stockholm s'est étendue sur d'anciens villages.
+**A —** À partir d'ici, la carte s'arrête sur les événements importants. Chaque fois, la date s'affiche, le lieu est zoomé et la zone touchée est surlignée en rouge. [Diapo : Bromma kyrka, vers 1165 ; montrer le dessin ; elle s'affiche juste après la frise] D'abord, une église qui date d'avant la ville : celle de Bromma, vers 1160-1170, une église fortifiée à plan circulaire, au bord des voies d'eau du Mälaren. Elle rappelle que le territoire de Stockholm était fait de villages dispersés avant l'expansion de la métropole.
 
 **B —** Le 1er septembre 1625. [Diapo 21] Un incendie part de Kåkbrinken et ravage le sud-ouest de Stadsholmen. On reconstruit avec des rues droites, Stora et Lilla Nygatan : c'est l'une des premières villes neuves. En 1642, un incendie touche la crête de Brunkeberg ; les autorités encouragent alors la pierre. [Diapo 22] Le XVIIe siècle est celui d'une capitale en plein essor, qui passe de moins de 10 000 habitants en 1600 à plus de 50 000 en 1675. [Diapo 23]
 
 **A —** 7 mai 1697. [Diapo 24] Le château Tre Kronor est détruit par un incendie. Nicodemus Tessin le Jeune dessine à sa place le palais baroque, l'actuel palais royal. En 1719, environ 200 maisons brûlent à Norrmalm. [Diapo 25]
 
-**B —** Un bâtiment qui a traversé cette époque : l'église Sainte-Catherine, Katarina kyrka. [Diapo 26-27] Terminée en 1695, elle brûle avec le quartier en 1723 puis est rebâtie. Le 1er mai 1723, environ 500 maisons de Södermalm sont détruites. [Diapo 28]
+**B —** Un bâtiment qui a traversé cette époque : l'église Sainte-Catherine, Katarina kyrka, baroque, commencée en 1656 par Jean de la Vallée sur un plan en croix grecque. [Diapo 26-27] Terminée en 1695, elle brûle avec le quartier en 1723 puis est rebâtie ; sa coupole en fait un repère. Le 1er mai 1723, environ 500 maisons de Södermalm sont détruites. [Diapo 28]
 
 **A —** Puis 1751, l'incendie de Klara, 221 maisons ; [Diapo 29] et le 19 juillet 1759, la *Mariabranden* : environ 300 maisons, 20 îlots, 2 000 sans-abri. [Diapo 30] La conséquence est directe : on est obligé de bâtir en brique et en pierre. C'est la fin de la ville de bois.
 
 **B —** Les règles qui suivent : en 1725, premier code de construction, le bois est interdit dans la vieille ville. Puis, de 1750 à 1850, c'est la stagnation. [Diapo 31]
 
-**A —** En 1800, une maison de campagne, Karlshälls gård, sur l'île de Långholmen. [Diapo 32-33] Elle montre la vie des habitants aisés hors des murs : résidence d'été, puis lieu de réception.
+**A —** En 1838, une maison de campagne, Karlshälls gård, sur l'île de Långholmen. [Diapo 32-33] Un *malmgård* : une résidence de familles aisées, à l'écart de la densité du centre, construite d'ailleurs en terre argileuse et paille plutôt qu'en brique. Elle témoigne d'un Stockholm où ville et campagne étaient encore très liées.
 
 ## 5. La ville du XIXe siècle — diapos 34 à 37
 
@@ -64,21 +64,21 @@ Deux voix : **A** et **B**. Chaque section commence par les numéros de diapos d
 
 **A —** Il faut aussi rendre la ville vivable. [Diapo 35] Au milieu du XIXe siècle, le choléra frappe. La ville répond par des réseaux : l'eau potable dès 1861, les égouts, les bains. [Montrer le plan de 1900 : touche 🗺 ] Voici un plan de Stockholm vers 1900, posé sur la carte actuelle : la ville de pierre est déjà là, avec les quartiers du XIXe siècle autour de Stadsholmen.
 
-**B —** Un bâtiment de cette époque : la grande brasserie, Münchenbryggeriet. [Diapo 36-37] La production commence en 1857 ; après l'incendie de 1893, elle est reconstruite en brique, en style Renaissance. Brasserie jusqu'en 1971, aujourd'hui centre de congrès.
+**B —** Un bâtiment de cette époque : la grande brasserie, Stora Bryggeriet, créée en 1890 à Kungsholmen. [Diapo 36-37] Une architecture industrielle de brique, inspirée des grandes brasseries allemandes : l'usine affiche la puissance industrielle de la ville. Les usines deviennent des éléments de représentation urbaine.
 
 ## 6. Le XXe siècle — diapos 38 à 50
 
 **A —** Romantisme national et fonctionnalisme. [Diapo 38] L'Exposition de 1897 révèle l'intérêt pour l'architecture locale ; le fonctionnalisme s'impose ensuite. Et depuis 1904, la municipalité possède environ 70 % de son foncier : c'est la clé de la planification.
 
-**B —** Le musée nordique. [Diapo 39-40] Construit de 1889 à 1907 par Clason, dans un style néo-Renaissance national ; c'est un exemple de ce romantisme national. Et à Ålsten, [Diapo 41-42] des maisons en rangée fonctionnalistes : volumes simples, façades blanches, jardins.
+**B —** Le musée nordique. [Diapo 39-40] Construit de 1889 à 1907 par Clason, dans un style néo-Renaissance national ; c'est un exemple de ce romantisme national. Et à Ålsten, en 1932-1933, [Diapo 41-42] les 94 maisons mitoyennes d'Ålstensgatan, de Paul Hedqvist : un exemple précoce de fonctionnalisme, toits plats, façades lisses, des logements simples et accessibles selon les idées d'hygiène et de confort.
 
 **A —** Après 1945, le Folkhemmet, la « maison du peuple ». [Diapo 43] La crise du logement appelle une construction massive de logements sociaux, et le métro, inauguré en 1950, fait naître les quartiers périphériques : Vällingby, Farsta.
 
-**B —** Mais le centre aussi est transformé. [Diapo 44] La rénovation de Norrmalm, décidée en 1945, rase les îlots de Klara entre 1950 et 1970 : plus de 750 bâtiments démolis pour faire Sergels torg, Hötorgscity et le centre commercial. [Diapo 45-46] Les cinq tours de Hötorget en sont le symbole. [Diapo 47]
+**B —** Mais le centre aussi est transformé. [Diapo 44] La rénovation de Norrmalm, décidée en 1945, rase les îlots de Klara entre 1950 et 1970 : plus de 750 bâtiments démolis pour faire Sergels torg, Hötorgscity et le centre commercial. [Diapo 45-46] Les cinq tours de Hötorget en sont le symbole : modernisme international, trame régulière de fenêtres, répétition et hauteur. [Diapo 47]
 
 **A —** Le Programme Million, de 1965 à 1975 : un million de logements en dix ans. [Diapo 48] Il résout la pénurie, mais il suscite des critiques : homogénéité, isolement social. Les zones vulnérables d'aujourd'hui sont dans ces quartiers : les fractures urbaines ont une origine spatiale.
 
-**B —** Et la fin du siècle. [Diapo 49-50] Söder Torn et l'arc de Bofill, à Södermalm : l'architecture postmoderne, une tour de 86 mètres et un grand bâtiment courbe aux arcades.
+**B —** Et la fin du siècle. [Diapo 49-50] Söder Torn, la tour de l'architecte danois Henning Larsen, et Bofills båge, l'ensemble en arc de l'architecte espagnol Ricardo Bofill, à Södermalm : l'architecture postmoderne qui densifie le centre et crée de nouveaux repères, sans effacer l'identité historique. Et sur Lilla Essingen, d'anciens terrains industriels, ceux d'Electrolux, deviennent des logements : la ville productive devient une ville résidentielle qui valorise son front d'eau.
 
 ## 7. Aujourd'hui — diapos 51 à 58
 
