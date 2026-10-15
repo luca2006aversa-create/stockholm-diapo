@@ -52,6 +52,37 @@ const borne01 = (t) => Math.max(0, Math.min(1, t));
 const bornes = (f) => { let a = 1e9, b = 1e9, c = -1e9, d = -1e9; for (let i = 0; i < f.length; i += 2) { if (f[i] < a) a = f[i]; if (f[i] > c) c = f[i]; if (f[i + 1] < b) b = f[i + 1]; if (f[i + 1] > d) d = f[i + 1]; } return [a, b, c, d]; };
 const lie = (a) => (a.bb ||= bornes(a));
 
+/* Une rue qui n'est pas un axe principal ne naît qu'à côté d'un bâtiment : chaque rue est découpée en tronçons d'environ 40 m, et un tronçon
+   n'apparaît que lorsqu'un bâtiment existe à moins de 30 m (à sa date moins 3 ans). Les axes principaux (C.axes), les rues placées à la main
+   par zone et tout ce qui est postérieur à 1950 gardent leur date. Un tronçon sans bâtiment voisin attend 1960 (voirie technique, desserte). */
+const ELAGAGE = { fin: 1950, rayon: 30, pas: 40, sans: 1960 };
+function elaguerRues(liste, objets, C) {
+  const E = 1.96, RAY = ELAGAGE.rayon * E, PAS = ELAGAGE.pas * E, CELL = 150, G = new Map(), axes = new Set(C?.axes || []);
+  const poser = (o) => { if (o.g !== "bati" || o.k !== "poly" || !o.f?.length) return; const [x, y] = centreBoite(o.f), k = Math.floor(x / CELL) + "," + Math.floor(y / CELL); (G.get(k) || G.set(k, []).get(k)).push([x, y, o.an]); };
+  for (const o of objets) poser(o); for (const o of liste) poser(o);
+  const proche = (x, y) => { let m = 1e9; for (let gx = Math.floor((x - RAY) / CELL); gx <= Math.floor((x + RAY) / CELL); gx++) for (let gy = Math.floor((y - RAY) / CELL); gy <= Math.floor((y + RAY) / CELL); gy++) { const g = G.get(gx + "," + gy); if (g) for (const b of g) if (b[2] < m && Math.hypot(b[0] - x, b[1] - y) < RAY) m = b[2]; } return m; };
+  const sortie = [];
+  for (const o of liste) {
+    if (o.g !== "voirie" || o.trim === undefined || o.an >= ELAGAGE.fin || axes.has(o.trim)) { sortie.push(o); continue; }
+    const groupes = new Map();
+    for (const f of o.f) {
+      let debut = 0, len = 0;
+      for (let k = 2; k <= f.length; k += 2) {
+        if (k < f.length) len += Math.hypot(f[k] - f[k - 2], f[k + 1] - f[k - 1]);
+        if (len >= PAS || k === f.length) {
+          if (len > 0) {
+            const xa = f[debut], ya = f[debut + 1], xb = f[k - 2], yb = f[k - 1], m = Math.min(proche(xa, ya), proche((xa + xb) / 2, (ya + yb) / 2), proche(xb, yb));
+            const an = m < 1e9 ? Math.max(o.an, m - 3) : Math.max(o.an, ELAGAGE.sans), cle = Math.round(an);
+            (groupes.get(cle) || groupes.set(cle, []).get(cle)).push(f.slice(debut, k));
+          }
+          debut = k - 2; len = 0;
+        }
+      }
+    }
+    for (const [an, fs_] of groupes) sortie.push({ ...o, an, f: fs_, trim: undefined });
+  }
+  return sortie;
+}
 /* ---- lissage des contours : la mer d'autrefois sort d'une grille de pixels (marches d'escalier) ---- */
 function lisserAnneau(a, moyennes = 3, coupes = 2) {
   let p = Array.from(a); const n = p.length / 2;
@@ -673,7 +704,7 @@ function appliquerQuartiers() {
   ville.rues0.forEach((r, i) => {
     const [x, y] = centreBoite(r.f), z = zoneDe(x, y);
     if (z && !z.tout) nouveaux.push({ g: "voirie", k: "ligne", an: date(z, x, y, z.de, z.a), w: r.w, f: r.f });
-    else if (C?.rues?.[i] != null) nouveaux.push({ g: "voirie", k: "ligne", an: C.rues[i], w: r.w, f: r.f });
+    else if (C?.rues?.[i] != null) nouveaux.push({ g: "voirie", k: "ligne", an: C.rues[i], w: r.w, f: r.f, trim: i });
     else if (z) nouveaux.push({ g: "voirie", k: "ligne", an: date(z, x, y, z.de, z.a), w: r.w, f: r.f }); else resteR.push(r);
   });
   /* bâtiments et monuments dessinés à la main */
@@ -682,7 +713,7 @@ function appliquerQuartiers() {
     nouveaux.push({ g: b.monument ? "monument" : "bati", k: "poly", an: b.an, fin: b.fin ?? undefined, brule: b.fin != null, nom: b.nom || undefined, f: [versM(b.f)], main: true });
   }
   /* la terre doit être sèche : aucun bâtiment ni aucune rue avant l'émergence de leur terrain */
-  const tous = objets.concat(nouveaux);
+  const tous = objets.concat(elaguerRues(nouveaux, objets, C));
   for (let i = 0; i < tous.length; i++) {
     const o = tous[i]; if (o.main || (o.g !== "bati" && o.g !== "voirie") || !o.f.length) continue;
     const [x, y] = centreBoite(o.f), s = delaiTerre(x, y);

@@ -5,7 +5,7 @@
 for (const d of DIAPOS) {
   if (!d.arret) continue;
   const a = d.arret, vue = "arret:" + a.id;
-  LIEUX[vue] = { c: a.c, span: a.span, nom: a.nom || a.titre };
+  LIEUX[vue] = { c: a.cvue || a.c, span: a.span, nom: a.nom || a.titre };
   SCENES[d.id] = { an: a.an, vue, arret: a };
 }
 const COULEUR_ARRET = { incendie: "224,48,28", demolition: "150,70,40", batiment: "232,150,30" };

@@ -19,7 +19,7 @@
     {"an": 1611, "fin": 1718, "titre": "Empire suédois : la ville grandit six fois (moins de 10 000 → plus de 50 000 hab. vers 1675)", "lieu": "Stockholm", "type": "economie"},
     {"an": 1625, "titre": "Grand incendie (1er septembre), sud-ouest de Stadsholmen : « nouvelle ville » et rues régulières", "lieu": "Stadsholmen, Kåkbrinken", "type": "incendie"},
     {"an": 1635, "fin": 1637, "titre": "Norrmalm rattaché à la ville ; plan rectiligne de Torstensson", "lieu": "Norrmalm", "type": "plan"},
-    {"an": 1642, "titre": "Incendie du Brunkebergsåsen ; la pierre est encouragée", "lieu": "Östermalm", "type": "incendie"},
+    {"an": 1642, "titre": "Feu de forêt sur le Brunkebergsåsen ; la pierre est encouragée", "lieu": "Östermalm", "type": "incendie"},
     {"an": 1697, "titre": "Incendie du château Tre Kronor ; Tessin le Jeune dessine le palais", "lieu": "Château royal", "type": "incendie"},
     {"an": 1719, "titre": "Incendie à Norrmalm (environ 200 maisons)", "lieu": "Norrmalm", "type": "incendie", "detruit": 200},
     {"an": 1723, "titre": "Incendie de Katarina (environ 500 maisons)", "lieu": "Södermalm", "type": "incendie", "detruit": 500},
