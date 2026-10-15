@@ -1,0 +1,9 @@
+const { chromium } = require("playwright"); const http=require("http"),fs=require("fs"),path=require("path");
+const racine=path.resolve(process.argv[2]||path.join(__dirname,"..","..")); const srv=http.createServer((q,r)=>{let p=decodeURIComponent(q.url.split("?")[0]);const f=path.join(racine,p);if(!fs.existsSync(f)||fs.statSync(f).isDirectory()){r.writeHead(404);return r.end()}r.writeHead(200,{"content-type":({".js":"text/javascript",".json":"application/json",".html":"text/html",".png":"image/png",".jpg":"image/jpeg"})[path.extname(f)]||"application/octet-stream"});fs.createReadStream(f).pipe(r)});
+(async()=>{await new Promise(o=>srv.listen(0,o));const nav=await chromium.launch({args:["--use-gl=angle","--use-angle=swiftshader","--enable-unsafe-swiftshader"]});const page=await (await nav.newContext({viewport:{width:1440,height:900}})).newPage();
+const err=[];page.on("pageerror",e=>err.push(String(e)));
+await page.goto(`http://localhost:${srv.address().port}/page/index.html`);await page.waitForFunction(()=>typeof fondGlobal!=="undefined"&&fondGlobal,null,{timeout:120000});
+await page.evaluate(()=>{const s=document.querySelector(".diapo.axo");scrollTo(0,s.offsetTop+innerHeight*1.2)});await page.waitForTimeout(8000);
+console.log(await page.evaluate(()=>{const c=document.querySelector(".axo-scene canvas");return JSON.stringify({canvas:!!c,w:c?.clientWidth,h:c?.clientHeight,cache:document.querySelector(".axo-cadre").className,scroll:scrollY,top:document.querySelector(".diapo.axo").offsetTop,fond:getComputedStyle(document.querySelector(".axo-cadre")).getPropertyValue("--fond")})}));await page.evaluate(()=>{window.__axoPas&&window.__axoPas(performance.now())});await page.waitForTimeout(500);await page.screenshot({path:"axo-milieu.png"});
+await page.mouse.click(900,450);await page.waitForTimeout(3000);await page.screenshot({path:"axo-focus.png"});
+console.log("erreurs",err);await nav.close();srv.close()})();

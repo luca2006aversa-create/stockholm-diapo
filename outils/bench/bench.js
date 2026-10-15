@@ -18,6 +18,7 @@ const stats = (a) => { if (!a.length) return {}; const s = [...a].sort((x, y) =>
   const nav = await chromium.launch({ args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
   const ctx = await nav.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: dprArg });
   const page = await ctx.newPage();
+  const erreurs = []; page.on("pageerror", (e) => erreurs.push(String(e))); page.on("console", (m) => { if (m.type() === "error") erreurs.push(m.text()); });
   await page.addInitScript(() => {
     window.__gl = 0;
     for (const C of [window.WebGLRenderingContext, window.WebGL2RenderingContext]) if (C) for (const m of ["drawElements", "drawArrays"]) { const o = C.prototype[m]; C.prototype[m] = function (...a) { window.__gl++; return o.apply(this, a); }; }
@@ -26,7 +27,7 @@ const stats = (a) => { if (!a.length) return {}; const s = [...a].sort((x, y) =>
   await page.goto(url, { waitUntil: "load" });
   await page.waitForFunction(() => typeof ville !== "undefined" && ville && ville.objets && typeof fondGlobal !== "undefined" && fondGlobal, null, { timeout: 120000 });
   const demarrage = Date.now() - t0;
-  const res = { etiquette, dpr: dprArg, demarrageMs: demarrage };
+  const res = { etiquette, dpr: dprArg, demarrageMs: demarrage, erreurs };
   res.reseau = await page.evaluate(() => { const r = performance.getEntriesByType("resource"); return { requetes: r.length, octets: r.reduce((s, e) => s + (e.transferSize || e.encodedBodySize || 0), 0) }; });
   res.memoire = await page.evaluate(() => {
     const t = []; for (const [n, c] of [["fondGlobal", typeof fondGlobal !== "undefined" && fondGlobal?.c], ["fondRegion.c", typeof fondRegion !== "undefined" && fondRegion?.c], ["fondRegion.img", typeof fondRegion !== "undefined" && fondRegion?.img], ["tampon", typeof tampon !== "undefined" && tampon], ["masque", typeof masque !== "undefined" && masque?.c], ["carte", cv]]) if (c && c.width) t.push({ n, w: c.width, h: c.height, Mo: +(c.width * c.height * 4 / 1048576).toFixed(1) });
@@ -61,7 +62,7 @@ const stats = (a) => { if (!a.length) return {}; const s = [...a].sort((x, y) =>
     res.defilement[nom] = { ...stats(r.dts.slice(2)), rendusWebGL: r.gl, pixels: r.px };
   }
   /* profil au démarrage : fonctions les plus lourdes (CDP) */
-  fs.writeFileSync(path.join(__dirname, `resultats-${etiquette}-dpr${dprArg}.json`), JSON.stringify(res, null, 1));
+  res.erreurs = erreurs; fs.writeFileSync(path.join(__dirname, `resultats-${etiquette}-dpr${dprArg}.json`), JSON.stringify(res, null, 1));
   console.log(JSON.stringify(res, null, 1));
   await nav.close(); srv.close();
 })().catch((e) => { console.error(e); process.exit(1); });

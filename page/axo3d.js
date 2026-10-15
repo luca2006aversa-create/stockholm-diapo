@@ -4,7 +4,7 @@
    Un CLIC sur une plaque la met en grand : les autres partent vers le haut et vers le bas ; un second clic les ramène.
    Données : ../donnees/topo/ (étude Topo SiteScope de 10 km : relief, satellite, bassins versants) + ville.json.
    ===================================================================================== */
-import * as THREE from "./lib/three.module.js";
+let THREE;     // three.js : chargé à l'approche de la section (import dynamique), pas au démarrage
 
 const COUCHES = [   // de bas en haut
   { id: "eau", nom: "Eau et îles", texte: "Quatorze îles entre le lac Mälaren (eau douce, en clair) et la Baltique (eau salée, plus foncée). L'eau découpe la ville en morceaux reliés par des ponts ; la terre remonte encore de quelques millimètres par an depuis la dernière glaciation." },
@@ -15,10 +15,16 @@ const COUCHES = [   // de bas en haut
 ];
 const EXAG = 6;
 const etat = { pret: false, focus: -1, sale: true, p: 0 };
+let proche = false, tourne = false, secAxo = null, lisAxo = null, hauteurPosee = 0, dernierFond = "", dernierContenu = "";
+function relancer() { etat.sale = true; if (!tourne && etat.pret && !window.__sansRaf) { tourne = true; tPrec = performance.now(); requestAnimationFrame(boucle); } }
+function surveillerProche(section) {
+  new IntersectionObserver((es) => { proche = es.some((e) => e.isIntersecting); if (proche) relancer(); }, { rootMargin: "100% 0px 100% 0px" }).observe(section);
+}
 let renderer, scene, camera, plaques = [], etiquettes = [], S, SIDE, cible = null, courant = null, tPrec = 0;
 
 async function construire() {
   const section = document.querySelector(".diapo.axo"); if (!section || !ville) return;
+  THREE = await import("./lib/three.module.js");
   const zone = section.querySelector(".axo-scene"), liste = section.querySelector(".axo-liste");
   const base = "../donnees/topo/";
   const [scn, aff, mer, plans, cours, bassins, partage, eauJ] = await Promise.all([
@@ -101,7 +107,7 @@ async function construire() {
   });
 
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
+  renderer.setPixelRatio(Math.min(1.5, devicePixelRatio || 1));
   zone.innerHTML = ""; zone.appendChild(renderer.domElement);
   const calque = document.createElement("div"); calque.className = "axo-etiquettes"; zone.appendChild(calque);
   const note = document.createElement("div"); note.className = "axo-note"; zone.appendChild(note);
@@ -124,7 +130,7 @@ async function construire() {
     }
   });
   renderer.domElement.style.cursor = "pointer";
-  dimensionner3d(); etat.pret = true; boucle(performance.now());
+  dimensionner3d(); etat.pret = true; surveillerProche(section); relancer();
 }
 
 function dimensionner3d() {
@@ -136,15 +142,17 @@ function dimensionner3d() {
 
 /* Les cibles d'après le défilement et le clic ; l'image rejoint les cibles en douceur. */
 function cibles() {
-  const section = document.querySelector(".diapo.axo"), n = COUCHES.length, diapo = enDiapo(), cadre = section.querySelector(".axo-cadre");
+  const section = secAxo ||= document.querySelector(".diapo.axo"), n = COUCHES.length, diapo = enDiapo(), cadre = section.querySelector(".axo-cadre");
   let p = 0.55;
   if (!diapo) {
-    section.style.height = (innerHeight * (1.6 + n * 0.5)) + "px"; p = borne01((scrollY - section.offsetTop) / (section.offsetHeight - innerHeight));
+    if (hauteurPosee !== innerHeight) { hauteurPosee = innerHeight; section.style.height = (innerHeight * (1.6 + n * 0.5)) + "px"; }
+    p = borne01((scrollY - section.offsetTop) / (section.offsetHeight - innerHeight));
     /* fondu d'entrée et de sortie : le fond fonce d'abord sur la carte, puis les plaques apparaissent ; à la sortie, l'inverse */
     const R = section.getBoundingClientRect(), H = innerHeight, entree = (H - R.top) / H, sortie = R.bottom / H;
     const fond = Math.min(borne01(entree / 0.65), borne01((sortie - 0.05) / 0.6)), contenu = Math.min(borne01((entree - 0.45) / 0.5), borne01((sortie - 0.5) / 0.45));
-    cadre.style.setProperty("--fond", fond.toFixed(3)); cadre.style.setProperty("--contenu", contenu.toFixed(3));
-    cadre.classList.toggle("cache", fond <= 0.001);
+    const sF = fond.toFixed(3), sC = contenu.toFixed(3);
+    if (sF !== dernierFond) { dernierFond = sF; cadre.style.setProperty("--fond", sF); cadre.classList.toggle("cache", fond <= 0.001); }
+    if (sC !== dernierContenu) { dernierContenu = sC; cadre.style.setProperty("--contenu", sC); }
     if (fond <= 0.001 && etat.focus >= 0) etat.focus = -1;
   } else { cadre.style.setProperty("--fond", 1); cadre.style.setProperty("--contenu", 1); cadre.classList.remove("cache"); }
   const ecart = SIDE * 0.17 * lisse(borne01(p / 0.15));
@@ -158,13 +166,14 @@ function cibles() {
   const op = COUCHES.map((c, i) => etat.focus >= 0 ? (i === etat.focus ? 1 : 0) : actif >= 0 && i > actif ? 0.14 : 1);
   const centreY = etat.focus >= 0 ? 0 : (n - 1) * ecart / 2 + (actif >= 0 && actif < n - 1 ? SIDE * 0.12 : 0);
   const zoom = etat.focus >= 0 ? 1.75 : 1;
-  section.querySelectorAll(".axo-liste li").forEach((l, i) => l.classList.toggle("actif", i === actif));
+  (lisAxo ||= section.querySelectorAll(".axo-liste li")).forEach((l, i) => l.classList.toggle("actif", i === actif));
   section.classList.toggle("axo-focus", etat.focus >= 0);
   return { y, op, centreY, zoom };
 }
 
 function boucle(t) {
-  if (!etat.pret) return;
+  tourne = false;
+  if (!etat.pret || !proche) return;                          // hors de la section : plus aucune image, plus de rendu WebGL
   const dt = Math.min(0.1, (t - tPrec) / 1000 || 0.016); tPrec = t;
   cible = cibles();
   if (!courant) courant = JSON.parse(JSON.stringify(cible));
@@ -177,7 +186,7 @@ function boucle(t) {
   const z = renderer.domElement.parentElement;
   if (z.clientWidth && Math.abs(z.clientWidth - renderer.domElement.clientWidth) > 1) dimensionner3d();
   if (bouge || etat.sale) { rendre3d(); etat.sale = false; }
-  if (!window.__sansRaf) requestAnimationFrame(boucle);      // __sansRaf : pour les tests, quand le navigateur est masqué
+  if (!window.__sansRaf) { tourne = true; requestAnimationFrame(boucle); }      // __sansRaf : pour les tests, quand le navigateur est masqué
 }
 window.__axoPas = (t) => boucle(t);
 
@@ -209,10 +218,16 @@ function rendre3d() {
     /* jamais deux noms l'un sur l'autre : quand les plaques sont collées, on n'en montre qu'un ; en grand, seulement celui de la plaque */
     const libre = Math.abs(best[1] - dernierY) > 26, montre = etat.focus >= 0 ? false : courant.op[i] > 0.5 && libre;
     e.style.opacity = montre ? 1 : 0; if (montre) dernierY = best[1];
-    e.classList.toggle("actif", etat.focus === i || (etat.focus < 0 && document.querySelectorAll(".axo-liste li")[i]?.classList.contains("actif")));
+    e.classList.toggle("actif", etat.focus === i || (etat.focus < 0 && lisAxo?.[i]?.classList.contains("actif")));
   });
 }
 
 addEventListener("resize", () => { dimensionner3d(); });
-addEventListener("scroll", () => { etat.sale = true; }, { passive: true });
-(function attendre() { if (typeof ville !== "undefined" && ville && ville.objets0) construire(); else setTimeout(attendre, 300); })();
+addEventListener("scroll", () => { if (proche) etat.sale = true; }, { passive: true });
+/* la 3D (three.js, textures, relief) n'est construite qu'à l'approche de la section : 3 écrans avant */
+(function attendre() {
+  const sec = document.querySelector(".diapo.axo");
+  if (typeof ville === "undefined" || !ville || !ville.objets0 || !sec) return setTimeout(attendre, 300);
+  const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); construire(); } }, { rootMargin: "300% 0px 300% 0px" });
+  io.observe(sec);
+})();
