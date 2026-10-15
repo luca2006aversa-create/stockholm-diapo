@@ -150,9 +150,10 @@ function sceneDefilement() {
   const j = Math.min(nor.length - 1, i + 1);
   const t = i === j ? 0 : borne01((milieu - ys[i]) / (ys[j] - ys[i]));
   const a = nor[i], b = nor[j], ca = vueCam(a.vue), cb = vueCam(b.vue), hist = !!(a.hist && b.hist);
-  const e = hist ? lisse(borne01((t - 0.3) / 0.4)) : lisse(borne01((t - 0.42) / 0.16));   // palier au milieu de la diapo ; hors histoire le changement est bref
-  /* deux cartes plein écran qui se suivent : on reste en plein écran, sans repasser par la carte de la ville (le thème change au milieu) */
-  const carte = a.carte && b.carte ? (e < 0.5 ? a.carte : b.carte) : undefined;
+  const large = !!(a.carte || b.carte);      // une carte plein écran avant ou après : le mouvement s'étale sur tout l'intervalle (pas de saut)
+  const e = hist ? lisse(borne01((t - 0.3) / 0.4)) : large ? lisse(borne01((t - 0.06) / 0.88)) : lisse(borne01((t - 0.42) / 0.16));   // palier au milieu de la diapo ; hors histoire le changement est bref
+  /* la carte plein écran (thème) reste affichée jusqu'au milieu du mouvement, puis la suivante apparaît : pas de retour brutal à la carte de la ville */
+  const carte = e < 0.5 ? a.carte : b.carte;
   return { an: a.an + (b.an - a.an) * e, th: e < 0.5 ? a.th : b.th, cam: zoomAncre(ca, cb, e), nom: (e < 0.5 ? ca : cb).nom, hist, arret: (e < 0.5 ? a : b).arret || null, carte };
 }
 /* En diaporama : la scène de la diapo affichée (la carte reste à gauche, comme en défilement). Une carte d'analyse : l'année avance doucement de l'entrée à la sortie. */
@@ -329,7 +330,7 @@ function rendreImage() {
     cx.restore();
     masquerZone(dessous);
   }
-  if (typeof dessinerMer === "function") dessinerMer(P);                // routes maritimes et ports (histoire)
+  /* (les routes maritimes en pointillé sur la carte de l'histoire sont retirées : elles n'étaient pas lisibles ; voir la diapo des routes anciennes) */                // routes maritimes et ports (histoire)
   if (typeof dessinerThemeLoin === "function") dessinerThemeLoin(P);      // cartes à grande échelle (routes anciennes)
   if (typeof dessinerDensite === "function") dessinerDensite(P);
   if (typeof dessinerArret === "function") dessinerArret(P);
