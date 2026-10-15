@@ -12,10 +12,10 @@ const LIEUX = {   /* vues : centre (lon, lat) et largeur montrée en mètres */
   europe: { c: [14, 58.5], span: 6200000, nom: "Europe" },
   suede: { c: [16.5, 62.3], span: 3300000, nom: "Suède" },
   tout: { c: null, span: 23000, nom: "Grand Stockholm" },
-  centre: { c: [18.0700, 59.3290], span: 6800, nom: "Le centre" },
+  centre: { c: [18.0700, 59.3290], span: 5000, nom: "Le centre" },
   gamla: { c: [18.0710, 59.3250], span: 1900, nom: "Gamla Stan · Stadsholmen" },
-  norrmalm: { c: [18.0650, 59.3330], span: 2800, nom: "Norrmalm" },
-  hammarby: { c: [18.1050, 59.3040], span: 3800, nom: "Hammarby Sjöstad" }
+  norrmalm: { c: [18.0650, 59.3330], span: 2400, nom: "Norrmalm" },
+  hammarby: { c: [18.1050, 59.3040], span: 3200, nom: "Hammarby Sjöstad" }
 };
 /* Pour chaque diapo : l'année montrée, la vue, et le thème (ce qui est mis en avant). */
 const SCENES = {
@@ -74,9 +74,16 @@ function lisserAnneau(a, moyennes = 3, coupes = 2) {
   return p;
 }
 
+/* la plus grande largeur qui tient encore DANS le rectangle des données (la zone) à la forme de l'écran : plus de bords de carré visibles */
+let zoneTaille = null;
+function spanDansZone() {
+  if (!zoneTaille) { let b = [1e12, 1e12, -1e12, -1e12]; for (const a of ville.zone) { const z = lie(a); b = [Math.min(b[0], z[0]), Math.min(b[1], z[1]), Math.max(b[2], z[2]), Math.max(b[3], z[3])]; } zoneTaille = [b[2] - b[0], b[3] - b[1]]; }
+  const forme = cv.height / Math.max(1, cv.width);
+  return 0.94 * Math.min(zoneTaille[0], zoneTaille[1] / forme);
+}
 function vueCam(nom) {
   const v = LIEUX[nom] || LIEUX.tout;
-  if (!v.c) return { x: ville.camera.x, y: ville.camera.y, span: v.span, nom: v.nom };
+  if (!v.c) return { x: ville.camera.x, y: ville.camera.y, span: Math.min(v.span, spanDansZone()), nom: v.nom };
   const [x, y] = merc(v.c[0], v.c[1]);
   return { x: x - ville.origine[0], y: y - ville.origine[1], span: v.span, nom: v.nom };
 }
@@ -282,7 +289,7 @@ function rendreImage() {
     cx.save(); cx.globalAlpha = villeA;
     /* hors de la zone étudiée : une terre unie (le trait de côte de Natural Earth est trop grossier à cette échelle et mettait
        la mer au mauvais endroit) ; la zone s'y fond par un bord progressif — un projecteur sur Stockholm */
-    cx.globalAlpha = villeA * (1 - loin); cx.fillStyle = P.terre; cx.fillRect(0, 0, cv.width, cv.height); cx.globalAlpha = villeA;
+    cx.globalAlpha = villeA; cx.fillStyle = (typeof styleCarte !== "undefined" && styleCarte ? styleCarte[sombre() ? "sombre" : "clair"].terre : P.terre); cx.fillRect(0, 0, cv.width, cv.height);
     /* eau actuelle, puis mer d'autrefois avant 1900 */
     dessinerEau(P, villeA);
     /* fond actuel : en filigrane avant 1900, plein ensuite */
@@ -322,10 +329,10 @@ function preparerMasque() {
   for (const a of ville.zone) { const z = lie(a); b = [Math.min(b[0], z[0]), Math.min(b[1], z[1]), Math.max(b[2], z[2]), Math.max(b[3], z[3])]; }
   const larg = (b[2] - b[0]) * 1.1, W = 1024, H = Math.round(W * (b[3] - b[1]) * 1.1 / larg), c = document.createElement("canvas"); c.width = W; c.height = H;
   const cm = { x: (b[0] + b[2]) / 2, y: (b[1] + b[3]) / 2, span: larg }, g = c.getContext("2d");
-  g.filter = `blur(${Math.round(W * 0.018)}px)`; g.fillStyle = "#fff"; g.beginPath();
+  g.filter = `blur(${Math.round(W * 0.01)}px)`; g.fillStyle = "#fff"; g.beginPath();
   /* le polygone est rétréci d'un trait épais avant le flou : le fondu reste à l'intérieur de la zone */
   for (const a of ville.zone) trace(g, a, true, cm); g.fill("evenodd");
-  g.globalCompositeOperation = "destination-out"; g.strokeStyle = "#000"; g.lineWidth = W * 0.05; g.lineJoin = "round"; g.beginPath(); for (const a of ville.zone) trace(g, a, true, cm); g.stroke();
+  g.globalCompositeOperation = "destination-out"; g.strokeStyle = "#000"; g.lineWidth = W * 0.026; g.lineJoin = "round"; g.beginPath(); for (const a of ville.zone) trace(g, a, true, cm); g.stroke();
   masque = { c, cm };
 }
 function masquerZone(dessous) {

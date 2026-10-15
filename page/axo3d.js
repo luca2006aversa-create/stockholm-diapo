@@ -32,7 +32,7 @@ async function construire() {
   const [scn, aff, mer, plans, cours, bassins, partage, eauJ] = await Promise.all([
     "3d/scene.json", "3d/affine.json", "mer.geojson", "plans_eau.geojson", "cours_eau_calcules.geojson", "bassins_versants.geojson", "lignes_partage_eaux.geojson", "../eau.json"
   ].map((f) => fetch(base + f).then((r) => r.json()).catch(() => null)));
-  if (!scn || !aff) return;
+  if (!scn || !aff) throw new Error("données 3D introuvables (scene.json / affine.json)");
   S = scn; const [EX0, EY0, EX1, EY1] = S.etendue; SIDE = Math.max(EX1 - EX0, EY1 - EY0);
   const Z = new Float32Array(await fetch(base + "3d/mnt.f32").then((r) => r.arrayBuffer()));
   const A = aff.affine, o = ville.origine;
@@ -141,21 +141,27 @@ function dimensionner3d() {
   etat.aspect = w / h; etat.sale = true;
 }
 
+/* Le cadre (fond qui fonce, texte) suit le défilement ; sans rapport avec la 3D : il se montre aussi pendant qu'elle se charge. Renvoie la progression 0-1. */
+function majCadre(section) {
+  const cadre = section.querySelector(".axo-cadre");
+  fixerHauteur(section);
+  const p = borne01((scrollY - section.offsetTop) / (section.offsetHeight - innerHeight));
+  /* fondu d'entrée et de sortie : le fond fonce d'abord sur la carte, puis les plaques apparaissent ; à la sortie, l'inverse */
+  const R = section.getBoundingClientRect(), H = innerHeight, entree = (H - R.top) / H, sortie = R.bottom / H;
+  const fond = Math.min(borne01(entree / 0.65), borne01((sortie - 0.05) / 0.6)), contenu = Math.min(borne01((entree - 0.45) / 0.5), borne01((sortie - 0.5) / 0.45));
+  const sF = fond.toFixed(3), sC = contenu.toFixed(3);
+  if (sF !== dernierFond) { dernierFond = sF; cadre.style.setProperty("--fond", sF); cadre.classList.toggle("cache", fond <= 0.001); }
+  if (sC !== dernierContenu) { dernierContenu = sC; cadre.style.setProperty("--contenu", sC); }
+  if (fond <= 0.001 && etat.focus >= 0) etat.focus = -1;
+  return p;
+}
+
 /* Les cibles d'après le défilement et le clic ; l'image rejoint les cibles en douceur. */
 function cibles() {
   const section = secAxo ||= document.querySelector(".diapo.axo"), n = COUCHES.length, diapo = enDiapo(), cadre = section.querySelector(".axo-cadre");
   let p = 0.55;
-  if (!diapo) {
-    fixerHauteur(section);
-    p = borne01((scrollY - section.offsetTop) / (section.offsetHeight - innerHeight));
-    /* fondu d'entrée et de sortie : le fond fonce d'abord sur la carte, puis les plaques apparaissent ; à la sortie, l'inverse */
-    const R = section.getBoundingClientRect(), H = innerHeight, entree = (H - R.top) / H, sortie = R.bottom / H;
-    const fond = Math.min(borne01(entree / 0.65), borne01((sortie - 0.05) / 0.6)), contenu = Math.min(borne01((entree - 0.45) / 0.5), borne01((sortie - 0.5) / 0.45));
-    const sF = fond.toFixed(3), sC = contenu.toFixed(3);
-    if (sF !== dernierFond) { dernierFond = sF; cadre.style.setProperty("--fond", sF); cadre.classList.toggle("cache", fond <= 0.001); }
-    if (sC !== dernierContenu) { dernierContenu = sC; cadre.style.setProperty("--contenu", sC); }
-    if (fond <= 0.001 && etat.focus >= 0) etat.focus = -1;
-  } else { cadre.style.setProperty("--fond", 1); cadre.style.setProperty("--contenu", 1); cadre.classList.remove("cache"); }
+  if (!diapo) p = majCadre(section);
+  else { cadre.style.setProperty("--fond", 1); cadre.style.setProperty("--contenu", 1); cadre.classList.remove("cache"); }
   const ecart = SIDE * 0.17 * lisse(borne01(p / 0.15));
   const actif = etat.focus >= 0 ? etat.focus : !diapo && p > 0.15 ? Math.min(n - 1, Math.floor((p - 0.15) / 0.85 * n)) : -1;
   const y = COUCHES.map((c, i) => {
@@ -224,12 +230,20 @@ function rendre3d() {
 }
 
 addEventListener("resize", () => { dimensionner3d(); });
-addEventListener("scroll", () => { if (proche) etat.sale = true; }, { passive: true });
+addEventListener("scroll", () => {
+  if (proche) etat.sale = true;
+  if (!etat.pret && !enDiapo()) { const s = secAxo ||= document.querySelector(".diapo.axo"); if (s) majCadre(s); }      // pas encore de 3D : le cadre et son texte s'affichent quand même
+}, { passive: true });
 /* la 3D (three.js, textures, relief) n'est construite qu'à l'approche de la section : 2 écrans avant */
 (function attendre() {
   const sec = document.querySelector(".diapo.axo");
   if (typeof ville === "undefined" || !ville || !ville.objets0 || !sec) return setTimeout(attendre, 300);
   fixerHauteur(sec); addEventListener("resize", () => fixerHauteur(sec));
-  const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); construire(); } }, { rootMargin: "180% 0px 180% 0px" });
+  const essayer = (n) => construire().catch((e) => {
+    console.error("3D : construction échouée", e);
+    if (n < 3) setTimeout(() => essayer(n + 1), 4000 * (n + 1));
+    else { const z = sec.querySelector(".axo-scene"); if (z) z.innerHTML = '<div class="axo-attente">La vue 3D ne s’est pas chargée (WebGL ou réseau). Rechargez la page.</div>'; }
+  });
+  const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); essayer(0); } }, { rootMargin: "180% 0px 180% 0px" });
   io.observe(sec);
 })();

@@ -22,6 +22,8 @@ function construireFondRegion() {
   lut[0] = lut[80] = mer;
   for (let i = 0, n = out.length; i < n; i++) out[i] = lut[src[i << 2]];
   g.putImageData(new ImageData(new Uint8ClampedArray(out.buffer), W, H), 0, 0);
+  /* l'occupation du sol est en carrés de 147 m : adoucie, elle ne fait plus de blocs ; l'eau (vecteur) est tracée nette ensuite */
+  { const t = document.createElement("canvas"); t.width = W; t.height = H; const h = t.getContext("2d"); h.filter = "blur(3px)"; h.drawImage(c, 0, 0); g.clearRect(0, 0, W, H); g.drawImage(t, 0, 0); }
   /* l'eau : les contours JRC, salée puis douce, par-dessus (bords nets, couleurs distinctes) */
   const [x0, y0, x1, y1] = meta.limites_merc, S = W / (x1 - x0), tr = (a) => { for (let i = 0; i < a.length; i += 2) { const X = (a[i] - x0) * S, Y = (y1 - a[i + 1]) * S; i ? g.lineTo(X, Y) : g.moveTo(X, Y); } g.closePath(); };
   g.fillStyle = st.eauSalee; g.beginPath(); for (const a of eau.salee) tr(a); g.fill("evenodd");
@@ -65,8 +67,9 @@ function dessinerFondRegion(alpha = 1) {
   if (tout) { cx.save(); cx.globalAlpha = alpha; cx.drawImage(cacheRegion.c, 0, 0); cx.restore(); }
   return true;
 }
-(function attendre() {
-  if (!ville) return setTimeout(attendre, 200);
+/* le fond régional (4,7 Mo) ne se voit qu'à partir de la Suède : chargé après le premier affichage (3 s) ou dès le premier défilement */
+function chargerFondRegion() {
+  if (chargerFondRegion.fait || !ville) return; chargerFondRegion.fait = true;
   const img = new Image();
   Promise.all([
     fetch("../donnees/style_carte.json").then((r) => r.json()).catch(() => null),
@@ -78,6 +81,12 @@ function dessinerFondRegion(alpha = 1) {
     styleCarte = st; fondRegion = { meta, eau, img: im };
     setTimeout(construireFondRegion, 50);
   });
+}
+(function attendre() {
+  if (!ville) return setTimeout(attendre, 200);
+  fetch("../donnees/style_carte.json").then((r) => r.json()).then((st) => { styleCarte ||= st; sale = true; planifier(); }).catch(() => {});      // les couleurs (petit fichier) tout de suite : la terre de la ville s'en sert
+  const lancer = () => { removeEventListener("scroll", lancer); chargerFondRegion(); };
+  addEventListener("scroll", lancer, { passive: true }); setTimeout(lancer, 3000);
   matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => setTimeout(construireFondRegion, 60));
 })();
 

@@ -5,7 +5,7 @@
    grille d'écoulement) et ../donnees/routes_anciennes.json (tracés schématiques).
    ===================================================================================== */
 Object.assign(LIEUX, {
-  topo: { c: [18.136, 59.3355], span: 40000, nom: "Le site, 10 km autour du centre" },
+  topo: { c: [18.082, 59.3355], span: 17000, nom: "Le site, 10 km autour du centre" },
   region: { c: [18.19, 59.45], span: 380000, nom: "Le Mälaren et la Baltique" }
 });
 
@@ -15,11 +15,24 @@ const versLocal = ([lon, lat]) => { const [x, y] = merc(lon, lat); return [x - v
 let routesAnciennes = null, limitesTopo = [17.9900701, 59.2883825, 18.1746343, 59.3826768];
 
 /* une image de l'étude Topo, posée sur son rectangle (limites en degrés, image en Mercator) */
+/* les bords de l'image s'effacent sur 5 % (une seule fois par image) : plus de rectangle net posé sur la carte */
+const imagesFondues = new WeakMap();
+function fondue(img) {
+  let c = imagesFondues.get(img); if (c) return c;
+  c = document.createElement("canvas"); c.width = img.width; c.height = img.height;
+  const g = c.getContext("2d"); g.drawImage(img, 0, 0); g.globalCompositeOperation = "destination-in";
+  for (const vertical of [false, true]) {
+    const L = vertical ? c.height : c.width, t = 0.05, gr = vertical ? g.createLinearGradient(0, 0, 0, L) : g.createLinearGradient(0, 0, L, 0);
+    gr.addColorStop(0, "rgba(0,0,0,0)"); gr.addColorStop(t, "rgba(0,0,0,1)"); gr.addColorStop(1 - t, "rgba(0,0,0,1)"); gr.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = gr; g.fillRect(0, 0, c.width, c.height);
+  }
+  imagesFondues.set(img, c); return c;
+}
 function poserImage(img, alpha = 1, mode = "source-over") {
   if (!img || !ville) return;
   const [w, s, e, n] = limitesTopo, [x0, y1] = versLocal([w, s]), [x1, y0] = versLocal([e, n]);
   cx.save(); cx.globalAlpha = alpha; cx.globalCompositeOperation = mode; cx.imageSmoothingEnabled = true;
-  cx.drawImage(img, px(x0), py(y0), px(x1) - px(x0), py(y1) - py(y0)); cx.restore();
+  cx.drawImage(fondue(img), px(x0), py(y0), px(x1) - px(x0), py(y1) - py(y0)); cx.restore();
 }
 /* géométries GeoJSON → anneaux / lignes en coordonnées de la carte (une fois) */
 function projeter(fc) {
@@ -34,7 +47,8 @@ function eauDessus(P, couleur = "#7fb6dc") {     // l'eau d'aujourd'hui par-dess
   const E = ville.eauModerne; if (!E) return;
   cx.save(); cx.fillStyle = couleur; cx.beginPath(); for (const a of E.salee.concat(E.douce)) if (dansVue(lie(a), cam)) trace(cx, a, true, cam); cx.fill("evenodd"); cx.restore();
 }
-function cadreTopo() {     // le carré de l'étude, pour situer
+function cadreTopo() {     // plus de cadre : les bords des images s'effacent d'eux-mêmes
+  return;
   const [w, s, e, n] = limitesTopo, [x0, y1] = versLocal([w, s]), [x1, y0] = versLocal([e, n]);
   cx.save(); cx.strokeStyle = "rgba(29,28,26,.55)"; cx.setLineDash([6 * dpr, 5 * dpr]); cx.lineWidth = 1.2 * dpr;
   cx.strokeRect(px(x0), py(y0), px(x1) - px(x0), py(y1) - py(y0)); cx.restore();

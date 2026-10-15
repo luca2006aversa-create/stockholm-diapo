@@ -184,6 +184,7 @@
   .axo-cadre::before { content: ""; position: absolute; inset: 0; background: var(--papier); opacity: var(--fond, 1); z-index: -1; }
   .axo-cadre > .axo-texte, .axo-cadre > .axo-scene { opacity: var(--contenu, 1); }
   .axo-cadre.cache { visibility: hidden; pointer-events: none !important; }
+  .axo-attente { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 0 12%; color: var(--discret); font: 600 14px "Segoe UI", system-ui, sans-serif; letter-spacing: .04em; }
   .diapo.axo.axo-focus .axo-cadre { grid-template-columns: 0px 1fr; }
   .diapo.axo.axo-focus .axo-texte { opacity: 0 !important; pointer-events: none; }
   .axo-note { position: absolute; left: 22px; bottom: 22px; max-width: min(420px, 60%); background: rgba(18,20,22,.8); color: #f4f1ea; border-radius: 10px;
@@ -491,7 +492,7 @@ const mediaHtml = (m) => {
   if (!m) return "";
   let h = "";
   if (m.t === "img") h = `<img src="${m.src}" alt="${m.alt || ""}" loading="lazy" decoding="async">`;
-  else if (m.t === "video") h = `<video src="${m.src}" controls muted playsinline preload="metadata"></video>`;
+  else if (m.t === "video") h = `<video src="${m.src}" controls muted playsinline preload="none"></video>`;
   else h = `<div class="a-venir"><div><b>À venir</b>${m.note || ""}</div></div>`;
   const l = m.legende ? `<div class="legende">${m.legende}</div>` : "";
   return `<div class="media"><figure>${h}${l}</figure></div>`;
@@ -510,7 +511,7 @@ DIAPOS.forEach((d, i) => {
     s.className = "diapo axo";
     s.innerHTML = `<div class="axo-cadre cache"><div class="axo-texte">${d.rubrique ? `<p class="kicker">${d.rubrique}</p>` : ""}<h2>${d.titre}</h2>
       <p class="axo-intro">${d.intro || ""}</p><ol class="axo-liste"></ol><p class="axo-source legende"></p></div>
-      <div class="axo-scene"><div class="axo-pile"></div></div></div>`;
+      <div class="axo-scene"><div class="axo-attente">Chargement de la vue 3D…</div></div></div>`;
     main.appendChild(s); return;
   }
   if (d.grand) {
