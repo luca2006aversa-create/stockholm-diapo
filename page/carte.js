@@ -52,35 +52,58 @@ const borne01 = (t) => Math.max(0, Math.min(1, t));
 const bornes = (f) => { let a = 1e9, b = 1e9, c = -1e9, d = -1e9; for (let i = 0; i < f.length; i += 2) { if (f[i] < a) a = f[i]; if (f[i] > c) c = f[i]; if (f[i + 1] < b) b = f[i + 1]; if (f[i + 1] > d) d = f[i + 1]; } return [a, b, c, d]; };
 const lie = (a) => (a.bb ||= bornes(a));
 
-/* Une rue qui n'est pas un axe principal ne naît qu'à côté d'un bâtiment : chaque rue est découpée en tronçons d'environ 40 m, et un tronçon
-   n'apparaît que lorsqu'un bâtiment existe à moins de 30 m (à sa date moins 3 ans). Les axes principaux (C.axes), les rues placées à la main
-   par zone et tout ce qui est postérieur à 1950 gardent leur date. Un tronçon sans bâtiment voisin attend 1960 (voirie technique, desserte). */
-const ELAGAGE = { fin: 1950, rayon: 30, pas: 40, sans: 1960 };
+/* Rues de l'histoire : (1) une rue qui n'est pas un axe principal ne naît qu'à côté d'un bâtiment : chaque rue est découpée en tronçons d'environ
+   40 m, et un tronçon n'apparaît que lorsqu'un bâtiment existe à moins de 30 m (à sa date moins 3 ans) ; un tronçon sans bâtiment voisin attend 1960.
+   Les axes principaux (C.axes) gardent leur date. (2) Avant 1900 les rues sont SIMPLIFIÉES : un seul trait par rue (les voies parallèles d'une
+   même chaussée, les ronds-points et les petites bretelles de la carte actuelle disparaissent) ; un croisement n'est que deux rues qui se croisent.
+   Les rues placées à la main par zone et tout ce qui est postérieur à 1950 ne changent pas. */
+const ELAGAGE = { fin: 1950, rayon: 30, pas: 40, sans: 1960, simple: 1900, parallele: 16, parallele_petite: 6 };      // distances (m) en dessous desquelles deux tronçons parallèles sont la même rue
 function elaguerRues(liste, objets, C) {
   const E = 1.96, RAY = ELAGAGE.rayon * E, PAS = ELAGAGE.pas * E, CELL = 150, G = new Map(), axes = new Set(C?.axes || []);
   const poser = (o) => { if (o.g !== "bati" || o.k !== "poly" || !o.f?.length) return; const [x, y] = centreBoite(o.f), k = Math.floor(x / CELL) + "," + Math.floor(y / CELL); (G.get(k) || G.set(k, []).get(k)).push([x, y, o.an]); };
   for (const o of objets) poser(o); for (const o of liste) poser(o);
   const proche = (x, y) => { let m = 1e9; for (let gx = Math.floor((x - RAY) / CELL); gx <= Math.floor((x + RAY) / CELL); gx++) for (let gy = Math.floor((y - RAY) / CELL); gy <= Math.floor((y + RAY) / CELL); gy++) { const g = G.get(gx + "," + gy); if (g) for (const b of g) if (b[2] < m && Math.hypot(b[0] - x, b[1] - y) < RAY) m = b[2]; } return m; };
-  const sortie = [];
+  const sortie = [], pieces = [];
   for (const o of liste) {
-    if (o.g !== "voirie" || o.trim === undefined || o.an >= ELAGAGE.fin || axes.has(o.trim)) { sortie.push(o); continue; }
-    const groupes = new Map();
+    if (o.g !== "voirie" || o.trim === undefined || o.an >= ELAGAGE.fin) { sortie.push(o); continue; }
+    const axe = axes.has(o.trim);
     for (const f of o.f) {
       let debut = 0, len = 0;
       for (let k = 2; k <= f.length; k += 2) {
         if (k < f.length) len += Math.hypot(f[k] - f[k - 2], f[k + 1] - f[k - 1]);
         if (len >= PAS || k === f.length) {
           if (len > 0) {
-            const xa = f[debut], ya = f[debut + 1], xb = f[k - 2], yb = f[k - 1], m = Math.min(proche(xa, ya), proche((xa + xb) / 2, (ya + yb) / 2), proche(xb, yb));
-            const an = m < 1e9 ? Math.max(o.an, m - 3) : Math.max(o.an, ELAGAGE.sans), cle = Math.round(an);
-            (groupes.get(cle) || groupes.set(cle, []).get(cle)).push(f.slice(debut, k));
+            const xa = f[debut], ya = f[debut + 1], xb = f[k - 2], yb = f[k - 1];
+            const m = axe ? 1e9 : Math.min(proche(xa, ya), proche((xa + xb) / 2, (ya + yb) / 2), proche(xb, yb));
+            const an = axe ? o.an : m < 1e9 ? Math.max(o.an, m - 3) : Math.max(o.an, ELAGAGE.sans);
+            pieces.push({ o, an: Math.round(an), f: f.slice(debut, k), len, mx: (xa + xb) / 2, my: (ya + yb) / 2, ang: Math.atan2(yb - ya, xb - xa), w: o.w || 1 });
           }
           debut = k - 2; len = 0;
         }
       }
     }
-    for (const [an, fs_] of groupes) sortie.push({ ...o, an, f: fs_, trim: undefined });
   }
+  /* simplification avant 1900 : on garde, parmi des tronçons presque superposés et parallèles, le plus important (puis le plus ancien) */
+  const gardes = new Map(), PARG = ELAGAGE.parallele * E, CP = 80;
+  pieces.sort((p, q) => q.w - p.w || p.an - q.an);
+  const finaux = [];
+  for (const p of pieces) {
+    if (p.an < ELAGAGE.simple) {
+      const f = p.f, boucle = f.length >= 8 && Math.hypot(f[0] - f[f.length - 2], f[1] - f[f.length - 1]) < 6, bb = lie(f), diag = Math.hypot(bb[2] - bb[0], bb[3] - bb[1]);
+      if (boucle && diag < 90 * E) continue;                                  // rond-point, boucle de bretelle
+      let double = false; const PAR = (p.w >= 2 ? ELAGAGE.parallele : ELAGAGE.parallele_petite) * E;
+      for (let gx = Math.floor((p.mx - PAR) / CP); gx <= Math.floor((p.mx + PAR) / CP) && !double; gx++) for (let gy = Math.floor((p.my - PAR) / CP); gy <= Math.floor((p.my + PAR) / CP) && !double; gy++) {
+        const g = gardes.get(gx + "," + gy); if (!g) continue;
+        for (const q of g) { let d = Math.abs(q.ang - p.ang) % Math.PI; if (d > Math.PI / 2) d = Math.PI - d; if (d < 0.32 && Math.hypot(q.mx - p.mx, q.my - p.my) < PAR) { double = true; break; } }
+      }
+      if (double) continue;
+      const k = Math.floor(p.mx / CP) + "," + Math.floor(p.my / CP); (gardes.get(k) || gardes.set(k, []).get(k)).push(p);
+    }
+    finaux.push(p);
+  }
+  const groupes = new Map();
+  for (const p of finaux) { const cle = p.o.trim + "|" + p.an; let g = groupes.get(cle); if (!g) groupes.set(cle, g = { o: p.o, an: p.an, f: [] }); g.f.push(p.f); }
+  for (const g of groupes.values()) sortie.push({ ...g.o, an: g.an, f: g.f, trim: undefined });
   return sortie;
 }
 /* ---- lissage des contours : la mer d'autrefois sort d'une grille de pixels (marches d'escalier) ---- */
@@ -456,7 +479,7 @@ function empiler(lots, o, pal, k, dim, span) {
   const age = an - o.an, t = Math.min(1, Math.round(age / 30 * 8) / 8), coul = o.couleur || (pal[o.g] || pal.bati);
   let col = typeof coul === "string" ? coul : t < 1 ? mixer(coul[1], coul[0], t) : coul[0];
   if (brule >= 0) col = mixer(o.demoli ? "#b9a48c" : "#e0301c", sombre() ? "#4a3a36" : "#6b5a52", Math.round(Math.min(1, brule / 20) * 8) / 8);
-  const al = (dim && !dim.has(o.g) ? 0.22 : 1) * (brule >= 0 ? Math.max(0.15, 1 - brule / 22) : 1), lw = o.k === "ligne" ? Math.max(0.6 * dpr, (o.w || 1) * 0.55 * k * (o.g === "lignes" ? 1.3 : 1)) : 0;
+  const al = (dim && !dim.has(o.g) ? 0.22 : 1) * (brule >= 0 ? Math.max(0.15, 1 - brule / 22) : 1), lw = o.k === "ligne" ? Math.max(0.6 * dpr, (o.w || 1) * 0.55 * k * (o.g === "lignes" ? 1.3 : 1) * (o.g === "voirie" && o.an < 1900 ? 1.8 : 1)) : 0;      // avant 1900 : un trait simple, un peu plus net
   const cle = `${o.k}|${col}|${al}|${lw.toFixed(1)}|${o.tunnel ? 1 : 0}`;
   let l = lots.get(cle); if (!l) lots.set(cle, l = { k: o.k, col, al, lw, tunnel: !!o.tunnel, liste: [] });
   l.liste.push(o);
@@ -693,12 +716,16 @@ function appliquerQuartiers() {
   /* sans zone ni date donnée à la main : la date de la croissance reconstituée (outils/preparer_donnees.py :
      propagation le long des rues depuis Stadsholmen et les objets datés, bornée par la croissance satellitaire) */
   const C = ville.croissance;
+  /* îlots (extraits du plan de 1900, outils/extraire_ilots.py) : tous les bâtiments d'un îlot naissent à la date du premier bâtiment de l'îlot,
+     tels qu'ils sont sur la carte actuelle : plus de carrés isolés qui surgissent un à un au milieu d'un bloc */
+  const ilotAn = new Map(), IL = ville.ilots?.bati;
+  if (IL && C?.bati) IL.forEach((k, i) => { if (k >= 0 && C.bati[i] != null) ilotAn.set(k, Math.min(ilotAn.get(k) ?? 1e9, C.bati[i])); });
   ville.bati0.forEach((f, i) => {
     const [x, y] = centreBoite(f), fo = forces.get(f);
     if (fo) { nouveaux.push({ g: "bati", k: "poly", an: fo.an, fin: fo.fin ?? undefined, brule: fo.fin != null, f }); return; }
     const z = zoneDe(x, y);
     if (z && !z.tout) naissance(z, x, y, f);
-    else if (C?.bati?.[i] != null) nouveaux.push({ g: "bati", k: "poly", an: C.bati[i], f });
+    else if (C?.bati?.[i] != null) nouveaux.push({ g: "bati", k: "poly", an: IL && IL[i] >= 0 ? ilotAn.get(IL[i]) : C.bati[i], f });
     else if (z) naissance(z, x, y, f); else resteB.push(f);
   });
   ville.rues0.forEach((r, i) => {
@@ -910,10 +937,11 @@ Promise.all([
   fetch("../donnees/eau.json").then((r) => r.ok ? r.json() : null).catch(() => null),
   fetch("../donnees/croissance.json").then((r) => r.ok ? r.json() : null).catch(() => null),
   fetch("../donnees/zones_evenements.json").then((r) => r.ok ? r.json() : null).catch(() => null),
-  fetch("../donnees/attributs_bati.json").then((r) => r.ok ? r.json() : null).catch(() => null)
-]).then(([v, eu, q, eau, croissance, zev, attrs]) => {
+  fetch("../donnees/attributs_bati.json").then((r) => r.ok ? r.json() : null).catch(() => null),
+  fetch("../donnees/ilots.json").then((r) => r.ok ? r.json() : null).catch(() => null)
+]).then(([v, eu, q, eau, croissance, zev, attrs, ilots]) => {
   ville = v;
-  ville.eauModerne = eau; ville.croissance = croissance; ville.zonesEv = zev?.zones || [];
+  ville.eauModerne = eau; ville.croissance = croissance; ville.zonesEv = zev?.zones || []; ville.ilots = ilots;
   /* population, hauteur et type de chaque bâtiment (cartes d'analyse) */
   if (attrs) { ville.objets.forEach((o, i) => { if (attrs.objets[i]) o.att = attrs.objets[i]; }); ville.attParF = new Map(ville.fond.bati.map((f, i) => [f, attrs.bati[i]])); }
   if (eau) eau.salee = eau.salee.map((a) => lisserAnneau(a, 2, 2));      // l'eau vue par satellite sort d'une grille de 30 m : on adoucit les marches
