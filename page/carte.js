@@ -44,7 +44,8 @@ const cv = document.getElementById("carte"), cx = cv.getContext("2d");
 const elAn = document.getElementById("an-affiche"), elLieu = document.getElementById("an-lieu"), elCurseur = document.getElementById("an-curseur");
 const elLecture = document.getElementById("an-lecture"), elNote = document.getElementById("an-note");
 let ville = null, europe = null, fondCache = null, sale = true, an = ANNEE_MIN, cam = { x: 0, y: 0, span: 6200000 }, libre = false, lecture = false, dpr = 1;
-let dprMax = 2, lentes = 0;       // résolution maximale : baisse d'un cran si les images sont trop longues à dessiner (tablette, vieux portable)
+const PETIT_ECRAN = matchMedia("(max-width: 820px)").matches || (navigator.deviceMemory && navigator.deviceMemory <= 4) || false;      // téléphone ou appareil modeste : moins de pixels
+let dprMax = PETIT_ECRAN ? 1.25 : 2, lentes = 0;       // résolution maximale : baisse d'un cran si les images sont trop longues à dessiner (tablette, vieux portable)
 let quartiers = { zones: [], batiments: [], dates: [], tout: null }, edition = false;
 const mqSombre = matchMedia("(prefers-color-scheme: dark)"), sombre = () => mqSombre.matches;     // l'objet est créé une fois
 const lisse = (t) => t * t * (3 - 2 * t);
@@ -324,7 +325,7 @@ const palette = () => sombre()
   : { terre: "#efe9db", mer: "#6ea8cf", eau: "#7fb2d0", eauSalee: "#6ea8cf", eauDouce: "#86bddb", fantomeRue: "#bdb5a2", fantomeBati: "#d4ccba", vert: "#d3dec0", pays: "#e3ddcf", suede: "#a99478", frontiere: "#c4bba6", texte: "#1d1c1a" };
 
 /* Le fond actuel (rues, bâti, vert) est lourd : dessiné une fois par vue puis déplacé pendant le mouvement. */
-function dessinerFond(cm, c = null, k = null) {
+function dessinerFond(cm, c = null, k = null, leger = false) {
   if (!c) { c = document.createElement("canvas"); c.width = cv.width; c.height = cv.height; }
   const g = c.getContext("2d"), P = palette(), S = c.width / cm.span;
   k ??= Math.max(0.5, Math.min(2.4, Math.sqrt(30000 / cm.span))) * dpr;
@@ -335,7 +336,7 @@ function dessinerFond(cm, c = null, k = null) {
   for (const f of ville.fond.bati) for (const a of f) { const b = lie(a); if (dansVue(b, cm, c) && (b[2] - b[0]) * S > 0.6) trace(g, a, true, cm); }
   g.fill();
   g.strokeStyle = P.fantomeRue; g.lineJoin = g.lineCap = "round";
-  for (const w of [1, 2, 3, 4]) {
+  for (const w of leger ? [2, 3, 4] : [1, 2, 3, 4]) {      // léger (fond global sur téléphone) : sans les 41 000 petites rues, invisibles à cette échelle
     g.lineWidth = w * 0.55 * k; g.beginPath();
     for (const r of ville.fond.rues) if (Math.min(4, Math.max(1, Math.round(r.w))) === w) for (const a of r.f) if (dansVue(lie(a), cm, c)) trace(g, a, false, cm);
     g.stroke();
@@ -345,16 +346,27 @@ function dessinerFond(cm, c = null, k = null) {
 /* Le fond de TOUTE la zone, dessiné une fois (≈ 1 à 3 s, pendant l'ouverture) dans une grande image : aux échelles larges on
    ne fait plus que la poser, au lieu de redessiner 45 000 rues à chaque arrêt du défilement (c'était la saccade). */
 let fondGlobal = null;
+let numeroFond = 0;
 function preparerFondGlobal() {
   if (!ville?.zone?.length) return;
   let b = [1e12, 1e12, -1e12, -1e12];
   for (const a of ville.zone) { const z = lie(a); b = [Math.min(b[0], z[0]), Math.min(b[1], z[1]), Math.max(b[2], z[2]), Math.max(b[3], z[3])]; }
-  const W = 4096, larg = b[2] - b[0], H = Math.round(W * (b[3] - b[1]) / larg), c = document.createElement("canvas"); c.width = W; c.height = H;
+  const W = PETIT_ECRAN ? 2048 : 4096, larg = b[2] - b[0], H = Math.round(W * (b[3] - b[1]) / larg), c = document.createElement("canvas"); c.width = W; c.height = H;
   const cm = { x: (b[0] + b[2]) / 2, y: (b[1] + b[3]) / 2, span: larg };
   /* largeur des traits : celle qu'ils auraient sur l'écran à la vue « tout », ramenée à l'échelle de l'image */
   const ref = LIEUX.tout.span, k = Math.max(0.5, Math.min(2.4, Math.sqrt(30000 / ref))) * dpr * (W / larg) / (innerWidth * dpr / ref);
-  fondGlobal = dessinerFond(cm, c, Math.max(0.35, k));
-  sale = true; planifier();
+  const kk = Math.max(0.35, k);
+  if (!PETIT_ECRAN) { fondGlobal = dessinerFond(cm, c, kk); sale = true; planifier(); return; }
+  /* téléphone : le fond est dessiné par étapes (verdure, bâtiments par tranches, rues) avec une pause entre chaque, pour ne jamais figer l'écran plus de quelques dizaines de ms */
+  const g = c.getContext("2d"), P = palette(), S = c.width / cm.span, pause = () => new Promise((r) => setTimeout(r, 16)), id = ++numeroFond;
+  (async () => {
+    g.fillStyle = P.vert; g.beginPath(); for (const v of ville.fond.vert) for (const a of v) if (dansVue(lie(a), cm, c)) trace(g, a, true, cm); g.fill(); await pause();
+    g.fillStyle = P.fantomeBati; const bati = ville.fond.bati, T = 3500;
+    for (let i = 0; i < bati.length; i += T) { if (id !== numeroFond) return; g.beginPath(); for (let j = i; j < Math.min(bati.length, i + T); j++) for (const a of bati[j]) { const bb = lie(a); if (dansVue(bb, cm, c) && (bb[2] - bb[0]) * S > 1.1) trace(g, a, true, cm); } g.fill(); await pause(); }
+    g.strokeStyle = P.fantomeRue; g.lineJoin = g.lineCap = "round";
+    for (const w of [2, 3, 4]) { if (id !== numeroFond) return; g.lineWidth = w * 0.55 * kk; g.beginPath(); for (const r of ville.fond.rues) if (Math.min(4, Math.max(1, Math.round(r.w))) === w) for (const a of r.f) if (dansVue(lie(a), cm, c)) trace(g, a, false, cm); g.stroke(); await pause(); }
+    if (id !== numeroFond) return; fondGlobal = { c, cm: { ...cm } }; sale = true; planifier();
+  })();
 }
 function poserFondGlobal(alpha) {
   const f = fondGlobal, S = cv.width / cam.span, X = px(f.cm.x - f.cm.span / 2), Y = py(f.cm.y + f.cm.span / 2 * f.c.height / f.c.width);

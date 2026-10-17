@@ -13,8 +13,9 @@ function construireFondRegion() {
     const im = new Image(); im.onload = () => { fondRegion.charge = false; fondRegion.img = im; construireFondRegion(); }; im.src = "../donnees/fond/sol_region.png"; return;
   }
   const st = styleCarte[sombre() ? "sombre" : "clair"], { meta, img, eau } = fondRegion;
-  const W = meta.largeur, H = meta.hauteur, c = document.createElement("canvas"); c.width = W; c.height = H;
-  const g = c.getContext("2d", { willReadFrequently: true }); g.drawImage(img, 0, 0);
+  /* téléphone : le fond est construit à demi-résolution (4 fois moins de pixels : mémoire, temps, chauffe) ; réduction au plus proche voisin pour garder les codes de classe */
+  const f = typeof PETIT_ECRAN !== "undefined" && PETIT_ECRAN ? 0.5 : 1, W = Math.round(meta.largeur * f), H = Math.round(meta.hauteur * f), c = document.createElement("canvas"); c.width = W; c.height = H;
+  const g = c.getContext("2d", { willReadFrequently: true }); g.imageSmoothingEnabled = false; g.drawImage(img, 0, 0, W, H);
   const d = g.getImageData(0, 0, W, H), src = d.data, out = new Uint32Array(src.length >> 2), rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
   const pack = (r) => (255 << 24) | (r[2] << 16) | (r[1] << 8) | r[0];          // petit-boutiste : ABGR
   const lut = new Uint32Array(256), terre = pack(rgb(st.terre)), mer = pack(rgb(st.eauSalee)); lut.fill(terre);
@@ -23,7 +24,7 @@ function construireFondRegion() {
   for (let i = 0, n = out.length; i < n; i++) out[i] = lut[src[i << 2]];
   g.putImageData(new ImageData(new Uint8ClampedArray(out.buffer), W, H), 0, 0);
   /* l'occupation du sol est en carrés de 147 m : adoucie, elle ne fait plus de blocs ; l'eau (vecteur) est tracée nette ensuite */
-  { const t = document.createElement("canvas"); t.width = W; t.height = H; const h = t.getContext("2d"); h.filter = "blur(3px)"; h.drawImage(c, 0, 0); g.clearRect(0, 0, W, H); g.drawImage(t, 0, 0); }
+  if (f === 1) { const t = document.createElement("canvas"); t.width = W; t.height = H; const h = t.getContext("2d"); h.filter = "blur(3px)"; h.drawImage(c, 0, 0); g.clearRect(0, 0, W, H); g.drawImage(t, 0, 0); }
   /* l'eau : les contours JRC, salée puis douce, par-dessus (bords nets, couleurs distinctes) */
   const [x0, y0, x1, y1] = meta.limites_merc, S = W / (x1 - x0), tr = (a) => { for (let i = 0; i < a.length; i += 2) { const X = (a[i] - x0) * S, Y = (y1 - a[i + 1]) * S; i ? g.lineTo(X, Y) : g.moveTo(X, Y); } g.closePath(); };
   g.fillStyle = st.eauSalee; g.beginPath(); for (const a of eau.salee) tr(a); g.fill("evenodd");
