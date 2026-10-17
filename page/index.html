@@ -308,7 +308,40 @@
   @media print { .barre, .progres, .pied-diapo { display: none; } .diapo { min-height: 0; break-inside: avoid; } .texte, .media { opacity: 1 !important; transform: none !important; } }
   .barre .b-lien { color: inherit; text-decoration: none; border: 1px solid var(--trait); border-radius: 18px; padding: 6px 13px; font: 13px "Segoe UI", system-ui, sans-serif; white-space: nowrap; }
   .barre .b-lien:hover { border-color: var(--accent); color: var(--accent); }
-  @media (max-width: 720px) { .barre .b-lien { display: none; } }
+  /* ================= TÉLÉPHONE (écran étroit) : la carte en haut, le texte dessous, une barre qu'on fait glisser ================= */
+  @media (max-width: 820px) {
+    html { -webkit-text-size-adjust: 100%; }
+    .barre { gap: 6px; padding: 6px 10px; overflow-x: auto; scrollbar-width: none; white-space: nowrap; }
+    .barre::-webkit-scrollbar { display: none; }
+    .barre b { font-size: 12px; } .barre button, .barre .b-lien { padding: 5px 10px !important; font-size: 12px !important; flex: none; }
+    .barre .b-lien { display: inline-block !important; }
+    body:not(.diaporama) .diapo, body:not(.diaporama) .diapo.titre, body:not(.diaporama) .diapo.grand, body:not(.diaporama) .diapo.carte-chapitre { margin-left: 0 !important; }
+    body:not(.diaporama) .diapo { padding: 26px 18px 34px; gap: 14px; }
+    .diapo h2 { font-size: clamp(1.5rem, 7vw, 2rem); } .diapo .texte { font-size: 16px; }
+    .diapo.titre h1 { font-size: clamp(2rem, 10vw, 2.8rem) !important; }
+    .media img, .media video { max-height: 44vh !important; width: 100%; object-fit: contain; }
+    .chiffres { flex-wrap: wrap; gap: 14px; }
+    /* la carte : plus basse, ses boutons plus petits, pas d'éditeur ni de note */
+    #carte-bloc { touch-action: pan-y; }
+    #an-editer, #an-note, .an-lieu { display: none !important; }
+    .an-affiche { font-size: 2.1rem !important; left: 12px; bottom: 56px; }
+    .an-barre { left: 8px; right: 8px; bottom: 8px; gap: 8px; } .an-barre button { width: 30px; height: 30px; }
+    .an-evenement { left: 8px !important; right: 8px !important; top: 8px !important; max-width: none !important; font-size: 12px !important; padding: 6px 10px !important; }
+    .legende-carte { font-size: 10px !important; max-width: 70vw; }
+    /* les cartes plein écran : l'encart passe sous la carte, sans fond de verre */
+    .encart { position: static !important; width: auto !important; max-width: none !important; margin: 0 12px !important; max-height: none !important; }
+    body:not(.diaporama) .diapo.carte-chapitre { height: auto !important; min-height: 80vh; padding-top: 18px; }
+    /* le diaporama : la carte en haut (34 % de l'écran), la diapo dessous, qui défile si besoin */
+    body.diaporama #carte-bloc, body.diaporama.plein-carte #carte-bloc { top: 44px; left: 0; width: 100vw; height: 34vh; }
+    body.diaporama .diapo.courante:not(.grand):not(.axo):not(.carte-chapitre) { margin: calc(34vh + 44px) 0 0 0 !important; height: calc(100vh - 34vh - 44px - 38px) !important; min-height: 0; padding: 14px 16px 20px; overflow-y: auto; align-content: start; }
+    body.diaporama .diapo.courante.carte-chapitre { margin-top: calc(34vh + 44px); height: calc(100vh - 34vh - 44px - 38px) !important; overflow-y: auto; }
+    body.diaporama .diapo.courante.grand, body.diaporama .diapo.courante.axo { margin-top: 44px; height: calc(100vh - 44px - 38px) !important; }
+    body.diaporama .diapo.titre.courante { align-content: center; }
+    body.diaporama .texte { font-size: 16px; }
+    body.diaporama .diapo.courante h2 { font-size: 1.45rem; }
+    .pied-diapo span:last-child { display: none; } .pied-diapo { padding: 8px 14px; }
+    .axo-cadre { grid-template-columns: 1fr; grid-template-rows: auto 1fr; } .axo-texte { max-height: 38vh; }
+  }
 </style>
 </head>
 <body>
