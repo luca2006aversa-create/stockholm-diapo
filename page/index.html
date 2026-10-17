@@ -164,6 +164,11 @@
   .diapo.arret .annee { color: rgb(var(--arret)); font-weight: 800; font-size: clamp(1.1rem, 2vw, 1.6rem); letter-spacing: .02em; }
   .diapo.arret .annee::before { content: "● "; }
   .diapo.arret h2 { font-size: clamp(1.7rem, 3.2vw, 2.6rem); }
+  body:not(.diaporama) .diapo.arret { padding-top: clamp(14px, 4vh, 40px); padding-bottom: clamp(14px, 4vh, 40px); gap: 12px; }
+  .diapo.arret .texte p { margin: 0 0 .45em; font-size: .86em; line-height: 1.4; }
+  .diapo.arret:has(.media) h2 { font-size: clamp(1.4rem, 2.3vw, 1.9rem); margin-bottom: .3em; }
+  .diapo.arret .media img { max-height: 30vh !important; width: 100%; object-fit: contain; background: #fff; border-radius: 4px; }
+  .diapo.arret .media figcaption, .diapo.arret .media .legende { font-size: 12px; }
   .arret-lieu { color: var(--discret); font-weight: 600; margin-top: 0; }
   body.diaporama .diapo.grand { display: none; }
   body.diaporama .diapo.grand.courante { display: block; height: 100vh !important; padding: 0; }
@@ -514,10 +519,11 @@ const DIAPOS = [
   { id: "promenade", carte: { theme: "promenade", vue: "promenade", an: [2026, 2026] }, rubrique: "III · La ville aujourd'hui", titre: "Une promenade dans Gamla Stan",
     texte: ["<p>Un point avance dans les rues de Gamla Stan (environ 1 km) ; la zone orange est ce qu'on voit depuis lui à hauteur d'yeux, jusqu'au premier mur.</p><p>Dans les ruelles, la vue se resserre ; sur une place ou au bord de l'eau, elle s'ouvre d'un coup : c'est la « vision sérielle » des urbanistes, une succession de resserrements et d'ouvertures. La surface vue est calculée en continu et affichée sur la carte.</p>"] },
 
-  { id: "cas", rubrique: "III · Analyse morphologique", titre: "Deux études de cas : Gamla Stan et Hammarby Sjöstad",
-    texte: ["<ul><li><b>Gamla Stan</b> — 39 % d'emprise bâtie, 471 carrefours par km², îlot médian 1 870 m².</li>",
-            "<li><b>Hammarby Sjöstad</b> — 23 % d'emprise bâtie, 135 carrefours par km², îlot médian 7 110 m².</li></ul>",
-            "<p>Même échelle, deux logiques : le tissu serré du Moyen Âge, l'îlot ouvert et planifié de la fin du XXe.</p>"] },
+  { id: "cas-gamla", rubrique: "III · Analyse morphologique", titre: "Étude de cas 1 : Gamla Stan",
+    texte: ["<p>Le noyau médiéval, à l'échelle de 2 km : le tissu le plus serré de la ville.</p><ul><li><b>39 %</b> d'emprise bâtie</li><li><b>471</b> carrefours par km²</li><li>îlot médian : <b>1 870 m²</b></li></ul><p>Ruelles étroites, îlots petits et fermés, peu de place pour la voiture.</p>"] },
+
+  { id: "cas-hammarby", rubrique: "III · Analyse morphologique", titre: "Étude de cas 2 : Hammarby Sjöstad",
+    texte: ["<p>Un ancien port industriel reconverti depuis les années 1990, à la même échelle.</p><ul><li><b>23 %</b> d'emprise bâtie</li><li><b>135</b> carrefours par km²</li><li>îlot médian : <b>7 110 m²</b></li></ul><p>Grands îlots ouverts, larges rues, espaces verts et eau : la ville planifiée.</p>"] },
 
   { id: "trois-periodes", grand: true, rubrique: "IV · Synthèse et conclusion", titre: "Comparaison de trois périodes : 1600, 1900, 2020",
     image: C + "23_frise_1600_1900_2020.png", alt: "Comparaison 1600 / 1900 / 2020",

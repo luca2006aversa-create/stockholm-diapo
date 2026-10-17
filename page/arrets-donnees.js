@@ -46,7 +46,8 @@ function arretsEnDiapos() {
     const arret = { id: "bat-" + i, type: "batiment", nature: "batiment", an: b.an, c: b.c, span: b.span || 1000, nom: b.nom };
     const parts = (b.texte || "").split("</p><p>"), court = parts.length >= 3 ? parts[0] + "</p><p>" + parts[parts.length - 1] : b.texte || "";
     const carte = { id: "bat-" + i, arret, rubrique: RUBRIQUE_HISTOIRE, annee: String(b.an), titre: b.nom, texte: [`<p class="arret-lieu">${b.adresse || ""}</p>`, `<p>${b.texte || ""}</p>`, ...(b.dessin ? ["<p><i>Le dessin en grand, à la page suivante.</i></p>"] : [])] };
-    liste.push({ an: b.an, ordre: 1, diapos: b.dessin ? [carte, { id: "bat-" + i + "-dessin", grand: true, fixe: true, rubrique: RUBRIQUE_HISTOIRE, titre: `${b.nom} — ${b.an}`, image: b.dessin, alt: `Dessin : ${b.nom}`, legende: court }] : [carte] });
+    if (b.dessin) { carte.media = { t: "img", src: b.dessin, alt: `Dessin : ${b.nom}`, legende: (/.(png)$/.test(b.dessin) ? "Dessin d'architecture — " : "Photos — ") + b.nom }; carte.texte = [`<p class="arret-lieu">${b.adresse || ""}</p>`, `<p>${court}</p>`]; }
+    liste.push({ an: b.an, ordre: 1, diapos: [carte] });
   });
   return liste.sort((p, q) => p.an - q.an || p.ordre - q.ordre);
 }

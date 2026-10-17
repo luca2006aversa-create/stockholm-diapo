@@ -82,7 +82,6 @@ const THEMES_CARTE = {
       const k = kEchelle(), par = { 1: [], 2: [], 3: [], 4: [] }, ponts = [];
       for (const o of ville.objets) { if (o.an > an) break; if (o.k !== "ligne") continue; if (o.g === "ponts") ponts.push(o); else if (o.g === "voirie") par[Math.min(4, Math.max(1, Math.round(o.w || 1)))].push(o); }
       traits(par[1], "#9e9a8e", 0.6 * k); traits(par[2], "#e9c46a", 1.1 * k); traits(par[3], "#e67e22", 1.7 * k); traits(par[4], "#c0392b", 2.4 * k); traits(ponts, sombre() ? "#f4f1ea" : "#1d1c1a", 2.8 * k);
-      ruesHistoriques(P, k);
     }
   },
   transports: {

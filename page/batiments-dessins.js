@@ -96,7 +96,7 @@ BATIMENTS.push(...[
    18.0047,
    59.3244
   ],
-  "texte": "<b>XXe-XXIe siècles · modernisme et architecture résidentielle contemporaine.</b> Lilla Essingen était une île industrielle, marquée notamment par les usines d'Electrolux. À partir de la fin du XXe siècle, plusieurs anciens terrains industriels sont reconvertis en logements.</p><p>Il s'agit d'adapter d'anciens espaces industriels à la croissance urbaine : on passe d'une ville productive, liée aux usines et aux quais, à une ville résidentielle qui valorise son front d'eau. À remarquer : balcons et ouvertures répétitives, volumes géométriques, façades claires, relation entre bâtiments, quais et eau.</p><p><i>À retenir : l'eau, autrefois essentielle au transport industriel, devient un élément du cadre de vie.</i>",
-  "dessin": ""
+  "texte": "<b>XXe-XXIe siècles · modernisme et architecture résidentielle contemporaine.</b> Lilla Essingen était une île industrielle, marquée notamment par les usines d'Electrolux. À partir de la fin du XXe siècle, plusieurs anciens terrains industriels sont reconvertis en logements.</p><p>Il s'agit d'adapter d'anciens espaces industriels à la croissance urbaine : on passe d'une ville productive, liée aux usines et aux quais, à une ville résidentielle qui valorise son front d'eau. À remarquer : balcons et ouvertures répétitives, volumes géométriques, façades claires, relation entre bâtiments, quais et eau.</p><p><i>À retenir : l'eau, autrefois essentielle au transport industriel, devient un élément du cadre de vie.</i><br><small>Photos : Arild Vågen (CC BY-SA 4.0), Holger.Ellgaard (CC BY-SA 3.0), Wikimedia Commons.</small>",
+  "dessin": "../images/batiments/lilla-essingen.jpg"
  }
 ]);

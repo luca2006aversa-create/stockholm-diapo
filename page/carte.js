@@ -27,7 +27,7 @@ const SCENES = {
   vasa: { an: 1520, vue: "gamla" }, xvii: { an: 1660, vue: "centre" }, xviii: { an: 1790, vue: "centre" }, xix: { an: 1850, vue: "centre" },
   "xx-debut": { an: 1925, vue: "centre" }, folkhemmet: { an: 1955, vue: "tout", th: "transports" },
   transports: { an: 2026, vue: "tout", th: "transports" }, norrmalm: { an: 1968, vue: "norrmalm" }, million: { an: 1975, vue: "tout" },
-  aujourdhui: { an: 2005, vue: "hammarby" }, limites: { an: 2026, vue: "tout" }, animation: { an: 2026, vue: "tout" }
+  aujourdhui: { an: 2005, vue: "hammarby" }, limites: { an: 2026, vue: "tout" }, "cas-gamla": { an: 2026, vue: "gamla" }, "cas-hammarby": { an: 2026, vue: "hammarby" }, animation: { an: 2026, vue: "tout" }
 };
 const GROUPES = {   /* [couleur ancienne, couleur neuve] */
   bati: ["#8a6a58", "#e0572b"], voirie: ["#8a8372", "#c8572a"], ponts: ["#3a3631", "#e0572b"], lignes: ["#2f6f8f", "#e0572b"],
