@@ -1,5 +1,17 @@
 [
  {
+  "an": 1750,
+  "titre": "Carte de Biurman, « Charta öfwer Stockholms stads belägenhet »",
+  "image": "../donnees/cartes/plan-1750.webp",
+  "bornes": [
+   17.86523,
+   59.24489,
+   18.25049,
+   59.42203
+  ],
+  "source": "Georg Biurman, 1750-1751, domaine public (Kungliga biblioteket, via Wikimedia Commons) ; calée automatiquement sur l'eau actuelle"
+ },
+ {
   "an": 1900,
   "titre": "Plan de Stockholm vers 1900 (1:15 000)",
   "image": "../donnees/cartes/plan-1900.webp",
